@@ -1,11 +1,10 @@
-package com.example.onlinechess;
+package com.lukaswillsie.onlinechess;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 
 public class LoginActivity extends AppCompatActivity {
     private boolean progressOn = true;
