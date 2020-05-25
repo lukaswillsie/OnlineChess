@@ -1,0 +1,7 @@
+<resources>
+    <string name="username_prompt">Username</string>
+    <string name="password_prompt">Password</string>
+    <string name="no_account_prompt">Don\'t have an account?</string>
+    <string name="app_name">Chess!</string>
+    <string name="login_button">Login</string>
+</resources>
