@@ -1,0 +1,3 @@
+[submodule "app/src/main/java/Chess"]
+	path = app/src/main/java/Chess
+	url = https://github.com/lukaswillsie/Chess
