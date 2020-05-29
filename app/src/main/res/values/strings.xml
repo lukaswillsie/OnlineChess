@@ -4,4 +4,6 @@
     <string name="no_account_prompt">Don\'t have an account?</string>
     <string name="app_name">Chess!</string>
     <string name="login_button">Login</string>
+    <string name="loading_text">Loading...</string>
+    <string name="connection_failed_alert">A connection to the network couldn\'t be established. Please try again later.</string>
 </resources>

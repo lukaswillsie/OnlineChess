@@ -1,13 +1,23 @@
-package com.lukaswillsie.onlinechess;
+package com.lukaswillsie.onlinechess.activities.login;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+
+import com.lukaswillsie.onlinechess.ChessApplication;
+import com.lukaswillsie.onlinechess.R;
+import com.lukaswillsie.onlinechess.data.Keys;
+import com.lukaswillsie.onlinechess.network.ServerHelper;
 
 public class LoginActivity extends AppCompatActivity {
-    private boolean progressOn = true;
+    private static final String tag = "LoginActivity";
+    private ServerHelper serverHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,15 +49,11 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+
+        serverHelper = ((ChessApplication)getApplicationContext()).getServerHelper();
     }
 
-    public void stopBar(View button) {
-        if(progressOn) {
-            findViewById(R.id.progress_bar).setVisibility(View.GONE);
-        }
-        else {
-            findViewById(R.id.progress_bar).setVisibility(View.VISIBLE);
-        }
-        progressOn = !progressOn;
+    public void login(View button) {
+
     }
 }
