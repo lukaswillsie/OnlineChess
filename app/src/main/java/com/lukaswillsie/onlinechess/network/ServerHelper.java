@@ -47,6 +47,9 @@ public class ServerHelper extends Handler implements ConnectNotifiable, Serializ
      */
     private static final int PORT = 46751;
 
+    private static final int CONNECTION_ESTABLISHED = 0;
+    private static final int CONNECTION_FAILED = 1;
+
     /*
      * This is the code that methods defined in this interface will return if the server's end of the
      * connection is found to have been broken in the course of the method call.
@@ -89,23 +92,20 @@ public class ServerHelper extends Handler implements ConnectNotifiable, Serializ
     @Override
     public void connectionEstablished(Socket socket) {
         this.socket = socket;
-        ConnectRequester activity;
-        try {
-            activity = (ConnectRequester) requester;
-        }
-        catch(ClassCastException e) {
-            Log.e(tag, "connectionEstablished() called but no ConnectRequester made " +
-                    "connect request");
+        if(!(requester instanceof ConnectRequester)) {
+            Log.e(tag,"connectionEstablished called but requester is not ConnectRequester");
             return;
         }
 
         try {
             this.out = new PrintWriter(socket.getOutputStream());
             this.in = new DataInputStream(socket.getInputStream());
-            activity.connectionEstablished(this);
+            Message message = this.obtainMessage(CONNECTION_ESTABLISHED);
+            message.sendToTarget();
         } catch (IOException e) {
             Log.e(tag, "Couldn't instantiate devices to communicate with server");
-            activity.connectionFailed();
+            Message message = this.obtainMessage(CONNECTION_FAILED);
+            message.sendToTarget();
         }
     }
 
@@ -137,11 +137,11 @@ public class ServerHelper extends Handler implements ConnectNotifiable, Serializ
     @Override
     public void handleMessage(Message message) {
         switch (message.what) {
-            case ConnectThread.CONNECTION_ESTABLISHED:
-                connectionEstablished((Socket)message.obj);
+            case CONNECTION_ESTABLISHED:
+                ((ConnectRequester)requester).connectionEstablished(this);
                 break;
-            case ConnectThread.CONNECTION_FAILED:
-                connectionFailed();
+            case CONNECTION_FAILED:
+                ((ConnectRequester)requester).connectionFailed();
                 break;
             default:
                 Log.e(tag, "Received invalid message from thread.");

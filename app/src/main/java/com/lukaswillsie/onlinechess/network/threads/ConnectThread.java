@@ -16,13 +16,12 @@ public class ConnectThread extends Thread {
     private static final String tag = "ConnectThread";
     private static final int TIMEOUT = 5000;
 
-    public static final int CONNECTION_ESTABLISHED = 0;
-    public static final int CONNECTION_FAILED = 1;
+
     private String hostname;
     private int port;
-    private Handler caller;
+    private ConnectNotifiable caller;
 
-    public ConnectThread(String hostname, int port, Handler caller) {
+    public ConnectThread(String hostname, int port, ConnectNotifiable caller) {
         this.hostname = hostname;
         this.port = port;
         this.caller = caller;
@@ -30,27 +29,24 @@ public class ConnectThread extends Thread {
 
     @Override
     public void run() {
+        Log.i(tag, "Attempting to connect to server...");
         try {
             Socket socket = new Socket();
             socket.connect(new InetSocketAddress(hostname, port), TIMEOUT);
             Log.i(tag, "Connection with server established. Notifying caller.");
-            Message message = caller.obtainMessage(CONNECTION_ESTABLISHED, socket);
-            message.sendToTarget();
+            caller.connectionEstablished(socket);
         } catch (UnknownHostException e) {
             Log.e(tag,
             "UnknownHostException from Host: \" " + hostname + "\" and Port: " + port);
-            Message message = caller.obtainMessage(CONNECTION_FAILED);
-            message.sendToTarget();
+            caller.connectionFailed();
         } catch(SocketTimeoutException e) {
             Log.e(tag, "Connection to server timed out after " + TIMEOUT + " milliseconds.");
-            Message message = caller.obtainMessage(CONNECTION_FAILED);
-            message.sendToTarget();
+            caller.connectionFailed();
         } catch (IOException e) {
             Log.e(tag,
             "IOException when trying to connect to" + " Host: \" " + hostname + "\" and Port: "
                     + port);
-            Message message = caller.obtainMessage(CONNECTION_FAILED);
-            message.sendToTarget();
+            caller.connectionFailed();
         }
     }
 }
