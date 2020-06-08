@@ -19,9 +19,9 @@ public class ConnectThread extends Thread {
 
     private String hostname;
     private int port;
-    private ConnectNotifiable caller;
+    private ThreadCaller caller;
 
-    public ConnectThread(String hostname, int port, ConnectNotifiable caller) {
+    public ConnectThread(String hostname, int port, ThreadCaller caller) {
         this.hostname = hostname;
         this.port = port;
         this.caller = caller;
@@ -46,7 +46,7 @@ public class ConnectThread extends Thread {
             Log.e(tag,
             "IOException when trying to connect to" + " Host: \" " + hostname + "\" and Port: "
                     + port);
-            caller.connectionFailed();
+            caller.systemError();
         }
     }
 }

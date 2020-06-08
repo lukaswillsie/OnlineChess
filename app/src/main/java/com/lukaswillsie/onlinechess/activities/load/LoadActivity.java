@@ -9,13 +9,13 @@ import android.util.Log;
 
 import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
+import com.lukaswillsie.onlinechess.activities.ErrorDialogFragment;
 import com.lukaswillsie.onlinechess.activities.login.LoginActivity;
-import com.lukaswillsie.onlinechess.data.Keys;
+import com.lukaswillsie.onlinechess.network.Connector;
 import com.lukaswillsie.onlinechess.network.ServerHelper;
-import com.lukaswillsie.onlinechess.network.ConnectRequester;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 
-public class LoadActivity extends AppCompatActivity implements ConnectRequester, ConnectionFailedDialogFragment.ConnectionFailedDialogListener {
+public class LoadActivity extends AppCompatActivity implements Connector, ErrorDialogFragment.ErrorDialogListener {
     /**
      * Tag for logging information to the console
      */
@@ -27,11 +27,11 @@ public class LoadActivity extends AppCompatActivity implements ConnectRequester,
 
         // Immediately try and establish a connection with the server.
         try {
-            new ServerHelper().connect(this);
+            new ServerHelper(this).connect(this);
         }
         catch (MultipleRequestException e) {
             Log.e(tag, "Multiple network requests occurred. Retrying connection");
-            tryToConnect();
+            retry();
         }
     }
 
@@ -55,11 +55,6 @@ public class LoadActivity extends AppCompatActivity implements ConnectRequester,
         this.startActivity(intent);
     }
 
-    @Override
-    public void noNetwork() {
-
-    }
-
     /**
      * If a ServerHelper has been tasked by an implementation of this interface to establish a
      * connection, and the connection could not be successfully created, the ServerHelper will
@@ -70,17 +65,23 @@ public class LoadActivity extends AppCompatActivity implements ConnectRequester,
      */
     @Override
     public void connectionFailed() {
-        DialogFragment failedDialog = new ConnectionFailedDialogFragment();
+        DialogFragment failedDialog = new ErrorDialogFragment(this, getResources().getString(R.string.connection_failed_alert));
         failedDialog.show(getSupportFragmentManager(), "connection_failed_dialog");
     }
 
-    public void tryToConnect() {
+    public void retry() {
         try {
-            new ServerHelper().connect(this);
+            new ServerHelper(this).connect(this);
         }
         catch (MultipleRequestException e) {
             Log.e(tag, "Multiple network requests occurred. Retrying connection");
-            tryToConnect();
+            retry();
         }
+    }
+
+    @Override
+    public void systemError() {
+        // TODO: Implement this to be tailored more specifically to a network error
+        this.connectionFailed();
     }
 }

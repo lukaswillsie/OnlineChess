@@ -1,4 +1,4 @@
-package com.lukaswillsie.onlinechess.activities.load;
+package com.lukaswillsie.onlinechess.activities;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -15,33 +15,26 @@ import com.lukaswillsie.onlinechess.R;
  * when the app starts up. It provides a button that gives the user the option to try the connection
  * again.
  */
-public class ConnectionFailedDialogFragment extends DialogFragment {
+public class ErrorDialogFragment extends DialogFragment {
     /**
      * Activities creating instances of this fragment must implement this interface to receive
      * event callbacks.
      */
-    public interface ConnectionFailedDialogListener {
-        void tryToConnect();
+    public interface ErrorDialogListener {
+        void retry();
     }
 
     /**
      * The Activity that created this dialog, which we keep a reference to so that we the dialog can
      * notify the Activity if the user presses "Try again"
      */
-    private ConnectionFailedDialogListener listener;
+    private ErrorDialogListener listener;
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
+    private String message;
 
-        // Check if the calling context is a ConnectionFailedDialogListener as is required
-        try {
-            listener = (ConnectionFailedDialogListener) context;
-        }
-        catch(ClassCastException e) {
-            throw new ClassCastException("Context " + context.toString() + " does not implement " +
-                    "ConnectionFailedDialogListener.");
-        }
+    public ErrorDialogFragment(ErrorDialogListener listener, String message) {
+        this.message = message;
+        this.listener = listener;
     }
 
     @Override
@@ -50,12 +43,12 @@ public class ConnectionFailedDialogFragment extends DialogFragment {
         // a button for them to retry the connection. Passes this request on to listener, the
         // calling Activity
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage(R.string.connection_failed_alert)
+        builder.setMessage(message)
                 .setPositiveButton("Try again", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if(which == DialogInterface.BUTTON_POSITIVE) {
-                            listener.tryToConnect();
+                            listener.retry();
                         }
                     }
                 });

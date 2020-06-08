@@ -2,6 +2,7 @@ package com.lukaswillsie.onlinechess.data;
 
 import android.util.Log;
 
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 
@@ -26,8 +27,7 @@ public class Game {
      *
      * @param username - The name of the user currently logged into the app
      */
-    Game(String username) {
-        data = new HashMap<GameData, Object>();
+    public Game(String username) {
         this.username = username;
     }
 
@@ -56,6 +56,7 @@ public class Game {
      *          some way. In this event, the object logs the error before returning.
      */
     public int initialize(List<Object> serverData) {
+        this.data = new HashMap<>();
         try {
             // Assign the gameID
             data.put(GameData.GAMEID, (String)this.getServerData(serverData, ServerData.GAMEID));
@@ -138,5 +139,19 @@ public class Game {
      */
     private Object getServerData(List<Object> serverData, ServerData dataType) {
         return serverData.get(dataType.index);
+    }
+
+    public String toString() {
+        if(this.data == null) {
+            return "No game data";
+        }
+        else {
+            StringBuilder builder = new StringBuilder();
+            for(GameData data : GameData.values()) {
+                builder.append(data.toString() + ": " + this.data.get(data).toString() + "\n");
+            }
+
+            return builder.toString();
+        }
     }
 }

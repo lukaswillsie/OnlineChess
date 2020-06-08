@@ -3,7 +3,13 @@
     <string name="password_prompt">Password</string>
     <string name="no_account_prompt">Don\'t have an account?</string>
     <string name="app_name">Chess!</string>
-    <string name="login_button">Login</string>
+    <string name="login_button">LOGIN</string>
+    <string name="login_processing_text">Processing credentials...</string>
     <string name="loading_text">Loading...</string>
-    <string name="connection_failed_alert">A connection to the network couldn\'t be established. Please try again later.</string>
+    <string name="invalid_username_error">That username doesn\'t exist</string>
+    <string name="invalid_password_error">That password is invalid</string>
+    <string name="connection_failed_alert">A connection to the network couldn\'t be established. Please check your connection and try again later.</string>
+    <string name="connection_lost_alert">The connection to the server has been lost. Would you like to try again?</string>
+    <string name="server_error_alert">We encountered an unexpected error with the server. Would you like to try again?</string>
+    <string name="system_error_alert">We encountered an unexpected system error. Would you like to try again?</string>
 </resources>

@@ -1,13 +1,16 @@
 package com.lukaswillsie.onlinechess.network;
 
-import com.lukaswillsie.onlinechess.network.Requester;
-import com.lukaswillsie.onlinechess.network.ServerHelper;
 
 /**
  * Activities that wish to establish a connection with the server need to implement this interface
  * so they can receive callbacks from the ServerHelper, who actually handles the connection.
+ *
+ * This interface doesn't extend Requester because Requester is for Activities that are sending
+ * actual requests to the server. Connectors only seek to establish a connection, with no regard for
+ * the current state of any connection,  and so don't have to handle the serverError and
+ * connectionLost() methods defined in Requester.
  */
-public interface ConnectRequester extends Requester {
+public interface Connector extends Networker{
     /**
      * After a ServerHelper is tasked with establishing a connection, they will call this method on
      * the success, and pass a reference to themselves so they can be used for future network
@@ -17,9 +20,6 @@ public interface ConnectRequester extends Requester {
      *               the server
      */
     void connectionEstablished(ServerHelper helper);
-
-    // TODO: Check for network connection before trying to establish connection in ServerHelper
-    void noNetwork();
 
     /**
      * If a ServerHelper has been tasked by an implementation of this interface to establish a

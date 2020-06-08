@@ -1,18 +1,21 @@
 package com.lukaswillsie.onlinechess.network;
 
+import android.content.Context;
 import android.os.Message;
 import android.util.Log;
 import android.os.Handler;
 
-import com.lukaswillsie.onlinechess.network.threads.ConnectNotifiable;
+import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.network.threads.ConnectThread;
+import com.lukaswillsie.onlinechess.network.threads.LoginThread;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
+import com.lukaswillsie.onlinechess.network.threads.ThreadCaller;
 
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Serializable;
 import java.net.Socket;
+import java.util.List;
 
 /**
  * This class encapsulates the process of connecting to and interacting with the server. The
@@ -30,7 +33,7 @@ import java.net.Socket;
  * back to the previous screen. That way, if the server responds with an error, the user can be
  * notified of the fact that their move wasn't made.
  */
-public class ServerHelper extends Handler implements ConnectNotifiable, Serializable {
+public class ServerHelper extends Handler implements ThreadCaller                                                                                                                                                                                           {
     /*
      * Tag used for logging
      */
@@ -47,8 +50,15 @@ public class ServerHelper extends Handler implements ConnectNotifiable, Serializ
      */
     private static final int PORT = 46751;
 
+    private static final int SYSTEM_ERROR = -3;
+    private static final int CONNECTION_LOST = -2;
+    private static final int SERVER_ERROR = -1;
     private static final int CONNECTION_ESTABLISHED = 0;
     private static final int CONNECTION_FAILED = 1;
+    private static final int LOGIN_SUCCESS = 2;
+    private static final int USERNAME_INVALID = 3;
+    private static final int PASSWORD_INVALID = 4;
+    private static final int LOGIN_COMPLETE = 5;
 
     /*
      * This is the code that methods defined in this interface will return if the server's end of the
@@ -76,15 +86,25 @@ public class ServerHelper extends Handler implements ConnectNotifiable, Serializ
      * Requester is a tagging interface given to Activities that may need to make a request of a
      * ServerHelper object.
      */
-    private Requester requester;
+    private Networker requester;
 
-    public void connect(ConnectRequester activity) throws MultipleRequestException {
-        if(requester != null) {
-            throw new MultipleRequestException("Activity " + activity.toString() + " tried to " +
-                    "connect while request from " + requester.toString() + " was active.");
+    /**
+     * The operating context
+     */
+    private Context context;
+
+    public ServerHelper(Context context) {
+        this.context = context;
+    }
+
+
+    public void connect(Connector requester) throws MultipleRequestException {
+        if(this.requester != null) {
+            throw new MultipleRequestException("Activity " + requester.toString() + " tried to " +
+                    "connect while request from " + this.requester.toString() + " was active.");
         }
 
-        this.requester = activity;
+        this.requester = requester;
         ConnectThread thread = new ConnectThread(HOSTNAME, PORT, this);
         thread.start();
     }
@@ -92,13 +112,13 @@ public class ServerHelper extends Handler implements ConnectNotifiable, Serializ
     @Override
     public void connectionEstablished(Socket socket) {
         this.socket = socket;
-        if(!(requester instanceof ConnectRequester)) {
-            Log.e(tag,"connectionEstablished called but requester is not ConnectRequester");
+        if(!(requester instanceof Connector)) {
+            Log.e(tag,"connectionEstablished() called but requester is not Connector");
             return;
         }
 
         try {
-            this.out = new PrintWriter(socket.getOutputStream());
+            this.out = new PrintWriter(socket.getOutputStream(), true);
             this.in = new DataInputStream(socket.getInputStream());
             Message message = this.obtainMessage(CONNECTION_ESTABLISHED);
             message.sendToTarget();
@@ -111,41 +131,131 @@ public class ServerHelper extends Handler implements ConnectNotifiable, Serializ
 
     @Override
     public void connectionFailed() {
-        ConnectRequester activity;
-        try {
-            activity = (ConnectRequester) requester;
-        }
-        catch(ClassCastException e) {
-            Log.e(tag, "connectionEstablished() called but no ConnectRequester made " +
+        if(!(requester instanceof Connector)) {
+            Log.e(tag, "connectionEstablished() called but no Connector made " +
                     "connect request");
             return;
         }
 
-        activity.connectionFailed();
+        Message message = this.obtainMessage(CONNECTION_FAILED);
+        message.sendToTarget();
     }
 
-    public void login(LoginRequester requester) throws MultipleRequestException {
-        // TODO: Create LoginThread and write code to handle login
+    public void login(LoginRequester requester, String username, String password) throws MultipleRequestException {
+        if(this.requester != null) {
+            throw new MultipleRequestException("Activity " + requester.toString() + " tried to " +
+                    "connect while request from " + requester.toString() + " was active.");
+        }
+
+        this.requester = requester;
+        LoginThread thread = new LoginThread(username, password, this);
+        thread.setWriter(this.out);
+        thread.setReader(this.in);
+
+        thread.start();
     }
 
+    @Override
+    public void loginSuccess() {
+        Message message = this.obtainMessage(LOGIN_SUCCESS);
+        message.sendToTarget();
+    }
 
-    private void loginRequest(String username, String password) {
-        out.println("login " + username + " " + password);
+    @Override
+    public void usernameInvalid() {
+        Message message = this.obtainMessage(USERNAME_INVALID);
+        message.sendToTarget();
+    }
+
+    @Override
+    public void passwordInvalid() {
+        Message message = this.obtainMessage(PASSWORD_INVALID);
+        message.sendToTarget();
+    }
+
+    @Override
+    public void serverError() {
+        Message message = this.obtainMessage(SERVER_ERROR);
+        message.sendToTarget();
+    }
+
+    @Override
+    public void systemError() {
+
+    }
+
+    /**
+     * To be called once the whole login process is complete. That is, the login has been validated
+     * by the server and all of the user's game data has been received and processed by the
+     * LoginThread.
+     *
+     * The Thread passes the result, a list of Game objects, to this method.
+     */
+    @Override
+    public void loginComplete(List<Game> games) {
+        // Save the list of games in ChessApplication for later use by the app
+
+        Message message = this.obtainMessage(LOGIN_COMPLETE, games);
+        message.sendToTarget();
     }
 
 
     @Override
     public void handleMessage(Message message) {
         switch (message.what) {
+            case SYSTEM_ERROR:
+                requester.systemError();
+                this.requester = null;  // Allows us to accept another request
+                break;
+            case CONNECTION_LOST:
+                ((Requester)requester).connectionLost();
+                this.requester = null;  // Allows us to accept another request
+                break;
+            case SERVER_ERROR:
+                ((Requester)requester).serverError();
+                this.requester = null;  // Allows us to accept another request
+                break;
             case CONNECTION_ESTABLISHED:
-                ((ConnectRequester)requester).connectionEstablished(this);
+                ((Connector)requester).connectionEstablished(this);
+                this.requester = null;  // Allows us to accept another request
                 break;
             case CONNECTION_FAILED:
-                ((ConnectRequester)requester).connectionFailed();
+                ((Connector)requester).connectionFailed();
+                this.requester = null;  // Allows us to accept another request
                 break;
-            default:
-                Log.e(tag, "Received invalid message from thread.");
+            case LOGIN_SUCCESS:
+                ((LoginRequester)requester).loginSuccess();
+                break;
+            case USERNAME_INVALID:
+                ((LoginRequester)requester).usernameInvalid();
+                this.requester = null;  // Allows us to accept another request
+                break;
+            case PASSWORD_INVALID:
+                ((LoginRequester)requester).passwordInvalid();
+                this.requester = null;  // Allows us to accept another request
+                break;
+            case LOGIN_COMPLETE:
+                ((LoginRequester)requester).loginComplete((List<Game>)message.obj);
+                this.requester = null;  // Allows us to accept another request
                 break;
         }
+    }
+
+    /**
+     * This method is called by a client Thread when the Thread discovers that the connection to the
+     * server has been lost at any point in the middle of a network request.
+     */
+    @Override
+    public void connectionLost() {
+        try {
+            this.socket.close();
+            this.in.close();
+        } catch (IOException e) {
+            Log.i(tag, "Couldn't close socket or DataInputStream");
+        }
+        this.out.close();
+
+        Message msg = this.obtainMessage(CONNECTION_LOST);
+        msg.sendToTarget();
     }
 }
