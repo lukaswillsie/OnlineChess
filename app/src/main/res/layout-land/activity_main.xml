@@ -13,18 +13,21 @@
         android:scaleType="centerCrop"/>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
+        app:layout_constraintWidth_percent="0.5"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/button_layout"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:id="@+id/panel">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/title"
+            android:layout_gravity="center"
             android:textColor="@android:color/white"
             android:textStyle="bold"
             android:fontFamily="sans-serif-condensed"
@@ -36,25 +39,13 @@
             android:text="@string/author"
             android:textColor="@android:color/white"
             android:textSize="17sp"
+            android:paddingBottom="10dp"
             android:layout_gravity="center"/>
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintWidth_percent="0.7"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:id="@+id/button_layout">
         
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="15dp"
             app:cardCornerRadius="50dp">
             
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -109,7 +100,7 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="15dp"
             app:cardCornerRadius="50dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -155,7 +146,7 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="15dp"
             app:cardCornerRadius="50dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -201,7 +192,6 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:layout_marginBottom="20dp"
             app:cardCornerRadius="50dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -253,7 +243,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/button_layout"
-        app:layout_constraintVertical_bias="0.8"/>
+        app:layout_constraintTop_toBottomOf="@id/panel"
+        app:layout_constraintVertical_bias="0.5"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
