@@ -4,6 +4,7 @@
     <string name="no_account_prompt">Don\'t have an account?</string>
     <string name="app_name">Chess!</string>
     <string name="login_button">LOGIN</string>
+    <string name="create_account_button">CREATE ACCOUNT</string>
     <string name="login_processing_text">Processing credentials…</string>
     <string name="loading_text">Loading…</string>
     <string name="invalid_username_error">That username doesn\'t exist</string>
