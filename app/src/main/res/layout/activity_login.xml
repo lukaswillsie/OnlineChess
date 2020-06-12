@@ -47,7 +47,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textColor="@android:color/white"
-        android:background="@drawable/edit_text"
+        android:background="@drawable/black_background"
         android:hint="@string/username_prompt"
         android:textColorHint="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -72,7 +72,7 @@
         android:layout_marginTop="5dp"
         android:alpha="0.5"
         android:padding="5dp"
-        android:background="@drawable/edit_text"/>
+        android:background="@drawable/black_background"/>
 
     <TextView
         android:id="@+id/no_account"
@@ -102,8 +102,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/login_button_constraint"
-            android:theme="@style/AppTheme">
+            android:id="@+id/login_button_constraint">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
