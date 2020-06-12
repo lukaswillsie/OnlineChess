@@ -10,5 +10,11 @@ package com.lukaswillsie.onlinechess.network;
  * may have to make.
  */
 public interface Networker {
+    /**
+     * This method will be called if a system error occurs during the processing of a network
+     * request. For example, if the internet has gone down, or an output/input stream cannot be
+     * opened, or is causing some other problem. Simply allows the calling activity to differentiate
+     * how it communicates errors to the user.
+     */
     void systemError();
 }

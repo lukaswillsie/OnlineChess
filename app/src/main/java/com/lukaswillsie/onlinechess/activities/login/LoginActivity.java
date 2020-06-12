@@ -2,9 +2,6 @@ package com.lukaswillsie.onlinechess.activities.login;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.core.view.ViewCompat;
 import androidx.fragment.app.DialogFragment;
 
 import android.app.Activity;
@@ -15,7 +12,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.lukaswillsie.onlinechess.ChessApplication;
@@ -24,7 +20,6 @@ import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogFragment;
 import com.lukaswillsie.onlinechess.activities.load.LoadActivity;
 import com.lukaswillsie.onlinechess.data.Game;
-import com.lukaswillsie.onlinechess.data.Keys;
 import com.lukaswillsie.onlinechess.network.LoginRequester;
 import com.lukaswillsie.onlinechess.network.ServerHelper;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
@@ -40,11 +35,11 @@ public class LoginActivity extends AppCompatActivity implements LoginRequester {
      * Represents the possible states that this activity can be in
      */
     private enum State {
-        WAITING,    // The user is entering their data and hasn't pressed "LOGIN" yet
-        LOGGING_IN, // The user has pressed "LOGIN" and the server hasn't validated their
-                    // credentials yet
-        LOADING;    // The user's credentials have been validated, and the app is processing the
-                    // game data sent over by the server
+        WAITING_FOR_USER_INPUT,         // The user is entering their data and hasn't pressed "LOGIN" yet
+        WAITING_FOR_SERVER_RESPONSE,    // The user has pressed "LOGIN" but the server hasn't validated their
+                                        // credentials yet
+        LOADING;                        // The user's credentials have been validated, and now the app is processing the
+                                        // game data sent over by the server
     }
 
     private class SystemErrorDialogListener implements ErrorDialogFragment.ErrorDialogListener {
@@ -78,7 +73,7 @@ public class LoginActivity extends AppCompatActivity implements LoginRequester {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        this.state = State.WAITING;
+        this.state = State.WAITING_FOR_USER_INPUT;
 
         EditText username = findViewById(R.id.username);
         username.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -109,14 +104,25 @@ public class LoginActivity extends AppCompatActivity implements LoginRequester {
         serverHelper = ((ChessApplication)getApplicationContext()).getServerHelper();
     }
 
+    /**
+     * Called when the user presses the login button.
+     *
+     * @param view - the login button that was pressed
+     */
     public void login(View view) {
         this.processLogin();
     }
 
+    /**
+     * Handles a login request by the user. Changes the display to indicate a loading proccess by
+     * closing the keyboard, disabling the username and password EditTexts, displaying a circular
+     * ProgressBar inside of the login button, and changing the login button text to
+     * "Processing credentials..."
+     */
     private void processLogin() {
         // We only want to perform an action if we're at the first stage, and we don't have an
         // ongoing login request being handled
-        if(this.state == State.WAITING) {
+        if(this.state == State.WAITING_FOR_USER_INPUT) {
             // Hide any error text that may be showing from past login attempts
             findViewById(R.id.login_input_error).setVisibility(View.INVISIBLE);
 
@@ -137,12 +143,12 @@ public class LoginActivity extends AppCompatActivity implements LoginRequester {
             String username = ((EditText) findViewById(R.id.username)).getText().toString();
             String password = ((EditText) findViewById(R.id.password)).getText().toString();
 
-            this.state = State.LOGGING_IN;
-
             if(Format.validUsername(username) && Format.validPassword(password)) {
                 try {
                     serverHelper.login(this, username, password);
+                    this.state = State.WAITING_FOR_SERVER_RESPONSE;
                 } catch (MultipleRequestException e) {
+                    // TODO: Decide what to do here. This should never happen.
                     Log.e(tag, "Submitted multiple requests to ServerHelper");
                 }
             }
@@ -175,20 +181,37 @@ public class LoginActivity extends AppCompatActivity implements LoginRequester {
         manager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
+    /**
+     * This callback is for when the server has responded that the user's credentials are valid.
+     * This occurs BEFORE the server sends over the user's game data, so it doesn't necessarily
+     * mean the login process is complete and that this Activity should move to the next. It simply
+     * allows this activity to notify the user of the progress of the login request. In this case,
+     * we change the colour of the login button and change the text being displayed to the user from
+     * "Processing credentials..." to "Loading".
+     */
     @Override
     public void loginSuccess() {
-        // Change login button colour to indicate successful login
-        CardView loginCard = findViewById(R.id.login);
-        loginCard.setCardBackgroundColor(getResources().getColor(R.color.loginSuccessful));
+        if(this.state == State.WAITING_FOR_SERVER_RESPONSE) {
+            // Change login button colour to indicate successful login
+            CardView loginCard = findViewById(R.id.login);
+            loginCard.setCardBackgroundColor(getResources().getColor(R.color.loginSuccessful));
 
-        // Change login button text to indicate change in login request status to user
-        ((TextView)findViewById(R.id.login_button_text)).setText(R.string.loading_text);
+            // Change login button text to indicate change in login request status to user
+            ((TextView)findViewById(R.id.login_button_text)).setText(R.string.loading_text);
+
+            this.state = State.LOADING;
+        }
     }
 
+    /**
+     * This callback is for when the server has responded that the username entered by the user
+     * doesn't exist in its records. Displays an error message for the user and wakes up the
+     * EditTexts to allow a new login request.
+     */
     @Override
     public void usernameInvalid() {
         // This method should only be called while the activity is in the below state
-        if(this.state == State.LOGGING_IN) {
+        if(this.state == State.WAITING_FOR_SERVER_RESPONSE) {
             // Display appropriate error text
             TextView errorText = findViewById(R.id.login_input_error);
             errorText.setText(R.string.invalid_username_error);
@@ -213,17 +236,22 @@ public class LoginActivity extends AppCompatActivity implements LoginRequester {
             ((TextView)findViewById(R.id.login_button_text)).setText(R.string.login_button);
             findViewById(R.id.login_progress).setVisibility(View.INVISIBLE);
 
-            this.state = State.WAITING;
+            this.state = State.WAITING_FOR_USER_INPUT;
         }
         else {
-            Log.e(tag, "usernameInvalid() called while not in " + State.LOGGING_IN + " state.");
+            Log.e(tag, "usernameInvalid() called while not in " + State.WAITING_FOR_SERVER_RESPONSE + " state.");
         }
     }
 
+    /**
+     * Called when the server has responded that the password entered by the user doesn't match the
+     * username entered by the user. Displays an error message for the user and wakes up the
+     * EditTexts to allow a new login request.
+     */
     @Override
     public void passwordInvalid() {
         // This method should only be called while the activity is in the below state
-        if(this.state == State.LOGGING_IN) {
+        if(this.state == State.WAITING_FOR_SERVER_RESPONSE) {
             // Display appropriate error text
             TextView errorText = findViewById(R.id.login_input_error);
             errorText.setText(R.string.invalid_password_error);
@@ -249,36 +277,67 @@ public class LoginActivity extends AppCompatActivity implements LoginRequester {
             ((TextView)findViewById(R.id.login_button_text)).setText(R.string.login_button);
             findViewById(R.id.login_progress).setVisibility(View.INVISIBLE);
 
-            this.state = State.WAITING;
+            this.state = State.WAITING_FOR_USER_INPUT;
         }
         else {
-            Log.e(tag, "usernameInvalid() called while not in " + State.LOGGING_IN + " state.");
+            Log.e(tag, "usernameInvalid() called while not in " + State.WAITING_FOR_SERVER_RESPONSE + " state.");
         }
     }
 
+    /**
+     * Is called after the ServerHelper has fully processed data sent over by the server, to notify
+     * this Activity that the application can now proceed. Takes a list of Game objects, each of
+     * which is a wrapper for data representing a game the newly logged-in user is playing, so that
+     * this data can be saved for later global access by the application.
+     *
+     * @param games - A list of objects representing every game that the logged-in user is a
+     *              participant in
+     */
     @Override
     public void loginComplete(List<Game> games) {
-        ((ChessApplication)getApplicationContext()).setGames(games);
+        // This callback should only be used when the activity is in the below state
+        if(this.state == State.LOADING) {
+            // Save the list of games globally
+            ((ChessApplication) getApplicationContext()).setGames(games);
 
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+            // Move to the next Activity
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        }
     }
 
+    /**
+     * Is called if a request is made but the server is found to be unresponsive during the course
+     * of handling the request. Shows a dialog box notifying the user of what happened, and offers
+     * to let them try again.
+     */
     @Override
     public void connectionLost() {
         DialogFragment dialog = new ErrorDialogFragment(new ConnectionLostDialogListener(this), getResources().getString(R.string.connection_lost_alert));
         dialog.show(getSupportFragmentManager(), "connection_lost_dialog");
     }
 
+    /**
+     * Is called if the server ever responds to a request with ReturnCodes.SERVER_ERROR, or if
+     * the data received from the server is wrong, and doesn't correspond to its established
+     * protocols. Shows a dialog box notifying the user of what happened, and offers to let them
+     * try again.
+     */
     @Override
     public void serverError() {
-        DialogFragment dialog = new ErrorDialogFragment(new ServerErrorDialogListener(), getResources().getString(R.string.connection_lost_alert));
+        DialogFragment dialog = new ErrorDialogFragment(new ServerErrorDialogListener(), getResources().getString(R.string.server_error_alert));
         dialog.show(getSupportFragmentManager(), "server_error_dialog");
     }
 
+    /**
+     * This method will be called if a system error occurs during the processing of a network
+     * request. For example, if the internet has gone down, or an output/input stream cannot be
+     * opened, or is causing some other problem. Shows a dialog box notifying the user of what
+     * happened, and offers to let them try again.
+     */
     @Override
     public void systemError() {
-        DialogFragment dialog = new ErrorDialogFragment(new SystemErrorDialogListener(), getResources().getString(R.string.connection_lost_alert));
+        DialogFragment dialog = new ErrorDialogFragment(new SystemErrorDialogListener(), getResources().getString(R.string.system_error_alert));
         dialog.show(getSupportFragmentManager(), "system_error_dialog");
     }
 }
