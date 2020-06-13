@@ -25,24 +25,34 @@
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint=""
+            android:hint="@string/username_prompt"
+            android:id="@+id/create_username"
             app:layout_constraintWidth_percent="0.7"
-            android:layout_marginBottom="5dp"/>
+            android:layout_marginBottom="5dp"
+            style="@style/EditTextStyle"/>
 
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"/>
+            android:hint="@string/password_prompt"
+            android:id="@+id/create_password"
+            android:inputType="textPassword"
+            android:layout_marginBottom="5dp"
+            style="@style/EditTextStyle"/>
 
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"/>
+            android:hint="@string/confirm_password_prompt"
+            android:id="@+id/confirm_password"
+            android:inputType="textPassword"
+            android:layout_marginBottom="5dp"
+            style="@style/EditTextStyle"/>
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:id="@+id/login"
+            android:id="@+id/create_account_button"
             android:layout_marginTop="7dp"
             app:cardBackgroundColor="@android:color/black"
             app:cardCornerRadius="3dp"
@@ -51,12 +61,12 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/login_button_constraint">
+                android:id="@+id/create_account_button_constraint">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/login_button_text"
-                    android:text="@string/login_button"
+                    android:id="@+id/create_account_button_text"
+                    android:text="@string/create_account_button"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -67,12 +77,12 @@
                 <ProgressBar
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:id="@+id/login_progress"
+                    android:id="@+id/create_account_progress"
                     android:visibility="gone"
                     android:indeterminate="true"
                     android:indeterminateTint="@android:color/white"
                     android:paddingVertical="5dp"
-                    app:layout_constraintEnd_toStartOf="@id/login_button_text"
+                    app:layout_constraintEnd_toStartOf="@id/create_account_button_text"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"/>
             </androidx.constraintlayout.widget.ConstraintLayout>

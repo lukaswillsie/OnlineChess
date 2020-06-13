@@ -19,8 +19,8 @@ import java.util.List;
 
 /**
  * This class encapsulates the process of connecting to and interacting with the server. The
- * instance that successfully establishes a connection to the server when the app loads is passed
- * around as a serializable extra, for access by any Activity that needs to submit a request to the
+ * instance that successfully establishes a connection to the server when the app loads is saved in
+ * ChessApplication, for access by any Activity that needs to submit a request to the
  * server on behalf of the user during the operation of the app.
  *
  * Due to the nature of the requests accepted by the server, I thought that it made the most sense
@@ -193,8 +193,6 @@ public class ServerHelper extends Handler implements ThreadCaller               
      */
     @Override
     public void loginComplete(List<Game> games) {
-        // Save the list of games in ChessApplication for later use by the app
-
         Message message = this.obtainMessage(LOGIN_COMPLETE, games);
         message.sendToTarget();
     }
