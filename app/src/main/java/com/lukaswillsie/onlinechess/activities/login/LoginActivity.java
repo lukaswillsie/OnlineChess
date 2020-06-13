@@ -1,6 +1,5 @@
 package com.lukaswillsie.onlinechess.activities.login;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.DialogFragment;
 
@@ -17,6 +16,7 @@ import android.widget.TextView;
 import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.MainActivity;
 import com.lukaswillsie.onlinechess.R;
+import com.lukaswillsie.onlinechess.activities.EditTextActivity;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogFragment;
 import com.lukaswillsie.onlinechess.activities.load.LoadActivity;
 import com.lukaswillsie.onlinechess.data.Game;
@@ -26,7 +26,7 @@ import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 
 import java.util.List;
 
-public class LoginActivity extends AppCompatActivity implements LoginRequester {
+public class LoginActivity extends EditTextActivity implements LoginRequester {
     private static final String tag = "LoginActivity";
     private ServerHelper serverHelper;
     private State state;
@@ -75,31 +75,9 @@ public class LoginActivity extends AppCompatActivity implements LoginRequester {
 
         this.state = State.WAITING_FOR_USER_INPUT;
 
-        EditText username = findViewById(R.id.username);
-        username.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if(hasFocus) {
-                    v.setAlpha(1);
-                }
-                else {
-                    v.setAlpha(0.5f);
-                }
-            }
-        });
-
-        EditText password = findViewById(R.id.password);
-        password.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if(hasFocus) {
-                    v.setAlpha(1);
-                }
-                else {
-                    v.setAlpha(0.5f);
-                }
-            }
-        });
+        // Put onFocusChangeListeners on EditTexts so they become darker when focused
+        this.styleEditText((EditText) findViewById(R.id.username));
+        this.styleEditText((EditText) findViewById(R.id.password));
 
         serverHelper = ((ChessApplication)getApplicationContext()).getServerHelper();
     }
@@ -111,6 +89,16 @@ public class LoginActivity extends AppCompatActivity implements LoginRequester {
      */
     public void login(View view) {
         this.processLogin();
+    }
+
+    /**
+     * Called when the user wants to create a new account
+     * @param view - the View that the user clicked to communicate that they want to create a new
+     *             account
+     */
+    public void createNewAccount(View view) {
+        Intent intent = new Intent(this, CreateAccountActivity.class);
+        this.startActivity(intent);
     }
 
     /**
