@@ -14,12 +14,33 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This thread, when started, will send a login request to the server, then wait for and interpret
+ * the response. The LoginCaller object given to this object at creation will receive callbacks
+ * relevant to the state of the login request as it proceedss.
+ */
 public class LoginThread extends Thread {
+    /*
+     * Tag used for logging
+     */
     private static final String tag = "LoginThread";
 
+    /*
+     * The IO devices this object will use to communicate with the server. MUST BE SET through
+     * setter methods below before the thread is started
+     */
     private PrintWriter writer;
     private DataInputStream reader;
-    private ThreadCaller caller;
+
+    /*
+     * The object that should receive callbacks about the state of the login request. Is set in the
+     * constructor.
+     */
+    private LoginCaller caller;
+
+    /**
+     * The username and password combination to try and log in with. Set in the constructor.
+     */
     private String username;
     private String password;
 
@@ -32,16 +53,24 @@ public class LoginThread extends Thread {
      * @param username - the username to try and log in with
      * @param password - the password to try and log in with
      */
-    public LoginThread(String username, String password, ThreadCaller caller) {
+    public LoginThread(String username, String password, LoginCaller caller) {
         this.caller = caller;
         this.username = username;
         this.password = password;
     }
 
+    /**
+     * Give this LoginThread a PrintWriter to use to write to the server
+     * @param writer - the PrintWriter this thread should use to write to the server
+     */
     public void setWriter(PrintWriter writer) {
         this.writer = writer;
     }
 
+    /**
+     * Give this LoginThread a DataInputStream to use to read from the server
+     * @param reader - the DataInputStream this thread should use to read from the server
+     */
     public void setReader(DataInputStream reader) {
         this.reader = reader;
     }
@@ -67,6 +96,7 @@ public class LoginThread extends Thread {
      */
     @Override
     public void run() {
+        // Send our login request to the server.
         sendRequest();
 
         // We encase this code in a try/catch because our readInt and readLine methods throw any
@@ -103,6 +133,7 @@ public class LoginThread extends Thread {
             }
 
             // Now we read all the user's game data from the server
+
             int numGames = readInt();
 
             // According to protocol, it's possible that the server encounters an error after logging in
@@ -120,11 +151,9 @@ public class LoginThread extends Thread {
             for (int i = 0; i < numGames; i++) {
                 for (ServerData data : ServerData.order) {
                     if (data.type == 's') {
+                        // Note that we're in a try-catch, so we assume that the line returned here
+                        // is valid and complete
                         line = this.readLine();
-                        if (line == null) {          // If we encountered an exception reading from
-                            caller.serverError();   // server, just stop
-                            return;
-                        }
                         serverData.add(line);
                     } else if (data.type == 'i') {
                         serverData.add(this.readInt());

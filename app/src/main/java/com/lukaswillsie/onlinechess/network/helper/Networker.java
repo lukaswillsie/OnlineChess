@@ -1,4 +1,4 @@
-package com.lukaswillsie.onlinechess.network;
+package com.lukaswillsie.onlinechess.network.helper;
 
 /**
  * This interface is used to identify all activities making any request whatsoever of a ServerHelper

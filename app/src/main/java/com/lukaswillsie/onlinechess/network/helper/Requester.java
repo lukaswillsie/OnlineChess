@@ -1,15 +1,15 @@
-package com.lukaswillsie.onlinechess.network;
+package com.lukaswillsie.onlinechess.network.helper;
 
 /**
  * This interface is used to identify Activities that may need to SEND REQUESTS TO THE SERVER via a
  * ServerHelper object. Each Activity that does this needs to implement a more specific interface,
- * depending on the nature of the request. This interface also defines behaviour central to all
- * types of requests: namely handling the eventuality that the server has disconnected since the
- * last time a request was issued, and the eventuality that the server encounters an error or sends
- * bad data.
+ * depending on the nature of the request, for example LoginRequester. This interface also defines
+ * behaviour central to all types of requests: namely handling the eventuality that the server has
+ * disconnected since the last time a request was issued, and the eventuality that the server
+ * encounters an error or sends  bad data.
  *
  * This also allows the front-end of the app to display different error messages to the user
- * depending on the nature of the problem.
+ * depending on the nature of the problem, if it wishes.
  */
 public interface Requester {
     // TODO: Implement pinging on the server-side and then come back here and build it into serverHelper

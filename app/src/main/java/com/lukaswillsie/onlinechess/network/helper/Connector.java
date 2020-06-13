@@ -1,4 +1,4 @@
-package com.lukaswillsie.onlinechess.network;
+package com.lukaswillsie.onlinechess.network.helper;
 
 
 /**
@@ -7,13 +7,13 @@ package com.lukaswillsie.onlinechess.network;
  *
  * This interface doesn't extend Requester because Requester is for Activities that are sending
  * actual requests to the server. Connectors only seek to establish a connection, with no regard for
- * the current state of any connection,  and so don't have to handle the serverError and
+ * the current state of any connection, and so shouldn't have to handle the serverError() and
  * connectionLost() methods defined in Requester.
  */
 public interface Connector extends Networker{
     /**
      * After a ServerHelper is tasked with establishing a connection, they will call this method on
-     * the success, and pass a reference to themselves so they can be used for future network
+     * success, and pass a reference to themselves so they can be used for future network
      * operations.
      *
      * @param helper - the ServerHelper object that has successfully established a connection with

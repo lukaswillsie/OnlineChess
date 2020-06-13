@@ -11,8 +11,8 @@ import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogFragment;
 import com.lukaswillsie.onlinechess.activities.login.LoginActivity;
-import com.lukaswillsie.onlinechess.network.Connector;
-import com.lukaswillsie.onlinechess.network.ServerHelper;
+import com.lukaswillsie.onlinechess.network.helper.Connector;
+import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 
 public class LoadActivity extends AppCompatActivity implements Connector, ErrorDialogFragment.ErrorDialogListener {
@@ -27,7 +27,7 @@ public class LoadActivity extends AppCompatActivity implements Connector, ErrorD
 
         // Immediately try and establish a connection with the server.
         try {
-            new ServerHelper(this).connect(this);
+            new ServerHelper().connect(this);
         }
         catch (MultipleRequestException e) {
             Log.e(tag, "Multiple network requests occurred. Retrying connection");
@@ -71,7 +71,7 @@ public class LoadActivity extends AppCompatActivity implements Connector, ErrorD
 
     public void retry() {
         try {
-            new ServerHelper(this).connect(this);
+            new ServerHelper().connect(this);
         }
         catch (MultipleRequestException e) {
             Log.e(tag, "Multiple network requests occurred. Retrying connection");

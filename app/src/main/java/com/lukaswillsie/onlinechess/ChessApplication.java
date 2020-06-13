@@ -3,7 +3,7 @@ package com.lukaswillsie.onlinechess;
 import android.app.Application;
 
 import com.lukaswillsie.onlinechess.data.Game;
-import com.lukaswillsie.onlinechess.network.ServerHelper;
+import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 
 import java.util.List;
 

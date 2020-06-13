@@ -20,8 +20,8 @@ import com.lukaswillsie.onlinechess.activities.EditTextActivity;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogFragment;
 import com.lukaswillsie.onlinechess.activities.load.LoadActivity;
 import com.lukaswillsie.onlinechess.data.Game;
-import com.lukaswillsie.onlinechess.network.LoginRequester;
-import com.lukaswillsie.onlinechess.network.ServerHelper;
+import com.lukaswillsie.onlinechess.network.helper.LoginRequester;
+import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 
 import java.util.List;
@@ -80,6 +80,7 @@ public class LoginActivity extends EditTextActivity implements LoginRequester {
         this.styleEditText((EditText) findViewById(R.id.password));
 
         serverHelper = ((ChessApplication)getApplicationContext()).getServerHelper();
+        Log.i(tag, "serverHelper is " + serverHelper);
     }
 
     /**
