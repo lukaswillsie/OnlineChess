@@ -11,7 +11,7 @@ package com.lukaswillsie.onlinechess.network.helper;
  * This also allows the front-end of the app to display different error messages to the user
  * depending on the nature of the problem, if it wishes.
  */
-public interface Requester {
+public interface Requester extends Networker {
     // TODO: Implement pinging on the server-side and then come back here and build it into serverHelper
     /**
      * To be called if a request has been made (other than simply a connect request) but the server

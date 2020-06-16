@@ -40,4 +40,13 @@ public interface LoginCaller extends ThreadCaller {
      * user is playing, to this method.
      */
     void loginComplete(List<Game> games);
+
+
+    /**
+     * To be called if, in the midst of the login call, the server returns -1, indicating that it
+     * encountered an error. Can also be called if the server returns something that does not
+     * conform to protocol.
+     */
+    void serverError();
+
 }

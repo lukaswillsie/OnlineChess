@@ -66,9 +66,9 @@ public class LoginHelper extends SubHelper implements LoginCaller {
     }
 
     /**
-     * Is called if there is a problem with the server. For example, if the server returns -1,
-     * indicating that it encountered an error on its end; or if the server returns data that is
-     * invalid or inconsistent with protocol.
+     * To be called if, in the midst of the login call, the server returns -1, indicating that it
+     * encountered an error. Can also be called if the server returns something that does not
+     * conform to protocol.
      */
     @Override
     public void serverError() {

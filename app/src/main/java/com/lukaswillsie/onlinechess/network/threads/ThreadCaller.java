@@ -11,13 +11,6 @@ package com.lukaswillsie.onlinechess.network.threads;
  */
 public interface ThreadCaller {
     /**
-     * To be called if there is a problem with the server. For example, if the server returns -1,
-     * indicating that it encountered an error on its end; or if the server returns data that is
-     * invalid or inconsistent with protocol.
-     */
-    void serverError();
-
-    /**
      * To be called if a problem with the system is encountered during execution of a client Thread.
      * For example, an exception that is unrelated to the server might be thrown by the operating
      * system when a Thread tries to write/read from the socket. We allow the caller, and therefore

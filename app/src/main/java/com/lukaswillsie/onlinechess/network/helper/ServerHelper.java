@@ -87,6 +87,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
      * A direct reference to each of the helpers that this object delegates specific tasks to.
      */
     private LoginHelper loginHelper;
+    private CreateAccountHelper createAccountHelper;
 
     /*
      * A list of all helpers delegated to by this object, so that they can all be notified at once
@@ -112,9 +113,11 @@ public class ServerHelper extends Handler implements ConnectCaller {
      */
     public ServerHelper() {
         this.loginHelper = new LoginHelper(this);
+        this.createAccountHelper = new CreateAccountHelper(this);
 
         this.helpers = new ArrayList<>();
         this.helpers.add(loginHelper);
+        this.helpers.add(createAccountHelper);
     }
 
     /**
@@ -169,12 +172,34 @@ public class ServerHelper extends Handler implements ConnectCaller {
     public void login(LoginRequester requester, String username, String password) throws MultipleRequestException {
         if(this.requester != null) {
             throw new MultipleRequestException("Activity " + requester.toString() + " tried to " +
-                    "connect while request from " + requester.toString() + " was active.");
+                    "make request while request from " + requester.toString() + " was active.");
         }
 
         // Delegate to a LoginHelper and designate the LoginHelper as the active helper
         this.loginHelper.login(requester, username, password);
         this.activeHelper = loginHelper;
+        this.requester = requester;
+    }
+
+    /**
+     * Process an account creation request by the given requester. Will send a request to the server
+     * to create a new account with the given credentials, and give callbacks to the given
+     * requester.
+     *
+     * @param requester - the object that should be notified of the result of the account creation
+     *                  request
+     * @param username - the username that the new account should have
+     * @param password - the password that the new account should have
+     * @throws MultipleRequestException - if this ServerHelper object already has an ongoing request
+     */
+    public void createAccount(CreateAccountRequester requester, String username, String password) throws MultipleRequestException {
+        if(this.requester != null) {
+            throw new MultipleRequestException("Activity " + requester.toString() + " tried to " +
+                    "make request while request from " + requester.toString() + " was active.");
+        }
+
+        this.createAccountHelper.createAccount(requester, username, password);
+        this.activeHelper = createAccountHelper;
         this.requester = requester;
     }
 

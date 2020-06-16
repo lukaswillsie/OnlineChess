@@ -17,7 +17,7 @@ import java.util.List;
  * credentials, there is only one callback.
  *
  */
-public interface LoginRequester extends Requester, Networker {
+public interface LoginRequester extends Requester {
     /**
      * This callback is for when the server has responded that the user's credentials are valid.
      * Note that this occurs BEFORE the server sends over the user's game data, so it doesn't

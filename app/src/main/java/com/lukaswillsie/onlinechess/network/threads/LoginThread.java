@@ -1,6 +1,7 @@
 package com.lukaswillsie.onlinechess.network.threads;
 
 
+import android.net.Network;
 import android.util.Log;
 
 import com.lukaswillsie.onlinechess.data.Game;
@@ -19,18 +20,11 @@ import java.util.List;
  * the response. The LoginCaller object given to this object at creation will receive callbacks
  * relevant to the state of the login request as it proceedss.
  */
-public class LoginThread extends Thread {
+public class LoginThread extends NetworkThread {
     /*
      * Tag used for logging
      */
     private static final String tag = "LoginThread";
-
-    /*
-     * The IO devices this object will use to communicate with the server. MUST BE SET through
-     * setter methods below before the thread is started
-     */
-    private PrintWriter writer;
-    private DataInputStream reader;
 
     /*
      * The object that should receive callbacks about the state of the login request. Is set in the
@@ -60,22 +54,6 @@ public class LoginThread extends Thread {
     }
 
     /**
-     * Give this LoginThread a PrintWriter to use to write to the server
-     * @param writer - the PrintWriter this thread should use to write to the server
-     */
-    public void setWriter(PrintWriter writer) {
-        this.writer = writer;
-    }
-
-    /**
-     * Give this LoginThread a DataInputStream to use to read from the server
-     * @param reader - the DataInputStream this thread should use to read from the server
-     */
-    public void setReader(DataInputStream reader) {
-        this.reader = reader;
-    }
-
-    /**
      * Send and process a full login request. A login request consists of about three parts.
      *
      * First, the client (this thread) sends a request in the form "login username password"
@@ -97,12 +75,14 @@ public class LoginThread extends Thread {
     @Override
     public void run() {
         // Send our login request to the server.
-        sendRequest();
+        sendRequest("login " + username + " " + password);
+        Log.i(tag, "Sent request \"login " + username + " " + password + "\" to server.");
 
         // We encase this code in a try/catch because our readInt and readLine methods throw any
         // exceptions they encounter while trying to read
         try {
             int code = readInt();
+            Log.i(tag, "Read: " + code);
 
             switch (code) {
                 case ReturnCodes.Login.SUCCESS:
@@ -135,6 +115,7 @@ public class LoginThread extends Thread {
             // Now we read all the user's game data from the server
 
             int numGames = readInt();
+            Log.i(tag, "Read: " + code);
 
             // According to protocol, it's possible that the server encounters an error after logging in
             // the user but BEFORE sending games. So we handle that possibility here.
@@ -154,9 +135,12 @@ public class LoginThread extends Thread {
                         // Note that we're in a try-catch, so we assume that the line returned here
                         // is valid and complete
                         line = this.readLine();
+                        Log.i(tag, "Read: " + line);
                         serverData.add(line);
                     } else if (data.type == 'i') {
-                        serverData.add(this.readInt());
+                        code = this.readInt();
+                        Log.i(tag, "Read: " + code);
+                        serverData.add(code);
                     }
                 }
 
@@ -180,55 +164,5 @@ public class LoginThread extends Thread {
             e.printStackTrace();
             caller.systemError();
         }
-    }
-
-    /**
-     * Send a login request to the server using the data stored in this object
-     */
-    private void sendRequest() {
-        // TODO: look into what happens when the server shuts down and the writer tries to write
-        Log.i(tag, "Sent request \"login " + username + " " + password + "\" to server");
-        writer.println("login " + username + " " + password);
-    }
-
-    /**
-     * Read a single integer from the server and return it
-     * @return the integer read from the server
-     * @throws SocketException if the server has disconnected when this method tries to read from it
-     * @throws IOException if there is some other problem with the read, like a system error
-     */
-    private int readInt() throws SocketException, IOException {
-        // TODO: Look into what happens when the server shuts down and the reader tries to read
-        int code = reader.readInt();
-        Log.i(tag, "Read: " + code);
-        return code;
-    }
-
-    /**
-     * Reads a single line of input from the server. That is, reads ONE-BYTE chars from the server
-     * repeatedly until a network newline, "\r\n", is found.
-     *
-     * @throws SocketException if the server has disconnected when this method tries to read from it
-     * @throws IOException if there is some other problem with the read, like a system error
-     */
-    private String readLine() throws SocketException, IOException {
-        char[] last = {'\0', '\0'};
-        StringBuilder builder = new StringBuilder();
-
-        char read;
-        while(last[0] != '\r'|| last[1] != '\n') {
-            read = (char)reader.read();
-            Log.i(tag, "Read: " + read);
-            last[0] = last[1];
-            last[1] = read;
-
-            builder.append(read);
-        }
-
-        // Truncate the builder to omit the "\r\n" at the end of the line
-        builder.setLength(builder.length() - 2);
-        String line = builder.toString();
-        Log.i(tag, "Read: \"" + line + "\"");
-        return line;
     }
 }
