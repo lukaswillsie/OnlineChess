@@ -27,62 +27,127 @@ import com.lukaswillsie.onlinechess.R;
  * a connection.
  */
 public abstract class ErrorDialogActivity extends AppCompatActivity {
+    /**
+     * A class built to allow the Activity and an error dialog communicating a system error to the
+     * user to communicate.
+     */
     private class SystemErrorDialogListener implements ErrorDialogFragment.CancellableErrorDialogListener {
+        /**
+         * Passes the fact that the user clicked "Try Again" on a system error dialog to the
+         * Activity
+         */
         @Override
         public void retry() {
             retrySystemError();
         }
 
+        /**
+         * Passes the fact that the user clicked "Cancel" on a system error dialog to the
+         * Activity
+         */
         @Override
         public void cancel() {
             cancelSystemError();
         }
     }
 
+    /**
+     * A class built to allow the Activity and an error dialog communicating a server error to the
+     * user to communicate.
+     */
     private class ServerErrorDialogListener implements ErrorDialogFragment.CancellableErrorDialogListener {
+        /**
+         * Passes the fact that the user clicked "Try Again" on a server error dialog to the
+         * Activity
+         */
         @Override
         public void retry() {
             retryServerError();
         }
 
+        /**
+         * Passes the fact that the user clicked "Cancel" on a server error dialog to the
+         * Activity
+         */
         @Override
         public void cancel() {
             cancelServerError();
         }
     }
 
+    /**
+     * A class built to allow the Activity and an error dialog communicating a loss of connection to
+     * the user to communicate.
+     */
     private class ConnectionLostDialogListener implements ErrorDialogFragment.ErrorDialogListener {
+        /**
+         * Passes the fact that the user clicked "Try Again" on a lost connection dialog to the
+         * Activity
+         */
         @Override
         public void retry() {
             retryConnection();
         }
     }
 
+    /**
+     * Build and show a dialog communicating a system error to the user. The shown dialog provides
+     * a "Cancel" and "Try Again" button. This dialog can be closed by clicking outside of it or
+     * by pressing the back button. Either of these actions will be communicated back to the
+     * Activity exactly as if the user had pressed cancel.
+     */
     public void createSystemErrorDialog() {
         ErrorDialogFragment fragment = new ErrorDialogFragment(new SystemErrorDialogListener(), getResources().getString(R.string.system_error_alert));
         fragment.show(getSupportFragmentManager(), "system_error_dialog");
     }
 
+    /**
+     * Build and show a dialog communicating a server error to the user. The shown dialog provides
+     * a "Cancel" and "Try Again" button. This dialog can be closed by clicking outside of it or
+     * by pressing the back button. Either of these actions will be communicated back to the
+     * Activity exactly as if the user had pressed cancel.
+     */
     public void createServerErrorDialog() {
         ErrorDialogFragment fragment = new ErrorDialogFragment(new ServerErrorDialogListener(), getResources().getString(R.string.server_error_alert));
         fragment.show(getSupportFragmentManager(), "server_error_dialog");
     }
 
+    /**
+     * Build and show a dialog communicating a system error to the user. The shown dialog provides
+     *  only a "Try Again" button. This dialog cannot be closed by clicking outside of it or by
+     *  pressing the back button. The only option is to press "Try Again" or close the app.
+     */
     public void createConnectionLostDialog() {
         ErrorDialogFragment fragment = new ErrorDialogFragment(new ConnectionLostDialogListener(), getResources().getString(R.string.connection_lost_alert));
         fragment.show(getSupportFragmentManager(), "system_error_dialog");
     }
 
 
+    /**
+     * Provides behaviour in the event that the user presses "Try Again" on a system error dialog
+     */
     public abstract void retrySystemError();
 
+    /**
+     * Provides behaviour in the event that the user presses "Cancel" on a system error dialog
+     */
     public abstract void cancelSystemError();
 
 
+    /**
+     * Provides behaviour in the event that the user presses "Try Again" on a server error dialog
+     */
     public abstract void retryServerError();
 
+    /**
+     * Provides behaviour in the event that the user presses "Cancel" on a server error dialog
+     */
     public abstract void cancelServerError();
 
 
+    /**
+     * Provides behaviour in the event that the user presses "Try Again" on a lost connection error
+     * dialog.
+     */
     public abstract void retryConnection();
 }

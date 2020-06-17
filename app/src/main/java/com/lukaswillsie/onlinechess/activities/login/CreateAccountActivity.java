@@ -1,6 +1,5 @@
 package com.lukaswillsie.onlinechess.activities.login;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
 import android.app.Activity;
@@ -21,7 +20,14 @@ import com.lukaswillsie.onlinechess.network.helper.CreateAccountRequester;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 
+/**
+ * Activity class representing the screen that users are taken to when they want to create a new
+ * account.
+ */
 public class CreateAccountActivity extends ErrorDialogActivity implements CreateAccountRequester {
+    /**
+     * Tag used for logging to the console
+     */
     private static final String tag = "CreateAccountActivity";
 
     /*
@@ -62,6 +68,9 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
         this.state = State.WAITING_FOR_USER_INPUT;
     }
 
+    /**
+     * Called when the server responds that an account creation request was successful
+     */
     @Override
     public void createAccountSuccess() {
         if(this.state == State.PROCESSING) {
@@ -70,6 +79,9 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
         }
     }
 
+    /**
+     * Called when the server responds that the given username is already in use
+     */
     @Override
     public void usernameInUse() {
         if(this.state == State.PROCESSING) {
@@ -83,6 +95,10 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
         }
     }
 
+    /**
+     * Called when the server responds that the given username and/or password are invalidly
+     * formatted and can't be accepted
+     */
     @Override
     public void formatInvalid() {
         if(this.state == State.PROCESSING) {
@@ -97,46 +113,78 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
         }
     }
 
+    /**
+     * To be called if a request has been made (other than simply a connect request) but the server
+     * is found to be unresponsive during the course of handling the request
+     */
     @Override
     public void connectionLost() {
         this.createConnectionLostDialog();
     }
 
+    /**
+     * To be called if the server ever responds to a request with ReturnCodes.SERVER_ERROR, or if
+     * the data received from the server is wrong, and doesn't correspond to its established
+     * protocols. Basically, if something inexplicable happened server-side.
+     */
     @Override
     public void serverError() {
         this.createServerErrorDialog();
     }
 
+    /**
+     * This method will be called if a system error occurs during the processing of a network
+     * request. For example, if the internet has gone down, or an output/input stream cannot be
+     * opened, or is causing some other problem. Simply allows the calling activity to differentiate
+     * how it communicates errors to the user.
+     */
     @Override
     public void systemError() {
         this.createSystemErrorDialog();
     }
 
 
-
+    /**
+     * Provides behaviour in the event that the user presses "Try Again" on a system error dialog
+     */
     @Override
     public void retrySystemError() {
         this.processCreateAccount();
     }
 
+    /**
+     * Provides behaviour in the event that the user presses "Cancel" on a system error dialog
+     */
     @Override
     public void cancelSystemError() {
         this.resetUI();
         this.state = State.WAITING_FOR_USER_INPUT;
     }
 
+
+    /**
+     * Provides behaviour in the event that the user presses "Try Again" on a server error dialog
+     */
     @Override
     public void retryServerError() {
         this.state = State.WAITING_FOR_USER_INPUT;
         this.processCreateAccount();
     }
 
+    /**
+     * Provides behaviour in the event that the user presses "Cancel" on a server error dialog
+     */
     @Override
     public void cancelServerError() {
         this.resetUI();
         this.state = State.WAITING_FOR_USER_INPUT;
     }
 
+
+    /**
+     * Provides behaviour in the event that the user presses "Try Again" on a lost connection error
+     * dialog.
+     */
     @Override
     public void retryConnection() {
         // TODO: Decide what to do here.
@@ -152,6 +200,10 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
         processCreateAccount();
     }
 
+    /**
+     * Process an account creation request using the data that is currently entered into the
+     * on-screen EditTexts
+     */
     public void processCreateAccount() {
         if(this.state == State.WAITING_FOR_USER_INPUT) {
             // Hide any error text that may be showing

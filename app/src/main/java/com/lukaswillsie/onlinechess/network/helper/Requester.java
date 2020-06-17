@@ -22,7 +22,7 @@ public interface Requester extends Networker {
     /**
      * To be called if the server ever responds to a request with ReturnCodes.SERVER_ERROR, or if
      * the data received from the server is wrong, and doesn't correspond to its established
-     * protocols
+     * protocols. Basically, if something inexplicable happened server-side.
      */
     void serverError();
 }

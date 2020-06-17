@@ -24,6 +24,9 @@ public class ErrorDialogFragment extends DialogFragment {
      * this interface
      */
     public interface ErrorDialogListener {
+        /**
+         * Will be called when the user clicks the "Try Again" button
+         */
         void retry();
     }
 
@@ -32,6 +35,9 @@ public class ErrorDialogFragment extends DialogFragment {
      * this interface
      */
     public interface CancellableErrorDialogListener extends ErrorDialogListener {
+        /**
+         * Will be called when the user clicks the "Cancel" button
+         */
         void cancel();
     }
 
