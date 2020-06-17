@@ -2,6 +2,8 @@ package com.lukaswillsie.onlinechess.network.threads;
 
 import android.util.Log;
 
+import com.lukaswillsie.onlinechess.network.threads.callers.ConnectCaller;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;

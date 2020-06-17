@@ -1,18 +1,18 @@
 package com.lukaswillsie.onlinechess.network.helper;
 
-import android.content.Context;
 import android.os.Message;
 import android.util.Log;
 import android.os.Handler;
 
 import androidx.annotation.NonNull;
 
-import com.lukaswillsie.onlinechess.data.Game;
-import com.lukaswillsie.onlinechess.network.threads.ConnectCaller;
+import com.lukaswillsie.onlinechess.network.helper.requesters.Connector;
+import com.lukaswillsie.onlinechess.network.helper.requesters.CreateAccountRequester;
+import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
+import com.lukaswillsie.onlinechess.network.helper.requesters.Networker;
+import com.lukaswillsie.onlinechess.network.threads.callers.ConnectCaller;
 import com.lukaswillsie.onlinechess.network.threads.ConnectThread;
-import com.lukaswillsie.onlinechess.network.threads.LoginThread;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
-import com.lukaswillsie.onlinechess.network.threads.ThreadCaller;
 
 import java.io.DataInputStream;
 import java.io.IOException;

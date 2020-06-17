@@ -5,7 +5,8 @@ import android.os.Message;
 import androidx.annotation.NonNull;
 
 import com.lukaswillsie.onlinechess.data.Game;
-import com.lukaswillsie.onlinechess.network.threads.LoginCaller;
+import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
+import com.lukaswillsie.onlinechess.network.threads.callers.LoginCaller;
 import com.lukaswillsie.onlinechess.network.threads.LoginThread;
 
 import java.util.List;

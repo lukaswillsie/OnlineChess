@@ -11,15 +11,20 @@ import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogFragment;
 import com.lukaswillsie.onlinechess.activities.login.LoginActivity;
-import com.lukaswillsie.onlinechess.network.helper.Connector;
+import com.lukaswillsie.onlinechess.network.helper.requesters.Connector;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 
+/**
+ * Code behind a simple loading screen that is displayed when the app first starts, covering up the
+ * process of establishing a connection with the server.
+ */
 public class LoadActivity extends AppCompatActivity implements Connector, ErrorDialogFragment.ErrorDialogListener {
     /**
      * Tag for logging information to the console
      */
     private static final String tag = "LoadActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +74,9 @@ public class LoadActivity extends AppCompatActivity implements Connector, ErrorD
         failedDialog.show(getSupportFragmentManager(), "connection_failed_dialog");
     }
 
+    /**
+     * Called when the user clicks "Try Again" on a connection failed dialog
+     */
     public void retry() {
         try {
             new ServerHelper().connect(this);
@@ -79,9 +87,13 @@ public class LoadActivity extends AppCompatActivity implements Connector, ErrorD
         }
     }
 
+    /**
+     * Called by ServerHelper when a connection attempt is met with a system error. In this event,
+     * we display a dialog box notifying the user that we couldn't establish a connection, and give
+     * them the option to try again.
+     */
     @Override
     public void systemError() {
-        // TODO: Implement this to be tailored more specifically to a network error
         this.connectionFailed();
     }
 }

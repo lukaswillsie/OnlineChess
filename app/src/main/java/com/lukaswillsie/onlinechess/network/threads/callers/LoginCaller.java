@@ -1,4 +1,4 @@
-package com.lukaswillsie.onlinechess.network.threads;
+package com.lukaswillsie.onlinechess.network.threads.callers;
 
 import com.lukaswillsie.onlinechess.data.Game;
 

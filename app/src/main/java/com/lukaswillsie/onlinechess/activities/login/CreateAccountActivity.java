@@ -16,7 +16,7 @@ import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.MainActivity;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogActivity;
-import com.lukaswillsie.onlinechess.network.helper.CreateAccountRequester;
+import com.lukaswillsie.onlinechess.network.helper.requesters.CreateAccountRequester;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 

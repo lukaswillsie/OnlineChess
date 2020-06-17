@@ -1,8 +1,6 @@
 package com.lukaswillsie.onlinechess.activities.login;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import androidx.fragment.app.DialogFragment;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -18,10 +16,9 @@ import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.MainActivity;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogActivity;
-import com.lukaswillsie.onlinechess.activities.ErrorDialogFragment;
 import com.lukaswillsie.onlinechess.activities.load.LoadActivity;
 import com.lukaswillsie.onlinechess.data.Game;
-import com.lukaswillsie.onlinechess.network.helper.LoginRequester;
+import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 
@@ -87,32 +84,36 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
         // We only want to perform an action if we're at the first stage, and we don't have an
         // ongoing login request being handled
         if(this.state == State.WAITING_FOR_USER_INPUT) {
-            // Hide any error text that may be showing from past login attempts
-            findViewById(R.id.login_input_error).setVisibility(View.INVISIBLE);
-
-            // Change login button colour to indicate processing start
-            CardView loginCard = findViewById(R.id.login);
-            loginCard.setCardBackgroundColor(getResources().getColor(R.color.loginLoading));
-
-            // Replace "LOGIN" text with a progress bar and text saying "Processing credentials..."
-            // until we get a response from the server
-            ((TextView) findViewById(R.id.login_button_text)).setText(R.string.login_processing_text);
-            findViewById(R.id.login_progress).setVisibility(View.VISIBLE);
-
-            // Prevent the user from interacting with the EditTexts until the login request is complete
-            hideKeyboard();
-            findViewById(R.id.username).setFocusable(false);
-            findViewById(R.id.password).setFocusable(false);
-
             String username = ((EditText) findViewById(R.id.username)).getText().toString();
             String password = ((EditText) findViewById(R.id.password)).getText().toString();
 
             if(Format.validUsername(username) && Format.validPassword(password)) {
+                // Hide any error text that may be showing from past login attempts
+                findViewById(R.id.login_input_error).setVisibility(View.INVISIBLE);
+
+                // Change login button colour to indicate processing start
+                CardView loginCard = findViewById(R.id.login);
+                loginCard.setCardBackgroundColor(getResources().getColor(R.color.loginLoading));
+
+                // Replace "LOGIN" text with a progress bar and text saying "Processing credentials..."
+                // until we get a response from the server
+                ((TextView) findViewById(R.id.login_button_text)).setText(R.string.login_processing_text);
+                findViewById(R.id.login_progress).setVisibility(View.VISIBLE);
+
+                // Prevent the user from interacting with the EditTexts until the login request is complete
+                hideKeyboard();
+                findViewById(R.id.username).setFocusable(false);
+                findViewById(R.id.password).setFocusable(false);
+
                 try {
                     serverHelper.login(this, username, password);
                     this.state = State.WAITING_FOR_SERVER_RESPONSE;
                 } catch (MultipleRequestException e) {
-                    // TODO: Decide what to do here. This should never happen.
+                    // This should never happen, but if it does, we notify the user that a problem
+                    // came up, and we present the option to try again. It's possible that the other
+                    // request will have finished by then. If this doesn't resolve the problem, it's
+                    // a bug, and this is the most graceful way we can handle it.
+                    this.createServerErrorDialog();
                     Log.e(tag, "Submitted multiple requests to ServerHelper");
                 }
             }
@@ -123,7 +124,10 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
     }
 
     private void invalidInfo() {
-        // TODO: Decide what to do with invalidly formatted input
+        // Display an error message
+        TextView errorText = findViewById(R.id.login_input_error);
+        errorText.setText(R.string.format_invalid_error);
+        errorText.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -241,6 +245,10 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
      */
     @Override
     public void connectionLost() {
+        // Now that we've encountered an error, we end the login animation on the button to indicate
+        // that login processing has stopped
+        this.state = State.WAITING_FOR_USER_INPUT;
+        this.resetButton();
         this.createConnectionLostDialog();
     }
 
@@ -252,6 +260,10 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
      */
     @Override
     public void serverError() {
+        // Now that we've encountered an error, we end the login animation on the button to indicate
+        // that login processing has stopped
+        this.state = State.WAITING_FOR_USER_INPUT;
+        this.resetButton();
         this.createServerErrorDialog();
     }
 
@@ -263,6 +275,10 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
      */
     @Override
     public void systemError() {
+        // Now that we've encountered an error, we end the login animation on the button to indicate
+        // that login processing has stopped
+        this.state = State.WAITING_FOR_USER_INPUT;
+        this.resetButton();
         this.createSystemErrorDialog();
     }
 
@@ -270,26 +286,22 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
 
     @Override
     public void retrySystemError() {
-        this.state = State.WAITING_FOR_USER_INPUT;
         this.processLogin();
     }
 
     @Override
     public void cancelSystemError() {
         resetUI();
-        this.state = State.WAITING_FOR_USER_INPUT;
     }
 
     @Override
     public void retryServerError() {
-        this.state = State.WAITING_FOR_USER_INPUT;
         this.processLogin();
     }
 
     @Override
     public void cancelServerError() {
         resetUI();
-        this.state = State.WAITING_FOR_USER_INPUT;
     }
 
     @Override
@@ -303,10 +315,6 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
      * focusable, and the login button is the right colour and contains the right text.
      */
     private void resetUI() {
-        // Change login button colour to indicate that the user can try to login again
-        CardView loginCard = findViewById(R.id.login);
-        loginCard.setCardBackgroundColor(Color.parseColor("#000000"));
-
         // Reactivate & empty the username EditText
         EditText username = findViewById(R.id.username);
         username.setText("");
@@ -319,7 +327,20 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
         password.setFocusableInTouchMode(true);
         password.setFocusable(true);
 
-        // Reset the login button text to "LOGIN" and hide progress bar
+        this.resetButton();
+    }
+
+    /**
+     * Resets the Login button to its initial state, as given by the layout XML. In particular,
+     * hides the ProgressBar, ensures that the button's colour is black, and resets its text to
+     * "Login".
+     */
+    private void resetButton() {
+        // Change button colour back to black
+        CardView loginCard = findViewById(R.id.login);
+        loginCard.setCardBackgroundColor(Color.parseColor("#000000"));
+
+        // Reset the button text to "LOGIN" and hide progress bar
         ((TextView)findViewById(R.id.login_button_text)).setText(R.string.login_button);
         findViewById(R.id.login_progress).setVisibility(View.INVISIBLE);
     }

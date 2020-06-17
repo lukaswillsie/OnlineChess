@@ -1,4 +1,4 @@
-package com.lukaswillsie.onlinechess.network.threads;
+package com.lukaswillsie.onlinechess.network.threads.callers;
 
 /**
  * This interface defines behaviour that should be common to all objects that are spawning a Thread

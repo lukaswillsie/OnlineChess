@@ -1,4 +1,4 @@
-package com.lukaswillsie.onlinechess.network.helper;
+package com.lukaswillsie.onlinechess.network.helper.requesters;
 
 import com.lukaswillsie.onlinechess.data.Game;
 

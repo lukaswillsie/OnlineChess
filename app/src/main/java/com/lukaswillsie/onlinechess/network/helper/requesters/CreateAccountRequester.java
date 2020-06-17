@@ -1,4 +1,4 @@
-package com.lukaswillsie.onlinechess.network.helper;
+package com.lukaswillsie.onlinechess.network.helper.requesters;
 
 /**
  * Defines what events an Activity needs to be able to handle if it wants to use ServerHelper to

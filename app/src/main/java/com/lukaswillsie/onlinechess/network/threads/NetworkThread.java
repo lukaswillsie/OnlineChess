@@ -3,6 +3,7 @@ package com.lukaswillsie.onlinechess.network.threads;
 import android.util.Log;
 
 import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.SocketException;
@@ -38,11 +39,13 @@ abstract class NetworkThread extends Thread {
     /**
      * Read a single integer from the server and return it
      * @return the integer read from the server
-     * @throws SocketException if the server has disconnected when this method tries to read from it
+     * @throws EOFException if the server has willfully closed its connection with us when the read
+     *                      occurs
+     * @throws SocketException if the connection with the server has been closed for some other
+     *                         reason, for example if the server crashed
      * @throws IOException if there is some other problem with the read, like a system error
      */
-    int readInt() throws SocketException, IOException {
-        // TODO: Look into what happens when the server shuts down and the reader tries to read
+    int readInt() throws EOFException, SocketException, IOException {
         return reader.readInt();
     }
 
@@ -68,8 +71,7 @@ abstract class NetworkThread extends Thread {
 
         // Truncate the builder to omit the "\r\n" at the end of the line
         builder.setLength(builder.length() - 2);
-        String line = builder.toString();
-        return line;
+        return builder.toString();
     }
 
     /**

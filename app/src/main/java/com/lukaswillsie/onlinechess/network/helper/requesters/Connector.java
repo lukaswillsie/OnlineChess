@@ -1,5 +1,7 @@
-package com.lukaswillsie.onlinechess.network.helper;
+package com.lukaswillsie.onlinechess.network.helper.requesters;
 
+
+import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 
 /**
  * Activities that wish to establish a connection with the server need to implement this interface

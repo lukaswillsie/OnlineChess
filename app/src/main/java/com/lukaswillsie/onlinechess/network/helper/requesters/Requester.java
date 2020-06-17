@@ -1,4 +1,4 @@
-package com.lukaswillsie.onlinechess.network.helper;
+package com.lukaswillsie.onlinechess.network.helper.requesters;
 
 /**
  * This interface is used to identify Activities that may need to SEND REQUESTS TO THE SERVER via a
@@ -12,7 +12,6 @@ package com.lukaswillsie.onlinechess.network.helper;
  * depending on the nature of the problem, if it wishes.
  */
 public interface Requester extends Networker {
-    // TODO: Implement pinging on the server-side and then come back here and build it into serverHelper
     /**
      * To be called if a request has been made (other than simply a connect request) but the server
      * is found to be unresponsive during the course of handling the request

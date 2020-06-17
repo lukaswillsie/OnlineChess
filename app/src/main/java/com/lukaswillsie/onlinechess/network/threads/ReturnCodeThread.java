@@ -2,6 +2,9 @@ package com.lukaswillsie.onlinechess.network.threads;
 
 import android.util.Log;
 
+import com.lukaswillsie.onlinechess.network.threads.callers.ReturnCodeCaller;
+
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.SocketException;
 
@@ -54,12 +57,19 @@ public class ReturnCodeThread extends NetworkThread {
             int code = this.readInt();
             caller.onServerReturn(code);
         }
-        catch(SocketException e) {
-            Log.i(tag, "Server disconnected.");
+        // These first two exceptions mean that the server has disconnected
+        catch(EOFException e) {
+            Log.i(tag, "EOFException thrown. Server disconnected.");
             caller.connectionLost();
         }
+        catch(SocketException e) {
+            Log.i(tag, "SocketException thrown. Server disconnected.");
+            caller.connectionLost();
+        }
+        // This means that there was some other problem, a system problem, with our attempt to read
         catch(IOException e) {
             Log.i(tag, "IOException while reading from server");
+            e.printStackTrace();
             caller.systemError();
         }
     }

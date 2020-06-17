@@ -1,4 +1,4 @@
-package com.lukaswillsie.onlinechess.network.threads;
+package com.lukaswillsie.onlinechess.network.threads.callers;
 
 /**
  * This interface must be implemented before an object can spawn a ReturnCodeThread to issue a

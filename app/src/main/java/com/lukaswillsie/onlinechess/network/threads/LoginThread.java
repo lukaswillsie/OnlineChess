@@ -1,16 +1,15 @@
 package com.lukaswillsie.onlinechess.network.threads;
 
 
-import android.net.Network;
 import android.util.Log;
 
 import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.ServerData;
 import com.lukaswillsie.onlinechess.network.ReturnCodes;
+import com.lukaswillsie.onlinechess.network.threads.callers.LoginCaller;
 
-import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
@@ -153,7 +152,18 @@ public class LoginThread extends NetworkThread {
             // Pass the compiled list of games to the caller.
             caller.loginComplete(games);
         }
+        catch(EOFException e) {
+            // This means the server has closed their end of the connection.
+            //
+            // If the server has disconnected, we can't proceed with a login until a new connection
+            // has been made. So notify the caller of the problem, and then exit this thread.
+            Log.e(tag, "Server has disconnected.");
+            caller.connectionLost();
+        }
         catch(SocketException e) {
+            // This means some problem occurred with the connection. The server may have crashed,
+            // for example.
+            //
             // If the server has disconnected, we can't proceed with a login until a new connection
             // has been made. So notify the caller of the problem, and then exit this thread.
             Log.e(tag, "Server has disconnected.");
