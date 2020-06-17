@@ -25,4 +25,5 @@
     <string name="logout_text"><u>Logout</u></string>
     <string name="title">Online Chess</string>
     <string name="author">By: Lukas Willsie</string>
+    <string name="loading_dialog_text">Loading...</string>
 </resources>
