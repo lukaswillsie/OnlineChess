@@ -106,6 +106,7 @@ class CreateAccountHelper extends SubHelper implements ReturnCodeCaller {
                 break;
         }
 
+        this.notifyContainerRequestOver();
         msg.sendToTarget();
     }
 

@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,46 +14,30 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.lukaswillsie.onlinechess.ChessApplication;
+import com.lukaswillsie.onlinechess.MainActivity;
 import com.lukaswillsie.onlinechess.R;
-import com.lukaswillsie.onlinechess.activities.EditTextActivity;
+import com.lukaswillsie.onlinechess.activities.ErrorDialogActivity;
 import com.lukaswillsie.onlinechess.network.helper.CreateAccountRequester;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 
-public class CreateAccountActivity extends EditTextActivity implements CreateAccountRequester {
+public class CreateAccountActivity extends ErrorDialogActivity implements CreateAccountRequester {
     private static final String tag = "CreateAccountActivity";
 
+    /*
+     * The ServerHelper this activity will use to communicate with the server
+     */
     private ServerHelper serverHelper;
-    @Override
-    public void createAccountSuccess() {
-        Log.i(tag, "ACCOUNT CREATED");
-    }
 
-    @Override
-    public void usernameInUse() {
-        Log.i(tag, "USERNAME IN USE");
-    }
+    /*
+     * Represents the activity's current state
+     */
+    private State state;
 
-    @Override
-    public void formatInvalid() {
-        Log.i(tag, "FORMAT INVALID");
-    }
-
-    @Override
-    public void connectionLost() {
-        Log.i(tag, "CONNECTION LOST");
-    }
-
-    @Override
-    public void serverError() {
-        Log.i(tag, "SERVER ERROR");
-    }
-
-    @Override
-    public void systemError() {
-        Log.i(tag, "SYSTEM ERROR");
-    }
-
+    /**
+     * Represents the activity's current state; we can either be waiting for the user to press the
+     * "Create Account" button or in the middle of processing an account creation request
+     */
     private enum State {
         WAITING_FOR_USER_INPUT,
         PROCESSING;
@@ -68,11 +54,92 @@ public class CreateAccountActivity extends EditTextActivity implements CreateAcc
 
         // Add OnFocusChangeListeners to all EditTexts so that they are transparent when not active,
         // but become darker when clicked on
-        this.styleEditText(createUsername);
-        this.styleEditText(createPassword);
-        this.styleEditText(confirmPassword);
+        Formatter.styleEditText(createUsername);
+        Formatter.styleEditText(createPassword);
+        Formatter.styleEditText(confirmPassword);
 
         this.serverHelper = ((ChessApplication)getApplicationContext()).getServerHelper();
+        this.state = State.WAITING_FOR_USER_INPUT;
+    }
+
+    @Override
+    public void createAccountSuccess() {
+        if(this.state == State.PROCESSING) {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    public void usernameInUse() {
+        if(this.state == State.PROCESSING) {
+            // Display an error message
+            TextView errorText = findViewById(R.id.create_account_input_error);
+            errorText.setText(R.string.username_in_use_error);
+            errorText.setVisibility(View.VISIBLE);
+
+            resetUI();
+            this.state = State.WAITING_FOR_USER_INPUT;
+        }
+    }
+
+    @Override
+    public void formatInvalid() {
+        if(this.state == State.PROCESSING) {
+            // Display an error message
+            TextView errorText = findViewById(R.id.create_account_input_error);
+            errorText.setText(R.string.format_invalid_error);
+            errorText.setVisibility(View.VISIBLE);
+
+            resetUI();
+
+            this.state = State.WAITING_FOR_USER_INPUT;
+        }
+    }
+
+    @Override
+    public void connectionLost() {
+        this.createConnectionLostDialog();
+    }
+
+    @Override
+    public void serverError() {
+        this.createServerErrorDialog();
+    }
+
+    @Override
+    public void systemError() {
+        this.createSystemErrorDialog();
+    }
+
+
+
+    @Override
+    public void retrySystemError() {
+        this.processCreateAccount();
+    }
+
+    @Override
+    public void cancelSystemError() {
+        this.resetUI();
+        this.state = State.WAITING_FOR_USER_INPUT;
+    }
+
+    @Override
+    public void retryServerError() {
+        this.state = State.WAITING_FOR_USER_INPUT;
+        this.processCreateAccount();
+    }
+
+    @Override
+    public void cancelServerError() {
+        this.resetUI();
+        this.state = State.WAITING_FOR_USER_INPUT;
+    }
+
+    @Override
+    public void retryConnection() {
+        // TODO: Decide what to do here.
     }
 
     /**
@@ -82,37 +149,69 @@ public class CreateAccountActivity extends EditTextActivity implements CreateAcc
      * @param view
      */
     public void create(View view) {
-        EditText createUsername = findViewById(R.id.create_username);
-        EditText createPassword = findViewById(R.id.create_password);
-        EditText confirmPassword = findViewById(R.id.confirm_password);
+        processCreateAccount();
+    }
 
-        createUsername.setFocusable(false);
-        createPassword.setFocusable(false);
-        confirmPassword.setFocusable(false);
-        this.hideKeyboard();
+    public void processCreateAccount() {
+        if(this.state == State.WAITING_FOR_USER_INPUT) {
+            // Hide any error text that may be showing
+            findViewById(R.id.create_account_input_error).setVisibility(View.INVISIBLE);
 
-        CardView card = findViewById(R.id.create_account_button);
-        card.setCardBackgroundColor(getResources().getColor(R.color.loginLoading));
+            // Get a reference to each of the EditTexts on the screen
+            EditText createUsername = findViewById(R.id.create_username);
+            EditText createPassword = findViewById(R.id.create_password);
+            EditText confirmPassword = findViewById(R.id.confirm_password);
 
-        TextView buttonText = findViewById(R.id.create_account_button_text);
-        buttonText.setText(R.string.account_creation_processing_text);
+            // Send the server a login request
+            String username = createUsername.getText().toString();
+            String password = createPassword.getText().toString();
+            String confirm = confirmPassword.getText().toString();
 
-        findViewById(R.id.create_account_progress).setVisibility(View.VISIBLE);
+            if(Format.validPassword(password) && Format.validUsername(username)) {
+                if(password.equals(confirm)) {
+                    // Disable the EditTexts and hide the keyboard
+                    createUsername.setFocusable(false);
+                    createPassword.setFocusable(false);
+                    confirmPassword.setFocusable(false);
+                    this.hideKeyboard();
 
-        String username = ((EditText)createUsername).getText().toString();
-        String password = ((EditText)createPassword).getText().toString();
-        String confirm = ((EditText)confirmPassword).getText().toString();
+                    // Change the color of the login button
+                    CardView card = findViewById(R.id.create_account_button);
+                    card.setCardBackgroundColor(getResources().getColor(R.color.loginLoading));
 
-        try {
-            serverHelper.createAccount(this, username, password);
-        } catch (MultipleRequestException e) {
-            Log.e(tag, "Submitted multiple requests to ServerHelper");
+                    // Change the text of the login button
+                    TextView buttonText = findViewById(R.id.create_account_button_text);
+                    buttonText.setText(R.string.account_creation_processing_text);
+
+                    // Reveal the progress bar in the login button
+                    findViewById(R.id.create_account_progress).setVisibility(View.VISIBLE);
+
+                    try {
+                        serverHelper.createAccount(this, username, password);
+                        this.state = State.PROCESSING;
+                    } catch (MultipleRequestException e) {
+                        Log.e(tag, "Submitted multiple requests to ServerHelper");
+                    }
+                }
+                else {
+                    // Display an error message
+                    TextView errorText = findViewById(R.id.create_account_input_error);
+                    errorText.setText(R.string.confirm_not_equal_to_password);
+                    errorText.setVisibility(View.VISIBLE);
+                }
+            }
+            else {
+                // Display an error message
+                TextView errorText = findViewById(R.id.create_account_input_error);
+                errorText.setText(R.string.format_invalid_error);
+                errorText.setVisibility(View.VISIBLE);
+            }
         }
     }
 
     /**
      * Hide the keyboard, so that we present the user with a nice clean loading interface after they
-     * press the CREATE_ACCOUNT button.
+     * press the CREATE ACCOUNT button.
      *
      * This code was found on StackOverflow at the following address:
      *
@@ -127,5 +226,36 @@ public class CreateAccountActivity extends EditTextActivity implements CreateAcc
         }
 
         manager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    /**
+     * Revert the UI to its initial state. That is, reactivates the EditTexts, changes the colour
+     * of the button to black, sets its text as "Create Account", and hides the ProgressBar
+     */
+    private void resetUI()  {
+        // Reactivate all three EditTexts
+        EditText username = findViewById(R.id.create_username);
+        username.setText("");
+        username.setFocusableInTouchMode(true);
+        username.setFocusable(true);
+
+        EditText password = findViewById(R.id.create_password);
+        password.setText("");
+        password.setFocusableInTouchMode(true);
+        password.setFocusable(true);
+
+        EditText confirmPassword = findViewById(R.id.confirm_password);
+        confirmPassword.setText("");
+        confirmPassword.setFocusableInTouchMode(true);
+        confirmPassword.setFocusable(true);
+
+        // Revert the button back to black
+        ((CardView)findViewById(R.id.create_account_button)).setCardBackgroundColor(Color.parseColor("#000000"));
+
+        // Hide the ProgressBar
+        findViewById(R.id.create_account_progress).setVisibility(View.INVISIBLE);
+
+        // Reset the button text to "Create Account"
+        ((TextView)findViewById(R.id.create_account_button_text)).setText(R.string.create_account_button);
     }
 }

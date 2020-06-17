@@ -1,5 +1,6 @@
 package com.lukaswillsie.onlinechess.activities.login;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.DialogFragment;
 
@@ -16,7 +17,7 @@ import android.widget.TextView;
 import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.MainActivity;
 import com.lukaswillsie.onlinechess.R;
-import com.lukaswillsie.onlinechess.activities.EditTextActivity;
+import com.lukaswillsie.onlinechess.activities.ErrorDialogActivity;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogFragment;
 import com.lukaswillsie.onlinechess.activities.load.LoadActivity;
 import com.lukaswillsie.onlinechess.data.Game;
@@ -26,7 +27,7 @@ import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 
 import java.util.List;
 
-public class LoginActivity extends EditTextActivity implements LoginRequester {
+public class LoginActivity extends ErrorDialogActivity implements LoginRequester {
     private static final String tag = "LoginActivity";
     private ServerHelper serverHelper;
     private State state;
@@ -42,32 +43,6 @@ public class LoginActivity extends EditTextActivity implements LoginRequester {
                                         // game data sent over by the server
     }
 
-    private class SystemErrorDialogListener implements ErrorDialogFragment.ErrorDialogListener {
-        @Override
-        public void retry() {
-           processLogin();
-        }
-    }
-
-    private class ServerErrorDialogListener implements ErrorDialogFragment.ErrorDialogListener {
-        @Override
-        public void retry() {
-            processLogin();
-        }
-    }
-
-    private class ConnectionLostDialogListener implements ErrorDialogFragment.ErrorDialogListener {
-        private LoginActivity creator;
-
-        public ConnectionLostDialogListener(LoginActivity creator) {
-            this.creator = creator;
-        }
-        @Override
-        public void retry() {
-            Intent intent = new Intent(this.creator, LoadActivity.class);
-            creator.startActivity(intent);
-        }
-    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,8 +51,8 @@ public class LoginActivity extends EditTextActivity implements LoginRequester {
         this.state = State.WAITING_FOR_USER_INPUT;
 
         // Put onFocusChangeListeners on EditTexts so they become darker when focused
-        this.styleEditText((EditText) findViewById(R.id.username));
-        this.styleEditText((EditText) findViewById(R.id.password));
+        Formatter.styleEditText((EditText) findViewById(R.id.username));
+        Formatter.styleEditText((EditText) findViewById(R.id.password));
 
         serverHelper = ((ChessApplication)getApplicationContext()).getServerHelper();
         Log.i(tag, "serverHelper is " + serverHelper);
@@ -205,25 +180,7 @@ public class LoginActivity extends EditTextActivity implements LoginRequester {
             TextView errorText = findViewById(R.id.login_input_error);
             errorText.setText(R.string.invalid_username_error);
             errorText.setVisibility(View.VISIBLE);
-
-            // Change login button colour to indicate that the user can try to login again
-            CardView loginCard = findViewById(R.id.login);
-            loginCard.setCardBackgroundColor(Color.parseColor("#000000"));
-
-            // Reactivate the username and password EditTexts
-            EditText username = findViewById(R.id.username);
-            username.setText("");
-            username.setFocusableInTouchMode(true);
-            username.setFocusable(true);
-
-            EditText password = findViewById(R.id.password);
-            password.setText("");
-            password.setFocusableInTouchMode(true);
-            password.setFocusable(true);
-
-            // Reset the login button text to "LOGIN" and hide progress bar
-            ((TextView)findViewById(R.id.login_button_text)).setText(R.string.login_button);
-            findViewById(R.id.login_progress).setVisibility(View.INVISIBLE);
+            resetUI();
 
             this.state = State.WAITING_FOR_USER_INPUT;
         }
@@ -246,25 +203,7 @@ public class LoginActivity extends EditTextActivity implements LoginRequester {
             errorText.setText(R.string.invalid_password_error);
             errorText.setVisibility(View.VISIBLE);
 
-            // Change login button colour to indicate that the user can try to login again
-            CardView loginCard = findViewById(R.id.login);
-            loginCard.setCardBackgroundColor(Color.parseColor("#000000"));
-
-            // Reactivate the username EditText
-            EditText username = findViewById(R.id.username);
-            username.setText("");
-            username.setFocusableInTouchMode(true);
-            username.setFocusable(true);
-
-            // Reactivate the password EditText
-            EditText password = findViewById(R.id.password);
-            password.setText("");
-            password.setFocusableInTouchMode(true);
-            password.setFocusable(true);
-
-            // Reset the login button text to "LOGIN" and hide progress bar
-            ((TextView)findViewById(R.id.login_button_text)).setText(R.string.login_button);
-            findViewById(R.id.login_progress).setVisibility(View.INVISIBLE);
+            resetUI();
 
             this.state = State.WAITING_FOR_USER_INPUT;
         }
@@ -302,8 +241,7 @@ public class LoginActivity extends EditTextActivity implements LoginRequester {
      */
     @Override
     public void connectionLost() {
-        DialogFragment dialog = new ErrorDialogFragment(new ConnectionLostDialogListener(this), getResources().getString(R.string.connection_lost_alert));
-        dialog.show(getSupportFragmentManager(), "connection_lost_dialog");
+        this.createConnectionLostDialog();
     }
 
     /**
@@ -314,8 +252,7 @@ public class LoginActivity extends EditTextActivity implements LoginRequester {
      */
     @Override
     public void serverError() {
-        DialogFragment dialog = new ErrorDialogFragment(new ServerErrorDialogListener(), getResources().getString(R.string.server_error_alert));
-        dialog.show(getSupportFragmentManager(), "server_error_dialog");
+        this.createServerErrorDialog();
     }
 
     /**
@@ -326,7 +263,64 @@ public class LoginActivity extends EditTextActivity implements LoginRequester {
      */
     @Override
     public void systemError() {
-        DialogFragment dialog = new ErrorDialogFragment(new SystemErrorDialogListener(), getResources().getString(R.string.system_error_alert));
-        dialog.show(getSupportFragmentManager(), "system_error_dialog");
+        this.createSystemErrorDialog();
+    }
+
+
+
+    @Override
+    public void retrySystemError() {
+        this.state = State.WAITING_FOR_USER_INPUT;
+        this.processLogin();
+    }
+
+    @Override
+    public void cancelSystemError() {
+        resetUI();
+        this.state = State.WAITING_FOR_USER_INPUT;
+    }
+
+    @Override
+    public void retryServerError() {
+        this.state = State.WAITING_FOR_USER_INPUT;
+        this.processLogin();
+    }
+
+    @Override
+    public void cancelServerError() {
+        resetUI();
+        this.state = State.WAITING_FOR_USER_INPUT;
+    }
+
+    @Override
+    public void retryConnection() {
+        Intent intent = new Intent(this, LoadActivity.class);
+        startActivity(intent);
+    }
+
+    /**
+     * Return the UI to its initial state. Ensure that the ProgressBar is hidden, the EditTexts are
+     * focusable, and the login button is the right colour and contains the right text.
+     */
+    private void resetUI() {
+        // Change login button colour to indicate that the user can try to login again
+        CardView loginCard = findViewById(R.id.login);
+        loginCard.setCardBackgroundColor(Color.parseColor("#000000"));
+
+        // Reactivate & empty the username EditText
+        EditText username = findViewById(R.id.username);
+        username.setText("");
+        username.setFocusableInTouchMode(true);
+        username.setFocusable(true);
+
+        // Reactivate & empty the password EditText
+        EditText password = findViewById(R.id.password);
+        password.setText("");
+        password.setFocusableInTouchMode(true);
+        password.setFocusable(true);
+
+        // Reset the login button text to "LOGIN" and hide progress bar
+        ((TextView)findViewById(R.id.login_button_text)).setText(R.string.login_button);
+        findViewById(R.id.login_progress).setVisibility(View.INVISIBLE);
     }
 }

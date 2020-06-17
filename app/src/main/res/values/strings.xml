@@ -11,6 +11,9 @@
     <string name="loading_text">Loading…</string>
     <string name="invalid_username_error">That username doesn\'t exist</string>
     <string name="invalid_password_error">That password is invalid</string>
+    <string name="username_in_use_error">That username is already taken</string>
+    <string name="format_invalid_error">Usernames and passwords can\'t be empty, contain spaces, or contain commas</string>
+    <string name="confirm_not_equal_to_password">Those passwords don\'t match</string>
     <string name="connection_failed_alert">A connection to the network couldn\'t be established. Please check your connection and try again later.</string>
     <string name="connection_lost_alert">The connection to the server has been lost. Would you like to try again?</string>
     <string name="server_error_alert">We encountered an unexpected error with the server. Would you like to try again?</string>

@@ -72,6 +72,8 @@ public class LoginHelper extends SubHelper implements LoginCaller {
      */
     @Override
     public void serverError() {
+        this.notifyContainerRequestOver();
+
         Message message = this.obtainMessage(SERVER_ERROR);
         message.sendToTarget();
     }
@@ -84,6 +86,8 @@ public class LoginHelper extends SubHelper implements LoginCaller {
      */
     @Override
     public void systemError() {
+        this.notifyContainerRequestOver();
+
         Message message = this.obtainMessage(SYSTEM_ERROR);
         message.sendToTarget();
     }
@@ -96,6 +100,7 @@ public class LoginHelper extends SubHelper implements LoginCaller {
     public void connectionLost() {
         // Notify the containing ServerHelper that the connection has been lost
         this.notifyContainerConnectionLost();
+        this.notifyContainerRequestOver();
 
         Message message = this.obtainMessage(CONNECTION_LOST);
         message.sendToTarget();
@@ -115,6 +120,8 @@ public class LoginHelper extends SubHelper implements LoginCaller {
      */
     @Override
     public void usernameInvalid() {
+        this.notifyContainerRequestOver();
+
         Message message = this.obtainMessage(USERNAME_INVALID);
         message.sendToTarget();
     }
@@ -125,6 +132,8 @@ public class LoginHelper extends SubHelper implements LoginCaller {
      */
     @Override
     public void passwordInvalid() {
+        this.notifyContainerRequestOver();
+
         Message message = this.obtainMessage(PASSWORD_INVALID);
         message.sendToTarget();
     }
@@ -144,9 +153,10 @@ public class LoginHelper extends SubHelper implements LoginCaller {
      */
     @Override
     public void loginComplete(List<Game> games) {
+        this.notifyContainerRequestOver();
+
         Message message = this.obtainMessage(LOGIN_COMPLETE, games);
         message.sendToTarget();
-        this.notifyContainerRequestOver();
     }
 
     /**
