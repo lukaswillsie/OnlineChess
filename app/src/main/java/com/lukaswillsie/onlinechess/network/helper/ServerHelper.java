@@ -109,6 +109,11 @@ public class ServerHelper extends Handler implements ConnectCaller {
     private Networker requester;
 
     /**
+     * Stores whether or not the ServerHelper has an active request
+     */
+    private boolean activeRequest = false;
+
+    /**
      * Create a new ServerHelper for handling network tasks
      */
     public ServerHelper() {
@@ -157,6 +162,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
         if(helper == this.activeHelper) {
             this.activeHelper = null;
             this.requester = null;
+            this.activeRequest = false;
         }
     }
 
@@ -170,7 +176,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
      * @throws MultipleRequestException - if this ServerHelper object already has an ongoing request
      */
     public void login(LoginRequester requester, String username, String password) throws MultipleRequestException {
-        if(this.requester != null) {
+        if(this.activeRequest) {
             throw new MultipleRequestException("Activity " + requester.toString() + " tried to " +
                     "make request while request from " + requester.toString() + " was active.");
         }
@@ -179,6 +185,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
         this.loginHelper.login(requester, username, password);
         this.activeHelper = loginHelper;
         this.requester = requester;
+        this.activeRequest = true;
     }
 
     /**
@@ -193,7 +200,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
      * @throws MultipleRequestException - if this ServerHelper object already has an ongoing request
      */
     public void createAccount(CreateAccountRequester requester, String username, String password) throws MultipleRequestException {
-        if(this.requester != null) {
+        if(this.activeRequest) {
             throw new MultipleRequestException("Activity " + requester.toString() + " tried to " +
                     "make request while request from " + requester.toString() + " was active.");
         }
@@ -201,6 +208,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
         this.createAccountHelper.createAccount(requester, username, password);
         this.activeHelper = createAccountHelper;
         this.requester = requester;
+        this.activeRequest = true;
     }
 
     /**
@@ -210,12 +218,13 @@ public class ServerHelper extends Handler implements ConnectCaller {
      * @throws MultipleRequestException - if this ServerHelper object already has an ongoing request
      */
     public void connect(Connector requester) throws MultipleRequestException {
-        if(this.requester != null) {
+        if(this.activeRequest) {
             throw new MultipleRequestException("Activity " + requester.toString() + " tried to " +
                     "connect while request from " + this.requester.toString() + " was active.");
         }
 
         this.requester = requester;
+        this.activeRequest = true;
         ConnectThread thread = new ConnectThread(HOSTNAME, PORT, this);
         thread.start();
     }
@@ -278,10 +287,12 @@ public class ServerHelper extends Handler implements ConnectCaller {
     public void handleMessage(@NonNull Message msg) {
         switch(msg.what) {
             case CONNECTION_ESTABLISHED:
+                this.activeRequest = false;
                 ((Connector)requester).connectionEstablished(this);
                 this.requester = null;  // Signifies that the connection request is over
                 break;
             case CONNECTION_FAILED:
+                this.activeRequest = false;
                 ((Connector)requester).connectionFailed();
                 this.requester = null;  // Signifies that the connection request is over
                 break;
