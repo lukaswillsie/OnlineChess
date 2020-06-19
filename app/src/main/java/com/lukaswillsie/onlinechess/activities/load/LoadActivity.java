@@ -6,20 +6,30 @@ import androidx.fragment.app.DialogFragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.CheckBox;
+import android.widget.Toast;
 
 import com.lukaswillsie.onlinechess.ChessApplication;
+import com.lukaswillsie.onlinechess.MainActivity;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogFragment;
 import com.lukaswillsie.onlinechess.activities.login.LoginActivity;
+import com.lukaswillsie.onlinechess.data.Game;
+import com.lukaswillsie.onlinechess.data.RememberMeHelper;
 import com.lukaswillsie.onlinechess.network.helper.requesters.Connector;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
+import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Code behind a simple loading screen that is displayed when the app first starts, covering up the
  * process of establishing a connection with the server.
  */
-public class LoadActivity extends AppCompatActivity implements Connector, ErrorDialogFragment.ErrorDialogListener {
+public class LoadActivity extends AppCompatActivity implements Connector, LoginRequester, ErrorDialogFragment.ErrorDialogListener {
     /**
      * Tag for logging information to the console
      */
@@ -53,11 +63,39 @@ public class LoadActivity extends AppCompatActivity implements Connector, ErrorD
      */
     @Override
     public void connectionEstablished(ServerHelper helper) {
-        Intent intent = new Intent(this, LoginActivity.class);
-
         // We add the ServerHelper to ChessApplication for use by all subsequent activities
         ((ChessApplication)getApplicationContext()).setServerHelper(helper);
-        this.startActivity(intent);
+
+        // We try to check if we have any saved user data, that is, if a user has recently
+        // clicked "Remember Me" when logging in.
+        try {
+            HashMap<String, String> savedData = new RememberMeHelper(this).savedUserData();
+
+            // If there was an error querying saved data or there is no saved user data, we simply
+            // start the LoginActivity
+            if(savedData.get(RememberMeHelper.ERROR_KEY).equals("1") || savedData.get(RememberMeHelper.USERNAME_KEY) == null) {
+                startActivity(new Intent(this, LoginActivity.class));
+            }
+            // Otherwise, we have saved user data that we can use to log in, and we attempt to do
+            // just that
+            else {
+                try {
+                    helper.login(this, savedData.get(RememberMeHelper.USERNAME_KEY), savedData.get(RememberMeHelper.PASSWORD_KEY));
+                } catch (MultipleRequestException e) {
+                    // This shouldn't happen. If it does, we log the problem and then move the user
+                    // to the login page, after creating an apologetic toast
+                    Log.e(tag, "Submitted multiple requests to ServerHelper");
+                    Toast.makeText(this, R.string.automatic_login_failure, Toast.LENGTH_LONG).show();
+
+                    startActivity(new Intent(this, LoginActivity.class));
+                }
+            }
+        }
+        // If an error is thrown, we simply move to LoginActivity, because we can't automatically
+        // log anyone in
+        catch (IOException e) {
+            startActivity(new Intent(this, LoginActivity.class));
+        }
     }
 
     /**
@@ -95,5 +133,52 @@ public class LoadActivity extends AppCompatActivity implements Connector, ErrorD
     @Override
     public void systemError() {
         this.connectionFailed();
+    }
+
+    /**
+     * This callback is for when the server has responded that the user's credentials are valid.
+     * Note that this occurs BEFORE the server sends over the user's game data, so it doesn't
+     * mean the login process is complete and the receiver of the callback should move to the next
+     * Activity. It simply allows the activity to notify the user of the progress of the login
+     * request.
+     */
+    @Override
+    public void loginSuccess() {
+        // In this activity, we won't do anything special when the login is validated.
+    }
+
+    /**
+     * Called by ServerHelper when our login attempt is unsuccessful because the given username is
+     * not in the server's records. In this activity, we handle that by displaying a message
+     * telling the user that they couldn't be automatically logged in, before moving to the
+     * LoginActivity
+     */
+    @Override
+    public void usernameInvalid() {
+        Toast.makeText(this, R.string.automatic_login_failure, Toast.LENGTH_LONG).show();
+        startActivity(new Intent(this, LoginActivity.class));
+    }
+
+    @Override
+    public void passwordInvalid() {
+        Toast.makeText(this, R.string.automatic_login_failure, Toast.LENGTH_LONG).show();
+        startActivity(new Intent(this, LoginActivity.class));
+    }
+
+    @Override
+    public void loginComplete(List<Game> games) {
+        ((ChessApplication)this.getApplicationContext()).setGames(games);
+        Toast.makeText(this, R.string.automatic_login_success, Toast.LENGTH_LONG).show();
+        startActivity(new Intent(this, MainActivity.class));
+    }
+
+    @Override
+    public void connectionLost() {
+        this.connectionFailed();
+    }
+
+    @Override
+    public void serverError() {
+
     }
 }
