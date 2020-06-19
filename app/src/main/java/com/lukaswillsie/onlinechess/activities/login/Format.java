@@ -1,11 +1,11 @@
 package com.lukaswillsie.onlinechess.activities.login;
 
-public class Format {
+class Format {
     static boolean validUsername(String username) {
-        return username.length() > 0 && username.indexOf(' ') == -1 && username.indexOf(' ') == -1;
+        return 5 < username.length() && username.length() < 16 && username.indexOf(' ') == -1 && username.indexOf(' ') == -1;
     }
 
     static boolean validPassword(String password) {
-        return password.length() > 0 && password.indexOf(' ') == -1 && password.indexOf(' ') == -1;
+        return 5 < password.length() && password.length() < 16 && password.indexOf(' ') == -1 && password.indexOf(' ') == -1;
     }
 }

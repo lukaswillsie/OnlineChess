@@ -24,9 +24,6 @@ public interface LoginRequester extends Requester {
      * mean the login process is complete and the receiver of the callback should move to the next
      * Activity. It simply allows the activity to notify the user of the progress of the login
      * request.
-     *
-     * In this app, we give the login button a different colour and display different text depending
-     * on where we are in the login request process.
      */
     void loginSuccess();
 

@@ -99,6 +99,29 @@
                     app:layout_constraintBottom_toBottomOf="parent"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/white"
+                android:alpha="0.5"/>
+
+            <CheckBox
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/remember_me_checkbox"
+                android:text="@string/remember_me_text"
+                android:textSize="17sp"
+                android:fontFamily="sans-serif"
+                android:textStyle="bold"
+                android:paddingVertical="7dp"/>
+        </FrameLayout>
+
     </LinearLayout>
 
 
