@@ -16,9 +16,12 @@ import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.MainActivity;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogActivity;
+import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.network.helper.requesters.CreateAccountRequester;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
+
+import java.util.ArrayList;
 
 /**
  * Activity class representing the screen that users are taken to when they want to create a new
@@ -74,6 +77,13 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
     @Override
     public void createAccountSuccess() {
         if(this.state == State.PROCESSING) {
+            // Save an empty list of games (because we've created a totally new user), as well as
+            // the user's username and password, globally in ChessApplication
+            ChessApplication application = (ChessApplication)getApplicationContext();
+            application.setGames(new ArrayList<Game>());
+            application.setUsername(((EditText)findViewById(R.id.username)).getText().toString());
+            application.setPassword(((EditText)findViewById(R.id.password)).getText().toString());
+
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
         }

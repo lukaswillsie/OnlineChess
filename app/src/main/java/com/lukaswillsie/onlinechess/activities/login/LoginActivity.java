@@ -229,8 +229,13 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
     public void loginComplete(List<Game> games) {
         // This callback should only be used when the activity is in the below state
         if(this.state == State.LOADING) {
-            // Save the list of games globally
-            ((ChessApplication) getApplicationContext()).setGames(games);
+            // Save the list of games, as well as the user's username and password, globally in
+            // ChessApplication
+            ChessApplication application = (ChessApplication)getApplicationContext();
+            application.setGames(games);
+            application.setUsername(((EditText)findViewById(R.id.username)).getText().toString());
+            application.setPassword(((EditText)findViewById(R.id.password)).getText().toString());
+
 
             // Move to the next Activity
             Intent intent = new Intent(this, MainActivity.class);

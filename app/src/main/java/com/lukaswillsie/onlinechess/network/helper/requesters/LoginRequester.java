@@ -53,7 +53,7 @@ public interface LoginRequester extends Requester {
      * which is a wrapper for data representing a game the newly logged-in user is playing, so that
      * this data can be saved for later access.
      * @param games - A list of objects representing every game that the logged-in user is a
-     *              participant in
+     *                participant in
      */
     void loginComplete(List<Game> games);
 }
