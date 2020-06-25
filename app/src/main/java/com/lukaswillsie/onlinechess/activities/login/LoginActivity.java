@@ -9,8 +9,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.MainActivity;
@@ -18,10 +20,12 @@ import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogActivity;
 import com.lukaswillsie.onlinechess.activities.load.LoadActivity;
 import com.lukaswillsie.onlinechess.data.Game;
+import com.lukaswillsie.onlinechess.data.RememberMeHelper;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 
+import java.io.IOException;
 import java.util.List;
 
 public class LoginActivity extends ErrorDialogActivity implements LoginRequester {
@@ -36,7 +40,7 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
         WAITING_FOR_USER_INPUT,         // The user is entering their data and hasn't pressed "LOGIN" yet
         WAITING_FOR_SERVER_RESPONSE,    // The user has pressed "LOGIN" but the server hasn't validated their
                                         // credentials yet
-        LOADING;                        // The user's credentials have been validated, and now the app is processing the
+        LOADING                         // The user's credentials have been validated, and now the app is processing the
                                         // game data sent over by the server
     }
 
@@ -100,10 +104,12 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
                 ((TextView) findViewById(R.id.login_button_text)).setText(R.string.login_processing_text);
                 findViewById(R.id.login_progress).setVisibility(View.VISIBLE);
 
-                // Prevent the user from interacting with the EditTexts until the login request is complete
+                // Prevent the user from interacting with the EditTexts and 'Remember Me' CheckBox
+                // until the login request is complete
                 hideKeyboard();
                 findViewById(R.id.username).setFocusable(false);
                 findViewById(R.id.password).setFocusable(false);
+                findViewById(R.id.remember_me_checkbox).setFocusable(false);
 
                 try {
                     serverHelper.login(this, username, password);
@@ -166,6 +172,31 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
 
             // Change login button text to indicate change in login request status to user
             ((TextView)findViewById(R.id.login_button_text)).setText(R.string.loading_text);
+
+            // Now we check if the user clicked 'Remember Me', and save their login info if they did
+            try {
+                if(((CheckBox)findViewById(R.id.remember_me_checkbox)).isChecked()) {
+                    String username = ((EditText)findViewById(R.id.username)).getText().toString();
+                    String password = ((EditText)findViewById(R.id.password)).getText().toString();
+
+                    int code = new RememberMeHelper(this).saveUser(username, password);
+
+                    // Return code of 0 means we successfully saved the data
+                    if(code == 0) {
+                        Log.i(tag, "User's login information was saved for reuse in future login attempts");
+                    }
+                    // Only other return code, 1, means there was an error
+                    else {
+                        Log.e(tag, "There was an error in RememberMeHelper.saveUser(). Login data couldn't be saved.");
+                        Toast.makeText(this, R.string.remember_me_failure, Toast.LENGTH_LONG).show();
+                    }
+                }
+            } catch (IOException e) {
+                // In the event of an exception, we have no choice but to log the error and
+                // display an apologetic Toast
+                Log.e(tag, "IOException occurred. Couldn't save user data as part of 'Remember Me' feature");
+                Toast.makeText(this, R.string.remember_me_failure, Toast.LENGTH_LONG).show();
+            }
 
             this.state = State.LOADING;
         }
@@ -329,6 +360,11 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
         password.setText("");
         password.setFocusableInTouchMode(true);
         password.setFocusable(true);
+
+        // Reactivate the 'Remember Me' CheckBox
+        CheckBox rememberMe = findViewById(R.id.remember_me_checkbox);
+        rememberMe.setFocusableInTouchMode(true);
+        rememberMe.setFocusable(true);
 
         this.resetButton();
     }

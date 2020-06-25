@@ -12,6 +12,7 @@
     <string name="loading_text">Loading…</string>
     <string name="invalid_username_error">That username doesn\'t exist</string>
     <string name="automatic_login_failure">An error occurred and we coudln\'t log you in automatically</string>
+    <string name="remember_me_failure">We encountered an error and couldn\'t save your data for next time</string>
     <string name="automatic_login_success">You were successfully logged in!</string>
     <string name="invalid_password_error">That password is invalid</string>
     <string name="username_in_use_error">That username is already taken</string>
@@ -29,6 +30,6 @@
     <string name="title">Online Chess</string>
     <string name="author">By: Lukas Willsie</string>
     <string name="connecting_dialog_text">Connecting…</string>
-    <string name="logging_in_dialog_text">Logging in...</string>
+    <string name="logging_in_dialog_text">Logging in…</string>
     <string name="loading_dialog_text">Loading…</string>
 </resources>
