@@ -35,6 +35,14 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
      */
     private static final String tag = "LoadActivity";
 
+    private Request activeRequest = Request.NONE;
+
+    private enum Request {
+        NONE,
+        CONNECT,
+        LOGIN;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +51,7 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
         // Immediately try and establish a connection with the server.
         try {
             new ServerHelper().connect(this);
+            this.activeRequest = Request.CONNECT;
         }
         catch (MultipleRequestException e) {
             Log.e(tag, "Multiple network requests occurred. Retrying connection");
@@ -81,9 +90,10 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
             else {
                 try {
                     helper.login(this, savedData.get(RememberMeHelper.USERNAME_KEY), savedData.get(RememberMeHelper.PASSWORD_KEY));
+                    this.activeRequest = Request.LOGIN;
                 } catch (MultipleRequestException e) {
                     // This shouldn't happen. If it does, we log the problem and then move the user
-                    // to the login page, after creating an apologetic toast
+                    // to the login page, after creating an apologetic Toast
                     Log.e(tag, "Submitted multiple requests to ServerHelper");
                     Toast.makeText(this, R.string.automatic_login_failure, Toast.LENGTH_LONG).show();
 
@@ -110,6 +120,8 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
     public void connectionFailed() {
         DialogFragment failedDialog = new ErrorDialogFragment(this, getResources().getString(R.string.connection_failed_alert));
         failedDialog.show(getSupportFragmentManager(), "connection_failed_dialog");
+
+        this.activeRequest = Request.NONE;
     }
 
     /**
@@ -118,6 +130,7 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
     public void retry() {
         try {
             new ServerHelper().connect(this);
+            this.activeRequest = Request.CONNECT;
         }
         catch (MultipleRequestException e) {
             Log.e(tag, "Multiple network requests occurred. Retrying connection");
@@ -126,19 +139,30 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
     }
 
     /**
-     * Called by ServerHelper when a connection attempt is met with a system error. In this event,
-     * we display a dialog box notifying the user that we couldn't establish a connection, and give
-     * them the option to try again.
+     * Called by ServerHelper when a network request is met with a system error. Note that this
+     * activity makes two kinds of network requests: it can ask a ServerHelper to establish a
+     * connection to the server, and it can ask a ServerHelper to submit a login request to the
+     * server. If either encounters a system error, ServerHelper calls this callback.
      */
     @Override
     public void systemError() {
-        this.connectionFailed();
+        // We check if the request that was met with an error was a connect or login request
+        if(this.activeRequest == Request.CONNECT) {
+            // Display a dialog notifying the user that the connection failed
+            this.connectionFailed();
+        }
+        else if (this.activeRequest == Request.LOGIN) {
+            // Display an apologetic Toast and move the user to the login screen
+            Toast.makeText(this, R.string.automatic_login_failure, Toast.LENGTH_LONG).show();
+
+            startActivity(new Intent(this, LoginActivity.class));
+        }
     }
 
     /**
      * This callback is for when the server has responded that the user's credentials are valid.
-     * Note that this occurs BEFORE the server sends over the user's game data, so it doesn't
-     * mean the login process is complete and the receiver of the callback should move to the next
+     * This occurs BEFORE the server sends over the user's game data, so it doesn't mean the login
+     * process is complete and the receiver of the callback should move to the next
      * Activity. It simply allows the activity to notify the user of the progress of the login
      * request.
      */
@@ -179,6 +203,9 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
 
     @Override
     public void serverError() {
+        // Tell the user we couldn't log them in automatically and move to the manual login screen
+        Toast.makeText(this, R.string.automatic_login_failure, Toast.LENGTH_LONG).show();
 
+        startActivity(new Intent(this, LoginActivity.class));
     }
 }
