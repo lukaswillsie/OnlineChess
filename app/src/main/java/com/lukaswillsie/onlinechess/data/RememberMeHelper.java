@@ -11,6 +11,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
@@ -34,7 +35,7 @@ public class RememberMeHelper {
     public static final String PASSWORD_KEY = "password";
     public static final String ERROR_KEY = "error";
 
-    private static final String TIMESTAMP_PATTERN = "uuuu-MM-dd";
+    private static final String TIMESTAMP_PATTERN = "yyyy-MM-dd";
 
     private static final String tag = "RememberMeHelper";
     private static final String SAVED_USER_DATA_FILE = "saved_user";
@@ -96,11 +97,19 @@ public class RememberMeHelper {
         }
 
         String line = scanner.nextLine();
-        SimpleDateFormat dateFormat = new SimpleDateFormat(TIMESTAMP_PATTERN);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(TIMESTAMP_PATTERN, Locale.CANADA);
 
         Date date;
         try {
             date = dateFormat.parse(line);
+            if(date == null) {
+                Log.e(tag, "Couldn't parse line \"" + line + "\" from saved user data file into date");
+
+                map.put(USERNAME_KEY, null);
+                map.put(PASSWORD_KEY, null);
+                map.put(ERROR_KEY, "1");
+                return map;
+            }
         } catch (ParseException e) {
             Log.e(tag, "Couldn't parse line \"" + line + "\" from saved user data file into date");
 
@@ -111,8 +120,8 @@ public class RememberMeHelper {
         }
 
         Date now = new Date();
-        // If the user's data was saved more than 5 days ago, we erase it and return no data
-        if(TimeUnit.DAYS.convert(date.getTime() - now.getTime(), TimeUnit.MILLISECONDS) > 5) {
+        // If the user's data was saved more than DAYS_TO_ELAPSE days ago, we erase it and return no data
+        if(TimeUnit.DAYS.convert(date.getTime() - now.getTime(), TimeUnit.MILLISECONDS) > DAYS_TO_ELAPSE) {
             try {
                 // Opening the file with a FileOutputStream erases it
                 FileOutputStream stream = new FileOutputStream(this.savedUserFile);
@@ -130,6 +139,7 @@ public class RememberMeHelper {
             map.put(ERROR_KEY, "0");
             return map;
         }
+        // Otherwise, the login information is new enough to be valid, and we return it
         else {
             if(!scanner.hasNextLine()) {
                 Log.e(tag, "Not enough lines in saved user data file");
@@ -179,12 +189,12 @@ public class RememberMeHelper {
         }
 
         Date now = new Date();
-        SimpleDateFormat format = new SimpleDateFormat(TIMESTAMP_PATTERN);
+        SimpleDateFormat format = new SimpleDateFormat(TIMESTAMP_PATTERN, Locale.CANADA);
 
         try {
-            stream.write(format.format(now).getBytes());
-            stream.write(username.getBytes());
-            stream.write(password.getBytes());
+            stream.write((format.format(now) + "\n").getBytes());
+            stream.write((username + "\n").getBytes());
+            stream.write((password + "\n").getBytes());
         }
         catch(IOException e) {
             Log.e(tag, "Couldn't save user data: (" + username + "," + password + ")");
