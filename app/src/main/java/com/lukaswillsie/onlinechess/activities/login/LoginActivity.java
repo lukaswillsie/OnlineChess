@@ -287,8 +287,6 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
         this.createSystemErrorDialog();
     }
 
-
-
     @Override
     public void retrySystemError() {
         this.processLogin();
