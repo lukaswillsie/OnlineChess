@@ -5,4 +5,5 @@
     <color name="colorAccent">#2BE4B2</color>
     <color name="loginLoading">#3212FF</color>
     <color name="loginSuccessful">#50DA29</color>
+    <color name="buttonGray">#DFDEDF</color>
 </resources>

@@ -8,7 +8,7 @@
     </style>
 
     <style name="MainActivityButton" parent="Widget.AppCompat.Button">
-        <item name="android:background">@drawable/grey_background</item>
+        <item name="android:background">@color/buttonGray</item>
     </style>
 
     <style name="MainActivityButtonText">
