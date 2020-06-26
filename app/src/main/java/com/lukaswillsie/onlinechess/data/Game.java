@@ -106,7 +106,22 @@ public class Game {
 
             data.put(GameData.DRAWN, this.getServerData(serverData, ServerData.DRAWN));
 
-            data.put(GameData.WINNER, this.getServerData(serverData, ServerData.WINNER));
+            // If the user won, set USER_WON and USER_LOST accordingly
+            if(this.getServerData(serverData, ServerData.WINNER).equals(username)) {
+                data.put(GameData.USER_WON, 1);
+                data.put(GameData.USER_LOST, 0);
+            }
+            // If the user didn't win, and the WINNER field from ServerData is non-empty, then the
+            // opponent won
+            else if(!this.getServerData(serverData, ServerData.WINNER).equals("")) {
+                data.put(GameData.USER_WON, 0);
+                data.put(GameData.USER_LOST, 1);
+            }
+            // Otherwise, WINNER is empty and so nobody won
+            else {
+                data.put(GameData.USER_WON, 0);
+                data.put(GameData.USER_LOST, 0);
+            }
 
             return 0;
         }
@@ -124,7 +139,7 @@ public class Game {
         }
     }
 
-    Object getData(GameData data) {
+    public Object getData(GameData data) {
         return this.data.get(data);
     }
 

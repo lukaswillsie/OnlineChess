@@ -22,10 +22,10 @@ public enum GameData {
                                         // the opponent's
     TURN('i'),				    // Current turn number
     ARCHIVED('i'),	            // 1 if the user has archived this game, 0 otherwise
-    DRAW_OFFERED('i'),		    // 1 if the user has been offered a draw
+    DRAW_OFFERED('i'),		    // 1 if it is the user's turn and they have been offered a draw
     DRAWN('i'),				    // 1 if the players in this game have agreed to a draw, 0 otherwise
-    WINNER('s'),			        // Contains the name of the winner, or the empty String if there isn't a
-                                        // winner
+    USER_WON('i'),                // 1 if the user won this game, 0 otherwise
+    USER_LOST('i'),               // 1 if the user lost this game, 0 otherwise
     CHECK('i');		            // 1 if the user is in check, 0 if not
 
     private char type;
