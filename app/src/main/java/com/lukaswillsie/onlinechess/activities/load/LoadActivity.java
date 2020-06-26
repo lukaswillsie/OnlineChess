@@ -6,11 +6,10 @@ import androidx.fragment.app.DialogFragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.CheckBox;
 import android.widget.Toast;
 
 import com.lukaswillsie.onlinechess.ChessApplication;
-import com.lukaswillsie.onlinechess.MainActivity;
+import com.lukaswillsie.onlinechess.activities.MainActivity;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogFragment;
 import com.lukaswillsie.onlinechess.activities.login.LoginActivity;

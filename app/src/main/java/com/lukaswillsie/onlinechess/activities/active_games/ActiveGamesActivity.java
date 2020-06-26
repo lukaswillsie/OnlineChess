@@ -1,8 +1,10 @@
-package com.lukaswillsie.onlinechess;
+package com.lukaswillsie.onlinechess.activities.active_games;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.lukaswillsie.onlinechess.R;
 
 public class ActiveGamesActivity extends AppCompatActivity {
 

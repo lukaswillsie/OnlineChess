@@ -1,10 +1,11 @@
-package com.lukaswillsie.onlinechess;
+package com.lukaswillsie.onlinechess.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import com.lukaswillsie.onlinechess.activities.InteriorActivity;
+import com.lukaswillsie.onlinechess.activities.active_games.ActiveGamesActivity;
+import com.lukaswillsie.onlinechess.R;
 
 public class MainActivity extends InteriorActivity {
 
