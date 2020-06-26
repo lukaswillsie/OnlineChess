@@ -7,8 +7,8 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="MainActivityButton" parent="Widget.AppCompat.Button">
-        <item name="android:background">@color/buttonGray</item>
+    <style name="MainActivityButton" parent="CardView">
+        <item name="cardBackgroundColor">@color/buttonGray</item>
     </style>
 
     <style name="MainActivityButtonText">
