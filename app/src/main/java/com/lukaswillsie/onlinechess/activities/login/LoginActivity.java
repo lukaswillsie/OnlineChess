@@ -264,8 +264,6 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
             // ChessApplication
             ChessApplication application = (ChessApplication)getApplicationContext();
             application.setGames(games);
-            application.setUsername(((EditText)findViewById(R.id.username)).getText().toString());
-            application.setPassword(((EditText)findViewById(R.id.password)).getText().toString());
 
 
             // Move to the next Activity

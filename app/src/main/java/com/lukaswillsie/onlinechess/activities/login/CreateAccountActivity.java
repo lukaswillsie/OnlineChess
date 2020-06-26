@@ -81,8 +81,6 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
             // the user's username and password, globally in ChessApplication
             ChessApplication application = (ChessApplication)getApplicationContext();
             application.setGames(new ArrayList<Game>());
-            application.setUsername(((EditText)findViewById(R.id.username)).getText().toString());
-            application.setPassword(((EditText)findViewById(R.id.password)).getText().toString());
 
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);

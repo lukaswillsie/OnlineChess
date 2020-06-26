@@ -16,11 +16,15 @@ import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.load.LoadActivity;
 import com.lukaswillsie.onlinechess.activities.login.LoginActivity;
 import com.lukaswillsie.onlinechess.data.Game;
+import com.lukaswillsie.onlinechess.data.RememberMeHelper;
+import com.lukaswillsie.onlinechess.network.ReturnCodes;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 import com.lukaswillsie.onlinechess.network.helper.requesters.Connector;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -142,11 +146,9 @@ public abstract class InteriorActivity extends AppCompatActivity implements Conn
 
     /**
      * Initiates the process of reconnection. This involves first connecting to the server and then
-     * re-logging in the user.
-     *
-     * NOTE: the username and password fields in ChessApplication must be set before calling this
-     * method, as those are the username and password values that this Activity will access when
-     * trying to log in.
+     * handling a re-login of the user. If they have saved their login information at some point
+     * with 'Remember Me', we'll try and use that information to log them in again. Otherwise,
+     * they'll be directed back to the login screen.
      */
     public void reconnect() {
         if(this.state == ReconnectState.NOT_ACTIVE) {
@@ -197,7 +199,34 @@ public abstract class InteriorActivity extends AppCompatActivity implements Conn
 
             try {
                 this.state = ReconnectState.LOGGING_IN;
-                helper.login(this, application.getUsername(), application.getPassword());
+
+                try {
+                    // Fetch a HashMap containing any user login information that has been saved on
+                    // this device through use of the 'Remember Me' login feature
+                    HashMap<String, String> savedUserData = new RememberMeHelper(this).savedUserData();
+
+                    String username = savedUserData.get(RememberMeHelper.USERNAME_KEY);
+                    String password = savedUserData.get(RememberMeHelper.PASSWORD_KEY);
+                    // If either username or password is non-null in the HashMap, there is saved
+                    // user data. Otherwise, if both are null, either an error occurred or are there
+                    // is no saved data. In either case we require here that the user log in again
+                    // by moving to LoginActivity
+                    if(username != null) {
+                        helper.login(this, username, password);
+                        this.state = ReconnectState.LOGGING_IN;
+                    }
+                    else {
+                        Intent intent = new Intent(this, LoginActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
+                } catch (IOException e) {
+                    Log.e(tag, "IOException creating RememberMeHelper");
+                    Intent intent = new Intent(this, LoginActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+
             } catch (MultipleRequestException e) {
                 // This should never happen, but if it does, we notify the user that a problem
                 // came up, and we present the option to try again. It's possible that the other

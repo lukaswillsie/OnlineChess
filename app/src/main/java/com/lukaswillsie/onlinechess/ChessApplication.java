@@ -23,28 +23,6 @@ public class ChessApplication extends Application {
      */
     private List<Game> games;
 
-    /**
-     * The credentials of the currently logged-in user. null if there is no such user
-     */
-    private String username;
-    private String password;
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public List<Game> getGames() {
         return games;
     }
