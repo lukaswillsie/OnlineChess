@@ -145,8 +145,9 @@ public class LoginThread extends NetworkThread {
 
                 game = new Game(username);
                 game.initialize(serverData);
-
                 games.add(game);
+
+                serverData = new ArrayList<>();
             }
 
             // Pass the compiled list of games to the caller.
