@@ -59,7 +59,7 @@ public class Game {
         this.data = new HashMap<>();
         try {
             // Assign the gameID
-            data.put(GameData.GAMEID, (String)this.getServerData(serverData, ServerData.GAMEID));
+            data.put(GameData.GAMEID, this.getServerData(serverData, ServerData.GAMEID));
 
             // The data that we need to extract from serverData and store in this Game object is all
             // the information specific to the user we have logged in. So first we figure out if the
