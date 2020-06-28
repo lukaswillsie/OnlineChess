@@ -1,10 +1,10 @@
-package com.lukaswillsie.onlinechess.activities.active_games;
+package com.lukaswillsie.onlinechess;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.util.Log;
 
-import com.lukaswillsie.onlinechess.ChessApplication;
-import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.GameDisplayActivity;
 import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.GameData;
@@ -12,41 +12,34 @@ import com.lukaswillsie.onlinechess.data.GameData;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Code behind the screen that displays for the user a list of all their "active" games. That is,
- * all games that the user hasn't yet marked as archived.
- */
-public class ActiveGamesActivity extends GameDisplayActivity {
+public class ArchivedGamesActivity extends GameDisplayActivity {
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_active_games);
+        setContentView(R.layout.activity_archived_games);
 
-        // We get a list of all of the user's active games, sorted in the following order:
-        // 1. Ongoing games in which it is the user's turn
-        // 2. Ongoing games in which it is the opponent's turn
-        // 3. Games that have ended
         int userTurnPos = 0;
         int opponentTurnPos = 0;
         int gameOverPos = 0;
-        List<Game> activeGames = new ArrayList<>();
+        List<Game> archivedGames = new ArrayList<>();
         List<Game> games = ((ChessApplication)getApplicationContext()).getGames();
         for(Game game : games) {
-            if(!((int)game.getData(GameData.ARCHIVED) == 1)) {
+            if((int)game.getData(GameData.ARCHIVED) == 1) {
                 if(isOver(game)) {
                     Log.i(getTag(), "Game " + game.getData(GameData.GAMEID) + " is over");
-                    activeGames.add(gameOverPos, game);
+                    archivedGames.add(gameOverPos, game);
                     gameOverPos++;
                 }
                 else if(isOpponentTurn(game)) {
                     Log.i(getTag(), game.getData(GameData.GAMEID) + " is opponent turn");
-                    activeGames.add(opponentTurnPos, game);
+                    archivedGames.add(opponentTurnPos, game);
                     opponentTurnPos++;
                     gameOverPos++;
                 }
                 else {
                     Log.i(getTag(), game.getData(GameData.GAMEID) + " is user turn");
-                    activeGames.add(userTurnPos, game);
+                    archivedGames.add(userTurnPos, game);
                     userTurnPos++;
                     opponentTurnPos++;
                     gameOverPos++;
@@ -54,13 +47,12 @@ public class ActiveGamesActivity extends GameDisplayActivity {
             }
         }
 
-        // Display all the games on the screen
-        super.processGames(activeGames);
+        super.processGames(archivedGames);
     }
 
     @Override
     public String getTag() {
-        return "ActiveGamesActivity";
+        return "ArchivedGamesActivity";
     }
 
     /**
@@ -92,7 +84,7 @@ public class ActiveGamesActivity extends GameDisplayActivity {
      * Game objects into
      */
     @Override
-    public int getLayoutId() {
+    protected int getLayoutId() {
         return R.id.games_layout;
     }
 }

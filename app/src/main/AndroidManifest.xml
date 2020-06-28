@@ -14,7 +14,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.active_games.ActiveGamesActivity"></activity>
+        <activity android:name=".ArchivedGamesActivity"></activity>
+        <activity android:name=".activities.active_games.ActiveGamesActivity" />
         <activity android:name=".activities.login.CreateAccountActivity" />
         <activity android:name=".activities.MainActivity" />
         <activity android:name=".activities.load.LoadActivity">
@@ -27,7 +28,7 @@
         <activity
             android:name=".activities.login.LoginActivity"
             android:label="@string/app_name"
-            android:noHistory="true"/>
+            android:noHistory="true" />
     </application>
 
 </manifest>

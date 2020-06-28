@@ -37,12 +37,12 @@
     <string name="remember_me_failure">We encountered an error and couldn\'t save your data for next time</string>
     <string name="connection_failed_alert">A connection to the network couldn\'t be established. Please check your connection and try again.</string>
 
-<!--Dialog Strings-->
+    <!--Dialog Strings-->
     <string name="connecting_dialog_text">Connecting…</string>
     <string name="logging_in_dialog_text">Logging in…</string>
     <string name="loading_dialog_text">Loading…</string>
 
-<!--Active Games Screen Strings-->
+    <!--Active Games Screen Strings-->
     <string name="active_games_title">Your Active Games</string>
     <string name="opponent_label">Opponent: %1$s</string>
     <string name="no_opponent">No opponent</string>
@@ -53,4 +53,7 @@
     <string name="opponent_turn">Opponent\'s turn</string>
     <string name="user_turn">Your turn</string>
     <string name="draw_offered_to_user">Draw offer</string>
+
+    <!-- Archived Games Screen Strings-->
+    <string name="archived_games_title">Your Archived Games</string>
 </resources>
