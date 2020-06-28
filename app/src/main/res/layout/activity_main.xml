@@ -57,12 +57,13 @@
             android:layout_marginBottom="20dp"
             app:cardElevation="0dp"
             app:cardCornerRadius="50dp"
-            style="@style/MainActivityButton">
+            android:clickable="true"
+            android:focusable="true">
             
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                style="@style/MainActivityButton">
+                android:background="@drawable/gray_button_selector">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -74,29 +75,29 @@
                     android:text="@string/create_game_button"
                     style="@style/MainActivityButtonText"/>
 
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginTop="3dp"
-                    android:src="@drawable/pawn"
-                    app:layout_constraintDimensionRatio="1:1"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.1"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_goneMarginTop="3dp"
-                    android:layout_marginBottom="3dp"/>
+<!--                <ImageView-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:layout_marginTop="3dp"-->
+<!--                    android:src="@drawable/pawn"-->
+<!--                    app:layout_constraintDimensionRatio="1:1"-->
+<!--                    app:layout_constraintEnd_toEndOf="parent"-->
+<!--                    app:layout_constraintHorizontal_bias="0.1"-->
+<!--                    app:layout_constraintStart_toStartOf="parent"-->
+<!--                    app:layout_constraintTop_toTopOf="parent"-->
+<!--                    app:layout_goneMarginTop="3dp"-->
+<!--                    android:layout_marginBottom="3dp"/>-->
 
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/pawn"
-                    app:layout_constraintDimensionRatio="1:1"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.9"
-                    app:layout_constraintStart_toStartOf="parent"
-                    android:layout_marginTop="3dp"
-                    android:layout_marginBottom="3dp"/>
+<!--                <ImageView-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:src="@drawable/pawn"-->
+<!--                    app:layout_constraintDimensionRatio="1:1"-->
+<!--                    app:layout_constraintEnd_toEndOf="parent"-->
+<!--                    app:layout_constraintHorizontal_bias="0.9"-->
+<!--                    app:layout_constraintStart_toStartOf="parent"-->
+<!--                    android:layout_marginTop="3dp"-->
+<!--                    android:layout_marginBottom="3dp"/>-->
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
@@ -107,11 +108,13 @@
             android:layout_marginBottom="20dp"
             app:cardElevation="0dp"
             app:cardCornerRadius="50dp"
-            style="@style/MainActivityButton">
+            android:clickable="true"
+            android:focusable="true">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:background="@drawable/gray_button_selector">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -123,27 +126,27 @@
                     android:text="@string/join_game_button"
                     style="@style/MainActivityButtonText"/>
 
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/knight"
-                    app:layout_constraintDimensionRatio="1:1"
-                    app:layout_constraintHorizontal_bias="0.1"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    android:layout_marginTop="3dp"
-                    android:layout_marginBottom="3dp"/>
+<!--                <ImageView-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:src="@drawable/knight"-->
+<!--                    app:layout_constraintDimensionRatio="1:1"-->
+<!--                    app:layout_constraintHorizontal_bias="0.1"-->
+<!--                    app:layout_constraintEnd_toEndOf="parent"-->
+<!--                    app:layout_constraintStart_toStartOf="parent"-->
+<!--                    android:layout_marginTop="3dp"-->
+<!--                    android:layout_marginBottom="3dp"/>-->
 
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/knight"
-                    app:layout_constraintDimensionRatio="1:1"
-                    app:layout_constraintHorizontal_bias="0.9"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    android:layout_marginTop="3dp"
-                    android:layout_marginBottom="3dp"/>
+<!--                <ImageView-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:src="@drawable/knight"-->
+<!--                    app:layout_constraintDimensionRatio="1:1"-->
+<!--                    app:layout_constraintHorizontal_bias="0.9"-->
+<!--                    app:layout_constraintEnd_toEndOf="parent"-->
+<!--                    app:layout_constraintStart_toStartOf="parent"-->
+<!--                    android:layout_marginTop="3dp"-->
+<!--                    android:layout_marginBottom="3dp"/>-->
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
@@ -155,12 +158,14 @@
             app:cardCornerRadius="50dp"
             android:id="@+id/activeGames"
             app:cardElevation="0dp"
-            style="@style/MainActivityButton"
-            android:onClick="activeGames">
+            android:onClick="activeGames"
+            android:clickable="true"
+            android:focusable="true">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:background="@drawable/gray_button_selector">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -203,13 +208,14 @@
             android:layout_marginBottom="20dp"
             app:cardElevation="0dp"
             app:cardCornerRadius="50dp"
-            style="@style/MainActivityButton"
-            android:onClick="archivedGames">
+            android:onClick="archivedGames"
+            android:clickable="true"
+            android:focusable="true">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                style="@style/MainActivityButton">
+                android:background="@drawable/gray_button_selector">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

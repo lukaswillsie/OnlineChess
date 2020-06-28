@@ -6,11 +6,12 @@
     <color name="loginLoading">#3212FF</color>
     <color name="loginSuccessful">#50DA29</color>
     <color name="buttonGray">#DFDEDF</color>
+    <color name="buttonGrayPress">#BFBFBF</color>
     <color name="opponentLabel">#101010</color>
     <color name="turnCounter">#101010</color>
     <color name="user_turn">#10A60F</color>
     <color name="opponent_turn">#52455E</color>
     <color name="user_win">#34D72F</color>
     <color name="user_lose">#E6391B</color>
-    <color name="drawn">#9225B0</color>
+    <color name="drawn">@android:color/black</color>
 </resources>

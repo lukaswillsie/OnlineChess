@@ -4,14 +4,14 @@
     <item android:state_pressed="false">
         <shape android:shape="rectangle">
             <!-- Normal color -->
-            <solid android:color="@android:color/black" />
+            <solid android:color="@color/buttonGray" />
         </shape>
     </item>
 
     <item android:state_pressed="true">
         <shape android:shape="rectangle">
             <!-- Color - when the view is pressed -->
-            <solid android:color="@android:color/darker_gray"/>
+            <solid android:color="@color/buttonGrayPress"/>
         </shape>
     </item>
 </selector>
