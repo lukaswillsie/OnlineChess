@@ -12,5 +12,5 @@
     <color name="opponent_turn">#52455E</color>
     <color name="user_win">#34D72F</color>
     <color name="user_lose">#E6391B</color>
-    <color name="drawn">#9A45F5</color>
+    <color name="drawn">#9225B0</color>
 </resources>

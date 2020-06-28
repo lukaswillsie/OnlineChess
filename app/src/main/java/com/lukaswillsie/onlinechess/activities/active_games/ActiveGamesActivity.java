@@ -53,6 +53,11 @@ public class ActiveGamesActivity extends GameDisplayActivity {
         super.processGames(activeGames);
     }
 
+    @Override
+    public String getTag() {
+        return "ActiveGamesActivity";
+    }
+
     /**
      * Checks if the given Game is over
      * @param game - the Game to analyze
