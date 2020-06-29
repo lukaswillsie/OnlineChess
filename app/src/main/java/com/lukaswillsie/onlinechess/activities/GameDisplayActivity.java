@@ -1,12 +1,12 @@
 package com.lukaswillsie.onlinechess.activities;
 
 import android.graphics.Typeface;
-import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -53,8 +53,11 @@ public abstract class GameDisplayActivity extends InteriorActivity {
      * ProgressBar blinking into existence.
      *
      * @param games - the list of games to be packaged into UI elements and displayed
+     * @param archivable - true if the given games are archivable. If true, the games will be
+     *                   packaged so that each contains a file folder icon that the user can click
+     *                   to archive the game.
      */
-    protected void processGames(List<Game> games) {
+    protected void processGames(List<Game> games, boolean archivable) {
         // Create a ProgressBar and center it in the layout to indicate the beginning of processing
         ProgressBar loadingBar = new ProgressBar(this);
         this.loadingBarID = ViewCompat.generateViewId();
@@ -66,7 +69,7 @@ public abstract class GameDisplayActivity extends InteriorActivity {
 
         ((LinearLayout)findViewById(getLayoutId())).addView(loadingBar);
 
-        GamesPackager packager = new GamesPackager(games, this);
+        GamesPackager packager = new GamesPackager(games, this, archivable);
         packager.start();
     }
 
@@ -127,15 +130,22 @@ public abstract class GameDisplayActivity extends InteriorActivity {
         private GameDisplayActivity container;
 
         /**
+         * Dictates whether or not to include a file folder icon allowing the user to archive games
+         * in the layours
+         */
+        private boolean archivable;
+
+        /**
          * Create a new GamesPackager object, which will package the given list of Games into UI
          * elements when started, and report back to the given container when the process has
          * finished.
          * @param games - the list of Games this object will process when its Thread is started
          * @param container - the GameDisplayActivity this object will report back to when done
          */
-        private GamesPackager(List<Game> games, GameDisplayActivity container) {
+        private GamesPackager(List<Game> games, GameDisplayActivity container, boolean archivable) {
             this.games = games;
             this.container = container;
+            this.archivable = archivable;
 
             DisplayMetrics metrics = new DisplayMetrics();
             getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -275,11 +285,47 @@ public abstract class GameDisplayActivity extends InteriorActivity {
             layout.addView(turnView);
             styleTurn(turnView);
 
+            // Will be used to constrain all the views we've created
+            ConstraintSet set;
 
-            // Now that all our TextViews have been styled and given text, we need to properly
-            // constrain them
-            ConstraintSet set = new ConstraintSet();
-            set.clone(layout);
+            // If the games are archivable, we display a file folder that the user can click to
+            // archive the game
+            if(archivable) {
+                // Create an ImageView to hold an image of a file folder that the user can click to
+                // archive the game
+                ImageView archiveIcon = new ImageView(this.container);
+                int archiveIconID = ViewCompat.generateViewId();
+                archiveIcon.setId(archiveIconID);
+                // We apply a different background drawable depending on the state of the game, because
+                // we have to take the colour of the layout into account for visual design purposes
+                if(userWon == 1 || userLost == 1 || drawn == 1) {
+                    archiveIcon.setBackground(getResources().getDrawable(R.drawable.archive_icon_game_over));
+                }
+                else if (state == 0) {
+                    archiveIcon.setBackground(getResources().getDrawable(R.drawable.archive_icon_opponent_turn));
+                }
+                else {
+                    archiveIcon.setBackground(getResources().getDrawable(R.drawable.archive_icon_user_turn));
+                }
+                archiveIcon.setClickable(true);
+                ConstraintLayout.LayoutParams archiveParams = new ConstraintLayout.LayoutParams(dpToPx(27), dpToPx(27));
+                archiveParams.setMargins(0, dpToPx(3), dpToPx(3), 0);
+                archiveIcon.setLayoutParams(archiveParams);
+                layout.addView(archiveIcon);
+
+                set = new ConstraintSet();
+                set.clone(layout);
+
+                // Constraint the archiving icon
+                set.connect(archiveIconID, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
+                set.connect(archiveIconID, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+            }
+            else {
+                // If the games aren't archivable, we simply create an empty ConstraintSet and clone
+                // our layout into it
+                set = new ConstraintSet();
+                set.clone(layout);
+            }
 
             // Create two guidelines that we will use to properly align our views
             int rightGuidelineID = ViewCompat.generateViewId();

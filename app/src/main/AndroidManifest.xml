@@ -14,7 +14,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ArchivedGamesActivity"></activity>
+        <activity android:name=".activities.archived_games.ArchivedGamesActivity"></activity>
         <activity android:name=".activities.active_games.ActiveGamesActivity" />
         <activity android:name=".activities.login.CreateAccountActivity" />
         <activity android:name=".activities.MainActivity" />

@@ -55,7 +55,7 @@ public class ActiveGamesActivity extends GameDisplayActivity {
         }
 
         // Display all the games on the screen
-        super.processGames(activeGames);
+        super.processGames(activeGames, true);
     }
 
     @Override

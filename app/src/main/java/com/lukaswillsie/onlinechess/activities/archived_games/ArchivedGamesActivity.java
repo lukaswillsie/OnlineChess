@@ -1,10 +1,12 @@
-package com.lukaswillsie.onlinechess;
+package com.lukaswillsie.onlinechess.activities.archived_games;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.util.Log;
 
+import com.lukaswillsie.onlinechess.ChessApplication;
+import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.GameDisplayActivity;
 import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.GameData;
@@ -47,7 +49,7 @@ public class ArchivedGamesActivity extends GameDisplayActivity {
             }
         }
 
-        super.processGames(archivedGames);
+        super.processGames(archivedGames, false);
     }
 
     @Override
