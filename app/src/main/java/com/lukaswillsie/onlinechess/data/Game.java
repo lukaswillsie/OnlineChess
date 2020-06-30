@@ -2,7 +2,6 @@ package com.lukaswillsie.onlinechess.data;
 
 import android.util.Log;
 
-import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 
@@ -154,6 +153,18 @@ public class Game {
      */
     private Object getServerData(List<Object> serverData, ServerData dataType) {
         return serverData.get(dataType.index);
+    }
+
+    /**
+     * Mark this game as archived by the user.
+     */
+    public void setArchived(boolean archived) {
+        if(archived) {
+            this.data.put(GameData.ARCHIVED, 1);
+        }
+        else {
+            this.data.put(GameData.ARCHIVED, 0);
+        }
     }
 
     public String toString() {

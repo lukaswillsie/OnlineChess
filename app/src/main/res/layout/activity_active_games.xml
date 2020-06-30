@@ -80,13 +80,13 @@ the code for GamesAdapter and have to start up the emulator. -->
 <!--                    app:layout_constraintGuide_percent="0.95"/>-->
 
 <!--                <ImageView-->
-<!--                    android:layout_width="27dp"-->
-<!--                    android:layout_height="27dp"-->
+<!--                    android:layout_width="25dp"-->
+<!--                    android:layout_height="25dp"-->
 <!--                    android:id="@+id/options1"-->
 <!--                    app:layout_constraintEnd_toEndOf="parent"-->
 <!--                    app:layout_constraintTop_toTopOf="parent"-->
 <!--                    android:clickable="true"-->
-<!--                    android:background="@drawable/archive_icon_user_turn"-->
+<!--                    android:background="@drawable/archive"-->
 <!--                    android:layout_marginRight="3dp"-->
 <!--                    android:layout_marginTop="3dp"/>-->
 
@@ -141,13 +141,13 @@ the code for GamesAdapter and have to start up the emulator. -->
 <!--                android:background="@drawable/opponent_turn_background">-->
 
 <!--                <ImageView-->
-<!--                    android:layout_width="27dp"-->
-<!--                    android:layout_height="27dp"-->
+<!--                    android:layout_width="25dp"-->
+<!--                    android:layout_height="25dp"-->
 <!--                    android:id="@+id/options2"-->
 <!--                    app:layout_constraintEnd_toEndOf="parent"-->
 <!--                    app:layout_constraintTop_toTopOf="parent"-->
 <!--                    android:clickable="true"-->
-<!--                    android:background="@drawable/archive_icon_opponent_turn"-->
+<!--                    android:background="@drawable/archive"-->
 <!--                    android:layout_marginRight="3dp"-->
 <!--                    android:layout_marginTop="3dp"/>-->
 
@@ -216,13 +216,13 @@ the code for GamesAdapter and have to start up the emulator. -->
 <!--                android:background="@drawable/game_over_background">-->
 
 <!--                <ImageView-->
-<!--                    android:layout_width="27dp"-->
-<!--                    android:layout_height="27dp"-->
+<!--                    android:layout_width="25dp"-->
+<!--                    android:layout_height="25dp"-->
 <!--                    android:id="@+id/options3"-->
 <!--                    app:layout_constraintEnd_toEndOf="parent"-->
 <!--                    app:layout_constraintTop_toTopOf="parent"-->
 <!--                    android:clickable="true"-->
-<!--                    android:background="@drawable/archive_icon_game_over"-->
+<!--                    android:background="@drawable/archive"-->
 <!--                    android:layout_marginRight="3dp"-->
 <!--                    android:layout_marginTop="3dp"/>-->
 

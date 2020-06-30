@@ -19,17 +19,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/games_layout"
+        app:layout_constraintBottom_toTopOf="@id/games_recycler"
         android:text="@string/archived_games_title"
         android:textColor="@android:color/white"
         android:textStyle="bold"
         android:fontFamily="sans-serif-condensed"
         android:textSize="40sp"/>
     
-    <ScrollView
+    <androidx.recyclerview.widget.RecyclerView
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:id="@+id/games_layout"
+        android:id="@+id/games_recycler"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -38,13 +38,6 @@
         app:layout_constraintWidth_percent="0.8"
         app:layout_constraintVertical_bias="0.7">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:id="@+id/games_layout">
-        </LinearLayout>
-
-    </ScrollView>
+    </androidx.recyclerview.widget.RecyclerView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

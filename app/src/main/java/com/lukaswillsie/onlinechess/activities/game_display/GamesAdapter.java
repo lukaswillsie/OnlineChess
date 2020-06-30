@@ -2,6 +2,7 @@ package com.lukaswillsie.onlinechess.activities.game_display;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,20 +32,21 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
     private List<Game> games;
 
     /*
-     * Whether the list of games is ARCHIVABLE, meaning that they should be rendered with a button
-     * the user can click to archive them, or in our implementation a little file folder icon.
+     * Whether the list of games is active, meaning that the user can archive them if they want.
+     * If the games are active, they're rendered with an icon the user can click to archive them. If
+     * they're not active, they're rendered with an icon the user can click to restore (or
+     * un-archive) them.
      */
-    private boolean archivable;
+    private boolean active;
 
     /**
      * Create a new GamesAdapter with the information it needs to run
      * @param games - the list of games this GamesAdapter will be responsible for
-     * @param archivable - whether or not the given list of games is archivable, meaning that they
-     *                   should be rendered with a button the user can click to archive them
+     * @param active - whether or not the given list of games is active, or archived
      */
-    GamesAdapter(List<Game> games, boolean archivable) {
+    GamesAdapter(List<Game> games, boolean active) {
         this.games = games;
-        this.archivable = archivable;
+        this.active = active;
     }
 
     /**
@@ -61,6 +63,7 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
     public GameViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
+        Log.i("ADAPTER", parent.toString());
 
         View gameCard = inflater.inflate(R.layout.game_card_layout, parent, false);
 
@@ -96,8 +99,13 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
             holder.status.setText(R.string.user_win);
             holder.status.setTextColor(resources.getColor(R.color.user_win));
 
-            if(archivable) {
+            if(active) {
                 holder.archive.setBackground(resources.getDrawable(R.drawable.archive_icon_game_over));
+                holder.archive.setOnClickListener(new ArchiveListener(game));
+            }
+            else {
+                holder.archive.setBackground(resources.getDrawable(R.drawable.restore_icon_game_over));
+                holder.archive.setOnClickListener(new RestoreListener(game));
             }
 
             holder.card.setBackground(resources.getDrawable(R.drawable.game_over_background));
@@ -106,8 +114,13 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
             holder.status.setText(R.string.user_lose);
             holder.status.setTextColor(resources.getColor(R.color.user_lose));
 
-            if(archivable) {
+            if(active) {
                 holder.archive.setBackground(resources.getDrawable(R.drawable.archive_icon_game_over));
+                holder.archive.setOnClickListener(new ArchiveListener(game));
+            }
+            else {
+                holder.archive.setBackground(resources.getDrawable(R.drawable.restore_icon_game_over));
+                holder.archive.setOnClickListener(new RestoreListener(game));
             }
 
             holder.card.setBackground(resources.getDrawable(R.drawable.game_over_background));
@@ -116,8 +129,13 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
             holder.status.setText(R.string.game_drawn);
             holder.status.setTextColor(resources.getColor(R.color.drawn));
 
-            if(archivable) {
+            if(active) {
                 holder.archive.setBackground(resources.getDrawable(R.drawable.archive_icon_game_over));
+                holder.archive.setOnClickListener(new ArchiveListener(game));
+            }
+            else {
+                holder.archive.setBackground(resources.getDrawable(R.drawable.restore_icon_game_over));
+                holder.archive.setOnClickListener(new RestoreListener(game));
             }
 
             holder.card.setBackground(resources.getDrawable(R.drawable.game_over_background));
@@ -127,8 +145,13 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
             holder.status.setTextColor(resources.getColor(R.color.opponent_turn));
             holder.status.setAlpha(0.75f);
 
-            if(archivable) {
+            if(active) {
                 holder.archive.setBackground(resources.getDrawable(R.drawable.archive_icon_opponent_turn));
+                holder.archive.setOnClickListener(new ArchiveListener(game));
+            }
+            else {
+                holder.archive.setBackground(resources.getDrawable(R.drawable.restore_icon_opponent_turn));
+                holder.archive.setOnClickListener(new RestoreListener(game));
             }
 
             holder.card.setBackground(resources.getDrawable(R.drawable.opponent_turn_background));
@@ -137,8 +160,13 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
             holder.status.setText(R.string.draw_offered_to_user);
             holder.status.setTextColor(resources.getColor(R.color.user_turn));
 
-            if(archivable) {
+            if(active) {
                 holder.archive.setBackground(resources.getDrawable(R.drawable.archive_icon_user_turn));
+                holder.archive.setOnClickListener(new ArchiveListener(game));
+            }
+            else {
+                holder.archive.setBackground(resources.getDrawable(R.drawable.restore_icon_user_turn));
+                holder.archive.setOnClickListener(new RestoreListener(game));
             }
 
             holder.card.setBackground(resources.getDrawable(R.drawable.user_turn_background));
@@ -147,8 +175,13 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
             holder.status.setText(R.string.user_turn);
             holder.status.setTextColor(resources.getColor(R.color.user_turn));
 
-            if(archivable) {
+            if(active) {
                 holder.archive.setBackground(resources.getDrawable(R.drawable.archive_icon_user_turn));
+                holder.archive.setOnClickListener(new ArchiveListener(game));
+            }
+            else {
+                holder.archive.setBackground(resources.getDrawable(R.drawable.restore_icon_user_turn));
+                holder.archive.setOnClickListener(new RestoreListener(game));
             }
 
             holder.card.setBackground(resources.getDrawable(R.drawable.user_turn_background));
@@ -166,8 +199,7 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
 
     /**
      * Provides a wrapper for easy access to the UI elements contained in a game card, which should
-     * have been inflated from game_card_layout.xml, and passed to the constructor
-     * for this class.
+     * have been inflated from game_card_layout.xml and passed to the constructor for this class.
      */
     static class GameViewHolder extends RecyclerView.ViewHolder {
         /*
@@ -200,6 +232,36 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
             this.turn = itemView.findViewById(R.id.turn);
             this.archive = itemView.findViewById(R.id.archive);
             this.card = itemView;
+        }
+    }
+
+    private class ArchiveListener implements View.OnClickListener {
+        private Game game;
+        private ArchiveListener(Game game) {
+            this.game = game;
+        }
+
+        @Override
+        public void onClick(View view) {
+            int pos = games.indexOf(game);
+            Game removedGame = games.remove(pos);
+            removedGame.setArchived(true);
+            notifyItemRemoved(pos);
+        }
+    }
+
+    private class RestoreListener implements View.OnClickListener {
+        private Game game;
+        private RestoreListener(Game game) {
+            this.game = game;
+        }
+
+        @Override
+        public void onClick(View view) {
+            int pos = games.indexOf(game);
+            Game removedGame = games.remove(pos);
+            removedGame.setArchived(false);
+            notifyItemRemoved(pos);
         }
     }
 }
