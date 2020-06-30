@@ -4,9 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import com.lukaswillsie.onlinechess.activities.active_games.ActiveGamesActivity;
+import com.lukaswillsie.onlinechess.activities.game_display.ActiveGamesActivity;
 import com.lukaswillsie.onlinechess.R;
-import com.lukaswillsie.onlinechess.activities.archived_games.ArchivedGamesActivity;
+import com.lukaswillsie.onlinechess.activities.game_display.ArchivedGamesActivity;
 
 public class MainActivity extends InteriorActivity {
 

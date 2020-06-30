@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.active_games.ActiveGamesActivity">
+    tools:context=".activities.game_display.ActiveGamesActivity">
 
     <ImageView
         android:layout_width="match_parent"
@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/games_scroll"
+        app:layout_constraintBottom_toTopOf="@id/games_recycler"
         app:layout_constraintTop_toTopOf="parent"
         android:text="@string/active_games_title"
         android:textColor="@android:color/white"
@@ -25,7 +25,7 @@
         android:fontFamily="sans-serif-condensed"
         android:textSize="40sp"/>
 
-    <ScrollView
+    <androidx.recyclerview.widget.RecyclerView
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -35,19 +35,30 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintHeight_percent="0.7"
         app:layout_constraintWidth_percent="0.8"
-        android:id="@+id/games_scroll">
+        android:id="@+id/games_recycler">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:id="@+id/games_layout">
+    </androidx.recyclerview.widget.RecyclerView>
 
 <!--If you uncomment the below XML, you'll be able to see a couple examples
 of the way this app displays game data. I include this here because when the app is
-running the above LinearLayout is populated programmatically, so otherwise it would
+running the above RecyclerView is populated programmatically, so otherwise it would
 be difficult to get the gist of the design except by sifting through Java code,
-which is much worse than viewing this preview.-->
+which is much worse than briefly uncommenting this preview.
+
+Plus, it's a lot easier to pilot changes to the design here than it is to change
+the code for GamesAdapter and have to start up the emulator. -->
+
+<!--        <LinearLayout-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="0dp"-->
+<!--            android:orientation="vertical"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintVertical_bias="0.7"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent"-->
+<!--            app:layout_constraintHeight_percent="0.7"-->
+<!--            app:layout_constraintWidth_percent="0.8">-->
 
 <!--            <androidx.constraintlayout.widget.ConstraintLayout-->
 <!--                android:layout_width="match_parent"-->
@@ -273,6 +284,6 @@ which is much worse than viewing this preview.-->
 <!--                    app:layout_constraintTop_toTopOf="@id/gameID3"-->
 <!--                    app:layout_constraintBottom_toBottomOf="@id/gameID3"/>-->
 <!--            </androidx.constraintlayout.widget.ConstraintLayout>-->
-        </LinearLayout>
-    </ScrollView>
+<!--        </LinearLayout>-->
+
 </androidx.constraintlayout.widget.ConstraintLayout>
