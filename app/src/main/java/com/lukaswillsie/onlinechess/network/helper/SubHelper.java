@@ -4,6 +4,9 @@ import java.io.DataInputStream;
 import java.io.PrintWriter;
 import android.os.Handler;
 
+import com.lukaswillsie.onlinechess.network.helper.requesters.Requester;
+import com.lukaswillsie.onlinechess.network.threads.callers.ThreadCaller;
+
 /**
  * A SubHelper is an object that a ServerHelper can delegate to for specific tasks. As each server
  * command, of which there are currently 13, has around 5 possible return codes/callbacks, this
@@ -21,7 +24,7 @@ import android.os.Handler;
  * a time. So we provide a mechanism for SubHelpers to notify ServerHelper that they've finished
  * with a request.
  */
-abstract class SubHelper extends Handler {
+abstract class SubHelper extends Handler implements ThreadCaller {
     /**
      * The ServerHelper that this SubHelper is a part of
      */
@@ -83,6 +86,45 @@ abstract class SubHelper extends Handler {
     void closeIO() {
         this.in = null;
         this.out = null;
+    }
+
+    /**
+     * Defines some behaviour common to ALL SubHelpers when their request is met with a loss of
+     * connection. Namely, notifies the containing ServerHelper that the request it delegated to
+     * this SubHelper is over, and that the connection with the server has been lost.
+     *
+     * Subclasses should override this method and call this implementation before doing
+     * anything else.
+     */
+    @Override
+    public void connectionLost() {
+        this.notifyContainerConnectionLost();
+        this.notifyContainerRequestOver();
+    }
+
+    /**
+     * Defines some behaviour common to ALL SubHelpers when their request is met with a server
+     * error. Namely, notifies the containing ServerHelper that the request it delegated to this
+     * SubHelper is over.
+     *
+     * Subclasses that encounter a server error in the course of their work should call this method
+     * after doing so.
+     */
+    public void serverError() {
+        this.notifyContainerRequestOver();
+    }
+
+    /**
+     * Defines some behaviour common to ALL SubHelpers when their request is met with a system
+     * error. Namely, notifies the containing ServerHelper that the request it delegated to this
+     * SubHelper is over, and that the connection with the server has been lost.
+     *
+     * Subclasses should override this method and call this implementation before doing
+     * anything else.
+     */
+    @Override
+    public void systemError() {
+        this.notifyContainerRequestOver();
     }
 
     /**

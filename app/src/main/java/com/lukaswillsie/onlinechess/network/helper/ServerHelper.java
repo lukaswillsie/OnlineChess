@@ -6,6 +6,7 @@ import android.os.Handler;
 
 import androidx.annotation.NonNull;
 
+import com.lukaswillsie.onlinechess.network.helper.requesters.ArchiveRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.Connector;
 import com.lukaswillsie.onlinechess.network.helper.requesters.CreateAccountRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
@@ -88,6 +89,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
      */
     private LoginHelper loginHelper;
     private CreateAccountHelper createAccountHelper;
+    private ArchiveHelper archiveHelper;
 
     /*
      * A list of all helpers delegated to by this object, so that they can all be notified at once
@@ -119,10 +121,12 @@ public class ServerHelper extends Handler implements ConnectCaller {
     public ServerHelper() {
         this.loginHelper = new LoginHelper(this);
         this.createAccountHelper = new CreateAccountHelper(this);
+        this.archiveHelper = new ArchiveHelper(this);
 
         this.helpers = new ArrayList<>();
         this.helpers.add(loginHelper);
         this.helpers.add(createAccountHelper);
+        this.helpers.add(archiveHelper);
     }
 
     /**
@@ -227,6 +231,18 @@ public class ServerHelper extends Handler implements ConnectCaller {
         this.activeRequest = true;
         ConnectThread thread = new ConnectThread(HOSTNAME, PORT, this);
         thread.start();
+    }
+
+    public void archive(String gameID, ArchiveRequester requester) throws MultipleRequestException {
+        if(this.activeRequest) {
+            throw new MultipleRequestException("Activity " + requester.toString() + " tried to " +
+                    "make request while request from " + this.requester.toString() + " was active.");
+        }
+
+        this.requester = requester;
+        this.activeRequest = true;
+        archiveHelper.archive(gameID, requester);
+        this.activeHelper = archiveHelper;
     }
 
     /**

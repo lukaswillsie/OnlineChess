@@ -1,6 +1,7 @@
 package com.lukaswillsie.onlinechess.network.helper;
 
 import android.os.Message;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 
@@ -73,7 +74,7 @@ public class LoginHelper extends SubHelper implements LoginCaller {
      */
     @Override
     public void serverError() {
-        this.notifyContainerRequestOver();
+        super.serverError();
 
         Message message = this.obtainMessage(SERVER_ERROR);
         message.sendToTarget();
@@ -87,7 +88,7 @@ public class LoginHelper extends SubHelper implements LoginCaller {
      */
     @Override
     public void systemError() {
-        this.notifyContainerRequestOver();
+        super.systemError();
 
         Message message = this.obtainMessage(SYSTEM_ERROR);
         message.sendToTarget();
@@ -99,9 +100,7 @@ public class LoginHelper extends SubHelper implements LoginCaller {
      */
     @Override
     public void connectionLost() {
-        // Notify the containing ServerHelper that the connection has been lost
-        this.notifyContainerConnectionLost();
-        this.notifyContainerRequestOver();
+        super.connectionLost();
 
         Message message = this.obtainMessage(CONNECTION_LOST);
         message.sendToTarget();
@@ -155,7 +154,7 @@ public class LoginHelper extends SubHelper implements LoginCaller {
     @Override
     public void loginComplete(List<Game> games) {
         this.notifyContainerRequestOver();
-
+        
         Message message = this.obtainMessage(LOGIN_COMPLETE, games);
         message.sendToTarget();
     }

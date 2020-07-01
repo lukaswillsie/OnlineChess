@@ -12,9 +12,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.GameData;
+import com.lukaswillsie.onlinechess.network.helper.requesters.ArchivingRequester;
+import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 
 import java.util.List;
 
@@ -39,14 +42,17 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
      */
     private boolean active;
 
+    private ArchivingRequester requester;
+
     /**
      * Create a new GamesAdapter with the information it needs to run
      * @param games - the list of games this GamesAdapter will be responsible for
      * @param active - whether or not the given list of games is active, or archived
      */
-    GamesAdapter(List<Game> games, boolean active) {
+    GamesAdapter(List<Game> games, boolean active, ArchivingRequester activity) {
         this.games = games;
         this.active = active;
+        this.requester = activity;
     }
 
     /**
@@ -247,6 +253,12 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
             Game removedGame = games.remove(pos);
             removedGame.setArchived(true);
             notifyItemRemoved(pos);
+
+            try {
+                ((ChessApplication)view.getContext().getApplicationContext()).getServerHelper().archive((String)removedGame.getData(GameData.GAMEID), (ActiveGamesActivity) requester);
+            } catch (MultipleRequestException e) {
+                e.printStackTrace();
+            }
         }
     }
 

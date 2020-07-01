@@ -76,11 +76,15 @@ class CreateAccountHelper extends SubHelper implements ReturnCodeCaller {
                 // way the server is expecting them, and if this does happen it's a sign that we've
                 // messed up somewhere. Regardless, we have to have a way to handle it at runtime,
                 // and we choose to handle it as a server error.
+                super.serverError();
+
                 msg = this.obtainMessage(SERVER_ERROR);
                 break;
             // If the server is telling us an error occurred
             case ReturnCodes.SERVER_ERROR:
                 Log.i(tag, "Server error occurred during create account request");
+                super.serverError();
+
                 msg = this.obtainMessage(SERVER_ERROR);
                 break;
             // If the server is telling us we successfully created the account
@@ -103,6 +107,8 @@ class CreateAccountHelper extends SubHelper implements ReturnCodeCaller {
             // this program as an error server-side.
             default:
                 Log.i(tag, "Unfamiliar return code " + code + " returned by server");
+                super.serverError();
+
                 msg = this.obtainMessage(SERVER_ERROR);
                 break;
         }
@@ -119,6 +125,8 @@ class CreateAccountHelper extends SubHelper implements ReturnCodeCaller {
      */
     @Override
     public void systemError() {
+        super.systemError();
+
         this.obtainMessage(SYSTEM_ERROR).sendToTarget();
     }
 
@@ -128,7 +136,8 @@ class CreateAccountHelper extends SubHelper implements ReturnCodeCaller {
      */
     @Override
     public void connectionLost() {
-        this.notifyContainerConnectionLost();
+        super.connectionLost();
+
         this.obtainMessage(CONNECTION_LOST).sendToTarget();
     }
 

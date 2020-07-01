@@ -2,6 +2,7 @@ package com.lukaswillsie.onlinechess.activities.game_display;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -11,6 +12,7 @@ import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.InteriorActivity;
 import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.GameData;
+import com.lukaswillsie.onlinechess.network.helper.requesters.ArchiveRequester;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +21,7 @@ import java.util.List;
  * Displays for the user a list of all their "active" games. That is, all games that the user
  * hasn't yet marked as archived.
  */
-public class ActiveGamesActivity extends InteriorActivity {
+public class ActiveGamesActivity extends InteriorActivity implements ArchiveRequester {
     /*
      * Tag used for logging to the console
      */
@@ -30,10 +32,25 @@ public class ActiveGamesActivity extends InteriorActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_active_games);
 
+        if(((ChessApplication)getApplicationContext()).getServerHelper() == null) {
+            super.reconnect();
+        }
+        else {
+            // Set up our RecyclerView to display a list of the user's archived games
+            RecyclerView recyclerView = findViewById(R.id.games_recycler);
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+            recyclerView.setAdapter(new GamesAdapter(getGames(), true, this));
+        }
+    }
+
+    @Override
+    public void loginComplete(List<Game> games) {
+        super.loginComplete(games);
+
         // Set up our RecyclerView to display a list of the user's archived games
         RecyclerView recyclerView = findViewById(R.id.games_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new GamesAdapter(getGames(), true));
+        recyclerView.setAdapter(new GamesAdapter(getGames(), true, this));
     }
 
     /**
@@ -104,5 +121,10 @@ public class ActiveGamesActivity extends InteriorActivity {
         }
 
         return activeGames;
+    }
+
+    @Override
+    public void archiveSuccessful() {
+        Toast.makeText(this, "ARCHIVE SUCCESSFUL", Toast.LENGTH_LONG).show();
     }
 }

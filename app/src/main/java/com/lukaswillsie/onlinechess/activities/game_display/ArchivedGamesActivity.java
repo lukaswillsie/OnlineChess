@@ -2,6 +2,7 @@ package com.lukaswillsie.onlinechess.activities.game_display;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -11,11 +12,12 @@ import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.InteriorActivity;
 import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.GameData;
+import com.lukaswillsie.onlinechess.network.helper.requesters.RestoreRequester;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArchivedGamesActivity extends InteriorActivity {
+public class ArchivedGamesActivity extends InteriorActivity implements RestoreRequester {
     /*
      * Used for logging things to the console
      */
@@ -29,7 +31,7 @@ public class ArchivedGamesActivity extends InteriorActivity {
         // Set up our RecyclerView to display a list of the user's archived games
         RecyclerView recyclerView = findViewById(R.id.games_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new GamesAdapter(getGames(), false));
+        recyclerView.setAdapter(new GamesAdapter(getGames(), false, this));
     }
 
     /**
@@ -101,5 +103,10 @@ public class ArchivedGamesActivity extends InteriorActivity {
         }
 
         return archivedGames;
+    }
+
+    @Override
+    public void restoreSuccessful() {
+        Toast.makeText(this, "RESTORATION SUCCESSFUL", Toast.LENGTH_LONG);
     }
 }
