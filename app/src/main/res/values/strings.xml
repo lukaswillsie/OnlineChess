@@ -33,9 +33,9 @@
     <string name="connection_lost_alert">The connection to the server has been lost. Would you like to try again?</string>
     <string name="server_error_alert">We encountered an unexpected error with the server. Would you like to try again?</string>
     <string name="system_error_alert">We encountered an unexpected system error. Would you like to try again?</string>
-    <string name="automatic_login_failure">An error occurred and we coudln\'t log you in automatically</string>
+    <string name="automatic_login_failure">An error occurred and we couldn\'t log you in automatically</string>
     <string name="remember_me_failure">We encountered an error and couldn\'t save your data for next time</string>
-    <string name="connection_failed_alert">A connection to the network couldn\'t be established. Please check your connection and try again.</string>
+    <string name="connection_failed_alert">A connection to the server couldn\'t be established. Please check your connection and try again.</string>
 
     <!--Dialog Strings-->
     <string name="connecting_dialog_text">Connecting…</string>

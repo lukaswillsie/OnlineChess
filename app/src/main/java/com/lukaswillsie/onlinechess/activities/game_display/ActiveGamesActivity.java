@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.InteriorActivity;
+import com.lukaswillsie.onlinechess.activities.Reconnector;
 import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.GameData;
 import com.lukaswillsie.onlinechess.network.helper.requesters.ArchiveRequester;
@@ -33,7 +34,7 @@ public class ActiveGamesActivity extends InteriorActivity implements ArchiveRequ
         setContentView(R.layout.activity_active_games);
 
         if(((ChessApplication)getApplicationContext()).getServerHelper() == null) {
-            super.reconnect();
+            new Reconnector(this).reconnect();
         }
         else {
             // Set up our RecyclerView to display a list of the user's archived games
@@ -43,23 +44,16 @@ public class ActiveGamesActivity extends InteriorActivity implements ArchiveRequ
         }
     }
 
+    /**
+     * Called by Reconnector once a reconnection process is over, notifying us that we can proceed
+     * with normal execution, and that we have a working connection with the server. So we proceed
+     * with populating the onscreen RecyclerView with game cards.
+     */
     @Override
-    public void loginComplete(List<Game> games) {
-        super.loginComplete(games);
-
-        // Set up our RecyclerView to display a list of the user's archived games
+    public void loginComplete() {
         RecyclerView recyclerView = findViewById(R.id.games_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(new GamesAdapter(getGames(), true, this));
-    }
-
-    /**
-     * Used by the superclass to provide accurate console logging
-     * @return a tag to be used for logging to the console
-     */
-    @Override
-    public String getTag() {
-        return tag;
     }
 
     /**
@@ -100,18 +94,18 @@ public class ActiveGamesActivity extends InteriorActivity implements ArchiveRequ
         for(Game game : games) {
             if(!((int)game.getData(GameData.ARCHIVED) == 1)) {
                 if(isOver(game)) {
-                    Log.i(getTag(), "Game " + game.getData(GameData.GAMEID) + " is over");
+                    Log.i(tag, "Game " + game.getData(GameData.GAMEID) + " is over");
                     activeGames.add(gameOverPos, game);
                     gameOverPos++;
                 }
                 else if(isOpponentTurn(game)) {
-                    Log.i(getTag(), game.getData(GameData.GAMEID) + " is opponent turn");
+                    Log.i(tag, game.getData(GameData.GAMEID) + " is opponent turn");
                     activeGames.add(opponentTurnPos, game);
                     opponentTurnPos++;
                     gameOverPos++;
                 }
                 else {
-                    Log.i(getTag(), game.getData(GameData.GAMEID) + " is user turn");
+                    Log.i(tag, game.getData(GameData.GAMEID) + " is user turn");
                     activeGames.add(userTurnPos, game);
                     userTurnPos++;
                     opponentTurnPos++;
@@ -123,8 +117,31 @@ public class ActiveGamesActivity extends InteriorActivity implements ArchiveRequ
         return activeGames;
     }
 
+    /**
+     * Called by ServerHelper after the server has confirmed an archive request.
+     */
     @Override
     public void archiveSuccessful() {
-        Toast.makeText(this, "ARCHIVE SUCCESSFUL", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Your game was archived successfully", Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * Called by ServerHelper if after an archive request is issued it realizes that the connection
+     * with the server has been lost.
+     */
+    @Override
+    public void connectionLost() {
+        Toast.makeText(this, "We lost our connection to the server and couldn't archive your game", Toast.LENGTH_LONG).show();
+        new Reconnector(this).reconnect();
+    }
+
+    @Override
+    public void serverError() {
+        Toast.makeText(this, "The server encountered an unexpected error and your game may not have been archived", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void systemError() {
+        Toast.makeText(this, "We encountered an unexpected error and your game may not have been archived", Toast.LENGTH_LONG).show();
     }
 }

@@ -95,6 +95,7 @@ public class ArchiveHelper extends SubHelper implements ReturnCodeCaller{
                 Log.i(tag, "Server says archive successful.");
 
                 msg = this.obtainMessage(ARCHIVE_SUCCESS);
+                super.notifyContainerRequestOver();
                 break;
             // If the server is telling us the game does not exist
             case ReturnCodes.Archive.GAME_DOES_NOT_EXIST:

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,15 +33,6 @@ public class ArchivedGamesActivity extends InteriorActivity implements RestoreRe
         RecyclerView recyclerView = findViewById(R.id.games_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(new GamesAdapter(getGames(), false, this));
-    }
-
-    /**
-     * Used by this class' superclass to ensure accurate logging to the console
-     * @return A tag that can be used to log things to the console on this class' behalf
-     */
-    @Override
-    public String getTag() {
-        return tag;
     }
 
     /**
@@ -82,18 +74,18 @@ public class ArchivedGamesActivity extends InteriorActivity implements RestoreRe
         for(Game game : games) {
             if((int)game.getData(GameData.ARCHIVED) == 1) {
                 if(isOver(game)) {
-                    Log.i(getTag(), "Game " + game.getData(GameData.GAMEID) + " is over");
+                    Log.i(tag, "Game " + game.getData(GameData.GAMEID) + " is over");
                     archivedGames.add(gameOverPos, game);
                     gameOverPos++;
                 }
                 else if(isOpponentTurn(game)) {
-                    Log.i(getTag(), game.getData(GameData.GAMEID) + " is opponent turn");
+                    Log.i(tag, game.getData(GameData.GAMEID) + " is opponent turn");
                     archivedGames.add(opponentTurnPos, game);
                     opponentTurnPos++;
                     gameOverPos++;
                 }
                 else {
-                    Log.i(getTag(), game.getData(GameData.GAMEID) + " is user turn");
+                    Log.i(tag, game.getData(GameData.GAMEID) + " is user turn");
                     archivedGames.add(userTurnPos, game);
                     userTurnPos++;
                     opponentTurnPos++;
@@ -108,5 +100,25 @@ public class ArchivedGamesActivity extends InteriorActivity implements RestoreRe
     @Override
     public void restoreSuccessful() {
         Toast.makeText(this, "RESTORATION SUCCESSFUL", Toast.LENGTH_LONG);
+    }
+
+    @Override
+    public void loginComplete() {
+
+    }
+
+    @Override
+    public void connectionLost() {
+
+    }
+
+    @Override
+    public void serverError() {
+
+    }
+
+    @Override
+    public void systemError() {
+
     }
 }

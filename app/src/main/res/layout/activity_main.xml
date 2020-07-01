@@ -75,29 +75,29 @@
                     android:text="@string/create_game_button"
                     style="@style/MainActivityButtonText"/>
 
-<!--                <ImageView-->
-<!--                    android:layout_width="0dp"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    android:layout_marginTop="3dp"-->
-<!--                    android:src="@drawable/pawn"-->
-<!--                    app:layout_constraintDimensionRatio="1:1"-->
-<!--                    app:layout_constraintEnd_toEndOf="parent"-->
-<!--                    app:layout_constraintHorizontal_bias="0.1"-->
-<!--                    app:layout_constraintStart_toStartOf="parent"-->
-<!--                    app:layout_constraintTop_toTopOf="parent"-->
-<!--                    app:layout_goneMarginTop="3dp"-->
-<!--                    android:layout_marginBottom="3dp"/>-->
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="3dp"
+                    android:src="@drawable/pawn"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_goneMarginTop="3dp"
+                    android:layout_marginBottom="3dp"/>
 
-<!--                <ImageView-->
-<!--                    android:layout_width="0dp"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    android:src="@drawable/pawn"-->
-<!--                    app:layout_constraintDimensionRatio="1:1"-->
-<!--                    app:layout_constraintEnd_toEndOf="parent"-->
-<!--                    app:layout_constraintHorizontal_bias="0.9"-->
-<!--                    app:layout_constraintStart_toStartOf="parent"-->
-<!--                    android:layout_marginTop="3dp"-->
-<!--                    android:layout_marginBottom="3dp"/>-->
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/pawn"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.9"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginBottom="3dp"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
@@ -126,27 +126,27 @@
                     android:text="@string/join_game_button"
                     style="@style/MainActivityButtonText"/>
 
-<!--                <ImageView-->
-<!--                    android:layout_width="0dp"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    android:src="@drawable/knight"-->
-<!--                    app:layout_constraintDimensionRatio="1:1"-->
-<!--                    app:layout_constraintHorizontal_bias="0.1"-->
-<!--                    app:layout_constraintEnd_toEndOf="parent"-->
-<!--                    app:layout_constraintStart_toStartOf="parent"-->
-<!--                    android:layout_marginTop="3dp"-->
-<!--                    android:layout_marginBottom="3dp"/>-->
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/knight"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintHorizontal_bias="0.1"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginBottom="3dp"/>
 
-<!--                <ImageView-->
-<!--                    android:layout_width="0dp"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    android:src="@drawable/knight"-->
-<!--                    app:layout_constraintDimensionRatio="1:1"-->
-<!--                    app:layout_constraintHorizontal_bias="0.9"-->
-<!--                    app:layout_constraintEnd_toEndOf="parent"-->
-<!--                    app:layout_constraintStart_toStartOf="parent"-->
-<!--                    android:layout_marginTop="3dp"-->
-<!--                    android:layout_marginBottom="3dp"/>-->
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/knight"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintHorizontal_bias="0.9"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginBottom="3dp"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
