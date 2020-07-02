@@ -52,6 +52,8 @@ public class ServerHelper extends Handler implements ConnectCaller {
      */
     private static final String tag = "network.ServerHelper";
 
+    private Connector requester;
+
     /*
      * The IP address of the machine running the server. I'm using the below address because that's
      * my machine's local IP address on my network.
@@ -98,24 +100,6 @@ public class ServerHelper extends Handler implements ConnectCaller {
     private List<SubHelper> helpers;
 
     /**
-     * A reference to whatever SubHelper is actively working on a network request at this moment,
-     * or null if there is no active request
-     */
-    private SubHelper activeHelper;
-
-    /**
-     * The Activity that submitted the current, ongoing request. null if there is no active request.
-     * Thus, this variable is used as a way of determining whether or not there is an active
-     * request.
-     */
-    private Networker requester;
-
-    /**
-     * Stores whether or not the ServerHelper has an active request
-     */
-    private boolean activeRequest = false;
-
-    /**
      * Create a new ServerHelper for handling network tasks
      */
     public ServerHelper() {
@@ -150,27 +134,6 @@ public class ServerHelper extends Handler implements ConnectCaller {
     }
 
     /**
-     * SubHelpers that this object has tasked with processing a request should use this method,
-     * after they have finished processing the request, to notify this object of the fact that the
-     * request has been processed.
-     *
-     * Sets activeHelper and requester to null so that this object is ready to accept another
-     * connect request.
-     *
-     * This method does nothing if helper is not the last SubHelper tasked by this object to handle
-     * a request.
-     *
-     * @param helper - the SubHelper that was tasked to handle a request.
-     */
-    void requestOver(SubHelper helper) {
-        if(helper == this.activeHelper) {
-            this.activeHelper = null;
-            this.requester = null;
-            this.activeRequest = false;
-        }
-    }
-
-    /**
      * Process a login request using the given credentials on behalf of the given requester.
      *
      * @param requester - the Activity wishing to log in a user; will be given callbacks as to the
@@ -180,16 +143,8 @@ public class ServerHelper extends Handler implements ConnectCaller {
      * @throws MultipleRequestException - if this ServerHelper object already has an ongoing request
      */
     public void login(LoginRequester requester, String username, String password) throws MultipleRequestException {
-        if(this.activeRequest) {
-            throw new MultipleRequestException("Activity " + requester.toString() + " tried to " +
-                    "make request while request from " + requester.toString() + " was active.");
-        }
-
         // Delegate to a LoginHelper and designate the LoginHelper as the active helper
         this.loginHelper.login(requester, username, password);
-        this.activeHelper = loginHelper;
-        this.requester = requester;
-        this.activeRequest = true;
     }
 
     /**
@@ -204,15 +159,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
      * @throws MultipleRequestException - if this ServerHelper object already has an ongoing request
      */
     public void createAccount(CreateAccountRequester requester, String username, String password) throws MultipleRequestException {
-        if(this.activeRequest) {
-            throw new MultipleRequestException("Activity " + requester.toString() + " tried to " +
-                    "make request while request from " + requester.toString() + " was active.");
-        }
-
         this.createAccountHelper.createAccount(requester, username, password);
-        this.activeHelper = createAccountHelper;
-        this.requester = requester;
-        this.activeRequest = true;
     }
 
     /**
@@ -222,27 +169,17 @@ public class ServerHelper extends Handler implements ConnectCaller {
      * @throws MultipleRequestException - if this ServerHelper object already has an ongoing request
      */
     public void connect(Connector requester) throws MultipleRequestException {
-        if(this.activeRequest) {
-            throw new MultipleRequestException("Activity " + requester.toString() + " tried to " +
-                    "connect while request from " + this.requester.toString() + " was active.");
+        if(this.requester != null) {
+            throw new MultipleRequestException("Tried to make multiple requests of ServerHelper");
         }
-
         this.requester = requester;
-        this.activeRequest = true;
+
         ConnectThread thread = new ConnectThread(HOSTNAME, PORT, this);
         thread.start();
     }
 
     public void archive(String gameID, ArchiveRequester requester) throws MultipleRequestException {
-        if(this.activeRequest) {
-            throw new MultipleRequestException("Activity " + requester.toString() + " tried to " +
-                    "make request while request from " + this.requester.toString() + " was active.");
-        }
-
-        this.requester = requester;
-        this.activeRequest = true;
-        archiveHelper.archive(gameID, requester);
-        this.activeHelper = archiveHelper;
+        archiveHelper.archive(new ArchiveHelper.ArchiveRequest(gameID, requester));
     }
 
     /**
@@ -254,11 +191,6 @@ public class ServerHelper extends Handler implements ConnectCaller {
     @Override
     public void connectionEstablished(Socket socket) {
         this.socket = socket;
-        if(!(requester instanceof Connector)) {
-            Log.e(tag,"connectionEstablished() called but requester is not Connector");
-            return;
-        }
-
         try {
             // Create IO devices for communicating with the server and give them to all SubHelpers
             // for subsequent requests
@@ -285,31 +217,22 @@ public class ServerHelper extends Handler implements ConnectCaller {
      */
     @Override
     public void connectionFailed() {
-        if(!(requester instanceof Connector)) {
-            Log.e(tag, "connectionEstablished() called but no Connector made " +
-                    "connect request");
-            return;
-        }
-
         Message message = this.obtainMessage(CONNECTION_FAILED);
         message.sendToTarget();
     }
 
     /**
      * This class uses this method to give callbacks to the UI thread.
-     * @param msg
      */
     @Override
     public void handleMessage(@NonNull Message msg) {
         switch(msg.what) {
             case CONNECTION_ESTABLISHED:
-                this.activeRequest = false;
-                ((Connector)requester).connectionEstablished(this);
+                requester.connectionEstablished(this);
                 this.requester = null;  // Signifies that the connection request is over
                 break;
             case CONNECTION_FAILED:
-                this.activeRequest = false;
-                ((Connector)requester).connectionFailed();
+                requester.connectionFailed();
                 this.requester = null;  // Signifies that the connection request is over
                 break;
         }

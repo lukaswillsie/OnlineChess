@@ -14,7 +14,7 @@ public interface ThreadCaller {
      * To be called if a problem with the system is encountered during execution of a client Thread.
      * For example, an exception that is unrelated to the server might be thrown by the operating
      * system when a Thread tries to write/read from the socket. We allow the caller, and therefore
-     * the front-end of the app, to differentiate between this kind of error and a server error,
+     * the front-end of the app, to differentiate between this kind of error and a server error.
      */
     void systemError();
 

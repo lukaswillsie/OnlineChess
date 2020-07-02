@@ -16,4 +16,9 @@ public class RestoreHelper extends SubHelper implements ReturnCodeCaller {
     public void onServerReturn(int code) {
 
     }
+
+    @Override
+    public void systemError() {
+
+    }
 }

@@ -24,7 +24,7 @@ import com.lukaswillsie.onlinechess.network.threads.callers.ThreadCaller;
  * a time. So we provide a mechanism for SubHelpers to notify ServerHelper that they've finished
  * with a request.
  */
-abstract class SubHelper extends Handler implements ThreadCaller {
+abstract class SubHelper extends Handler {
     /**
      * The ServerHelper that this SubHelper is a part of
      */
@@ -96,50 +96,15 @@ abstract class SubHelper extends Handler implements ThreadCaller {
      * Subclasses should override this method and call this implementation before doing
      * anything else.
      */
-    @Override
     public void connectionLost() {
         this.notifyContainerConnectionLost();
-        this.notifyContainerRequestOver();
-    }
-
-    /**
-     * Defines some behaviour common to ALL SubHelpers when their request is met with a server
-     * error. Namely, notifies the containing ServerHelper that the request it delegated to this
-     * SubHelper is over.
-     *
-     * Subclasses that encounter a server error in the course of their work should call this method
-     * after doing so.
-     */
-    public void serverError() {
-        this.notifyContainerRequestOver();
-    }
-
-    /**
-     * Defines some behaviour common to ALL SubHelpers when their request is met with a system
-     * error. Namely, notifies the containing ServerHelper that the request it delegated to this
-     * SubHelper is over, and that the connection with the server has been lost.
-     *
-     * Subclasses should override this method and call this implementation before doing
-     * anything else.
-     */
-    @Override
-    public void systemError() {
-        this.notifyContainerRequestOver();
     }
 
     /**
      * Notifies the ServerHelper that this object is a part of that the connection with the server
      * has been lost
      */
-    void notifyContainerConnectionLost() {
+    private void notifyContainerConnectionLost() {
         container.connectionLost();
-    }
-
-    /**
-     * Notifies the ServerHelper that this object is a part of that the request this object has
-     * been handling has been handled
-     */
-    void notifyContainerRequestOver() {
-        container.requestOver(this);
     }
 }

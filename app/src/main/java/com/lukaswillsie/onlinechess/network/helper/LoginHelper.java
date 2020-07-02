@@ -1,12 +1,12 @@
 package com.lukaswillsie.onlinechess.network.helper;
 
 import android.os.Message;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 
 import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
+import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 import com.lukaswillsie.onlinechess.network.threads.callers.LoginCaller;
 import com.lukaswillsie.onlinechess.network.threads.LoginThread;
 
@@ -57,8 +57,12 @@ public class LoginHelper extends SubHelper implements LoginCaller {
      * @param requester - the Activity making the login request
      * @param username - the username of the user logging in
      * @param password - the password of the user logging in
+     * @throws MultipleRequestException - if this LoginHelper is already processing a request
      */
-    void login(LoginRequester requester, String username, String password) {
+    void login(LoginRequester requester, String username, String password) throws MultipleRequestException {
+        if(this.requester != null) {
+            throw new MultipleRequestException("Tried to make multiple requests of LoginHelper");
+        }
         this.requester = requester;
 
         LoginThread thread = new LoginThread(username, password, this);
@@ -74,8 +78,6 @@ public class LoginHelper extends SubHelper implements LoginCaller {
      */
     @Override
     public void serverError() {
-        super.serverError();
-
         Message message = this.obtainMessage(SERVER_ERROR);
         message.sendToTarget();
     }
@@ -88,8 +90,6 @@ public class LoginHelper extends SubHelper implements LoginCaller {
      */
     @Override
     public void systemError() {
-        super.systemError();
-
         Message message = this.obtainMessage(SYSTEM_ERROR);
         message.sendToTarget();
     }
@@ -120,8 +120,6 @@ public class LoginHelper extends SubHelper implements LoginCaller {
      */
     @Override
     public void usernameInvalid() {
-        this.notifyContainerRequestOver();
-
         Message message = this.obtainMessage(USERNAME_INVALID);
         message.sendToTarget();
     }
@@ -132,8 +130,6 @@ public class LoginHelper extends SubHelper implements LoginCaller {
      */
     @Override
     public void passwordInvalid() {
-        this.notifyContainerRequestOver();
-
         Message message = this.obtainMessage(PASSWORD_INVALID);
         message.sendToTarget();
     }
@@ -153,8 +149,6 @@ public class LoginHelper extends SubHelper implements LoginCaller {
      */
     @Override
     public void loginComplete(List<Game> games) {
-        this.notifyContainerRequestOver();
-        
         Message message = this.obtainMessage(LOGIN_COMPLETE, games);
         message.sendToTarget();
     }
@@ -169,24 +163,43 @@ public class LoginHelper extends SubHelper implements LoginCaller {
         switch(msg.what) {
             case SYSTEM_ERROR:
                 requester.systemError();
+
+                // Allows us to accept another request
+                this.requester = null;
                 break;
             case CONNECTION_LOST:
                 requester.connectionLost();
+
+                // Allows us to accept another request
+                this.requester = null;
                 break;
             case SERVER_ERROR:
                 requester.serverError();
+
+                // Allows us to accept another request
+                this.requester = null;
                 break;
             case LOGIN_SUCCESS:
                 requester.loginSuccess();
+                // We don't nullify requester here because the request isn't over
                 break;
             case USERNAME_INVALID:
                 requester.usernameInvalid();
+
+                // Allows us to accept another request
+                this.requester = null;
                 break;
             case PASSWORD_INVALID:
                 requester.passwordInvalid();
+
+                // Allows us to accept another request
+                this.requester = null;
                 break;
             case LOGIN_COMPLETE:
                 requester.loginComplete((List<Game>)msg.obj);
+
+                // Allows us to accept another request
+                this.requester = null;
                 break;
         }
     }

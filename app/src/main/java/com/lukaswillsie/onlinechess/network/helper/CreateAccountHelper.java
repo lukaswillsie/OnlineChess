@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.lukaswillsie.onlinechess.network.ReturnCodes;
 import com.lukaswillsie.onlinechess.network.helper.requesters.CreateAccountRequester;
+import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 import com.lukaswillsie.onlinechess.network.threads.callers.ReturnCodeCaller;
 import com.lukaswillsie.onlinechess.network.threads.ReturnCodeThread;
 
@@ -35,7 +36,21 @@ class CreateAccountHelper extends SubHelper implements ReturnCodeCaller {
         super(container);
     }
 
-    void createAccount(CreateAccountRequester requester, String username, String password) {
+    /**
+     * Attempts to create an account with the given credentials, and gives callbacks to the given
+     * requester
+     *
+     * @param requester - will receive callbacks as to the result of the request
+     * @param username - the username to try and create an account for
+     * @param password - the password to try and create an account with
+     * @throws MultipleRequestException - if this CreateAccountHelper is already processing a
+     * request
+     */
+    void createAccount(CreateAccountRequester requester, String username, String password) throws MultipleRequestException {
+        if(this.requester != null) {
+            throw new MultipleRequestException("Tried to make multiple requests of CreateAccountHelper");
+        }
+
         this.requester = requester;
 
         ReturnCodeThread thread = new ReturnCodeThread(this.getRequest(username, password), this);
@@ -76,15 +91,11 @@ class CreateAccountHelper extends SubHelper implements ReturnCodeCaller {
                 // way the server is expecting them, and if this does happen it's a sign that we've
                 // messed up somewhere. Regardless, we have to have a way to handle it at runtime,
                 // and we choose to handle it as a server error.
-                super.serverError();
-
                 msg = this.obtainMessage(SERVER_ERROR);
                 break;
             // If the server is telling us an error occurred
             case ReturnCodes.SERVER_ERROR:
                 Log.i(tag, "Server error occurred during create account request");
-                super.serverError();
-
                 msg = this.obtainMessage(SERVER_ERROR);
                 break;
             // If the server is telling us we successfully created the account
@@ -107,13 +118,10 @@ class CreateAccountHelper extends SubHelper implements ReturnCodeCaller {
             // this program as an error server-side.
             default:
                 Log.i(tag, "Unfamiliar return code " + code + " returned by server");
-                super.serverError();
-
                 msg = this.obtainMessage(SERVER_ERROR);
                 break;
         }
 
-        this.notifyContainerRequestOver();
         msg.sendToTarget();
     }
 
@@ -125,8 +133,6 @@ class CreateAccountHelper extends SubHelper implements ReturnCodeCaller {
      */
     @Override
     public void systemError() {
-        super.systemError();
-
         this.obtainMessage(SYSTEM_ERROR).sendToTarget();
     }
 
@@ -152,21 +158,39 @@ class CreateAccountHelper extends SubHelper implements ReturnCodeCaller {
         switch(msg.what) {
             case SYSTEM_ERROR:
                 requester.systemError();
+
+                // Allows us to accept another request
+                this.requester = null;
                 break;
             case CONNECTION_LOST:
                 requester.connectionLost();
+
+                // Allows us to accept another request
+                this.requester = null;
                 break;
             case SERVER_ERROR:
                 requester.serverError();
+
+                // Allows us to accept another request
+                this.requester = null;
                 break;
             case SUCCESS:
                 requester.createAccountSuccess();
+
+                // Allows us to accept another request
+                this.requester = null;
                 break;
             case USERNAME_IN_USE:
                 requester.usernameInUse();
+
+                // Allows us to accept another request
+                this.requester = null;
                 break;
             case ACCOUNT_FORMAT_INVALID:
                 requester.formatInvalid();
+
+                // Allows us to accept another request
+                this.requester = null;
                 break;
         }
     }
