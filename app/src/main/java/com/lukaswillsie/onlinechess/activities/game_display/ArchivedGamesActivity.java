@@ -2,7 +2,6 @@ package com.lukaswillsie.onlinechess.activities.game_display;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -10,14 +9,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.InteriorActivity;
+import com.lukaswillsie.onlinechess.activities.Reconnector;
 import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.GameData;
-import com.lukaswillsie.onlinechess.network.helper.requesters.RestoreRequester;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArchivedGamesActivity extends InteriorActivity implements RestoreRequester {
+/**
+ * Displays a list of the user's archived games on the screen
+ */
+public class ArchivedGamesActivity extends InteriorActivity {
     /*
      * Used for logging things to the console
      */
@@ -28,10 +30,17 @@ public class ArchivedGamesActivity extends InteriorActivity implements RestoreRe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_archived_games);
 
-        // Set up our RecyclerView to display a list of the user's archived games
-        RecyclerView recyclerView = findViewById(R.id.games_recycler);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new GamesAdapter(getGames(), false, this));
+        // If our app was terminated by the operating system and is now being resumed, we'll have to
+        // re-establish a connection with the server
+        if(((ChessApplication)getApplicationContext()).getServerHelper() == null) {
+            new Reconnector(this).reconnect();
+        }
+        else {
+            // Set up our RecyclerView to display a list of the user's archived games
+            RecyclerView recyclerView = findViewById(R.id.games_recycler);
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+            recyclerView.setAdapter(new GamesAdapter(getGames(), false, this));
+        }
     }
 
     /**
@@ -96,28 +105,17 @@ public class ArchivedGamesActivity extends InteriorActivity implements RestoreRe
         return archivedGames;
     }
 
+    /**
+     * Reconnector will call this method once a reconnection attempt has completely finished. That
+     * is, once a connection to the server has been established and the user has been successfully
+     * re-logged in. This callback notifies us that we can proceed with normal execution, and assume
+     * a working connection to the server.
+     */
     @Override
-    public void restoreSuccessful() {
-        Toast.makeText(this, "Your game was restored successfully", Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void loginComplete() {
-
-    }
-
-    @Override
-    public void connectionLost() {
-
-    }
-
-    @Override
-    public void serverError() {
-
-    }
-
-    @Override
-    public void systemError() {
-
+    public void reconnectionComplete() {
+        // Set up our RecyclerView to display a list of the user's archived games
+        RecyclerView recyclerView = findViewById(R.id.games_recycler);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(new GamesAdapter(getGames(), false, this));
     }
 }

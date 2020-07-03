@@ -22,7 +22,7 @@ import java.util.List;
  * Displays for the user a list of all their "active" games. That is, all games that the user
  * hasn't yet marked as archived.
  */
-public class ActiveGamesActivity extends InteriorActivity implements ArchiveRequester {
+public class ActiveGamesActivity extends InteriorActivity {
     /*
      * Tag used for logging to the console
      */
@@ -46,11 +46,11 @@ public class ActiveGamesActivity extends InteriorActivity implements ArchiveRequ
 
     /**
      * Called by Reconnector once a reconnection process is over, notifying us that we can proceed
-     * with normal execution, and that we have a working connection with the server. So we proceed
-     * with populating the onscreen RecyclerView with game cards.
+     * with normal execution, and that we can count on a working connection with the server. So we
+     * proceed with populating the onscreen RecyclerView with game cards.
      */
     @Override
-    public void loginComplete() {
+    public void reconnectionComplete() {
         RecyclerView recyclerView = findViewById(R.id.games_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(new GamesAdapter(getGames(), true, this));
@@ -115,33 +115,5 @@ public class ActiveGamesActivity extends InteriorActivity implements ArchiveRequ
         }
 
         return activeGames;
-    }
-
-    /**
-     * Called by ServerHelper after the server has confirmed an archive request.
-     */
-    @Override
-    public void archiveSuccessful() {
-        Toast.makeText(this, "Your game was archived successfully", Toast.LENGTH_LONG).show();
-    }
-
-    /**
-     * Called by ServerHelper if after an archive request is issued it realizes that the connection
-     * with the server has been lost.
-     */
-    @Override
-    public void connectionLost() {
-        Toast.makeText(this, "We lost our connection to the server and couldn't archive your game", Toast.LENGTH_LONG).show();
-        new Reconnector(this).reconnect();
-    }
-
-    @Override
-    public void serverError() {
-        Toast.makeText(this, "The server encountered an unexpected error and your game may not have been archived", Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void systemError() {
-        Toast.makeText(this, "We encountered an unexpected error and your game may not have been archived", Toast.LENGTH_LONG).show();
     }
 }

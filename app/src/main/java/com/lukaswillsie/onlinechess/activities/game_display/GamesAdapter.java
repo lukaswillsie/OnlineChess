@@ -1,5 +1,6 @@
 package com.lukaswillsie.onlinechess.activities.game_display;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.util.Log;
@@ -8,12 +9,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
+import com.lukaswillsie.onlinechess.activities.InteriorActivity;
+import com.lukaswillsie.onlinechess.activities.Reconnector;
 import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.GameData;
 import com.lukaswillsie.onlinechess.network.helper.requesters.ArchiveRequester;
@@ -44,7 +48,7 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
      */
     private boolean active;
 
-    private ArchivingRequester requester;
+    private InteriorActivity activity;
 
     /**
      * Create a new GamesAdapter with the information it needs to run
@@ -53,12 +57,16 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
      *               implement ArchiveRequester for archiving functionality to work. If false,
      *               requester must implement RestoreRequester for restoration functionality to
      *               work.
-     *
+     * @param activity - the Activity for which this object is doing its work; will be used for UI
+     *                 operations, like displaying Toasts. If this object attempts to submit an
+     *                 archive/restore request to the server, and discovers the connection to the
+     *                 server to have been lost, this activity will be used in conjunction with a
+     *                 Reconnector object to re-establish a connection to the server.
      */
-    GamesAdapter(List<Game> games, boolean active, ArchivingRequester requester) {
+    GamesAdapter(List<Game> games, boolean active, InteriorActivity activity) {
         this.games = games;
         this.active = active;
-        this.requester = requester;
+        this.activity = activity;
     }
 
     /**
@@ -248,9 +256,10 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
     }
 
     /**
-     * Listens to an archive icon, and allows games to be archived when the icon to be pressed
+     * Listens to an archive icon associated with a particular game, and tries to archive that game
+     * when the button is clicked.
      */
-    private class ArchiveListener implements View.OnClickListener {
+    private class ArchiveListener implements View.OnClickListener, ArchiveRequester {
         /*
          * The Game that this listener will archive when the View it is listening to is pressed
          */
@@ -258,7 +267,9 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
 
         /**
          * Create a new ArchiveListener, which will archive the given Game object when a click event
-         * is registered
+         * is registered. Assumes, of course, that the view this object listening to is the one
+         * corresponding to the given game.
+         *
          * @param game - the Game that this listener will archive when a click event is registered
          */
         private ArchiveListener(Game game) {
@@ -267,21 +278,60 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
 
         @Override
         public void onClick(View view) {
+            // Send the server an archive request
+            ((ChessApplication)view.getContext().getApplicationContext()).getServerHelper().archive((String)game.getData(GameData.GAMEID), this);
+        }
+
+        /**
+         * Called by ServerHelper after the server has confirmed an archive request.
+         */
+        @Override
+        public void archiveSuccessful() {
             int pos = games.indexOf(game);
-            Game removedGame = games.remove(pos);
-            removedGame.setArchived(true);
+            games.remove(game);
+            game.setArchived(true);
             // Removes the card associated with the game from the RecyclerView on the screen
             notifyItemRemoved(pos);
+        }
 
-            // Send the server an archive request
-            ((ChessApplication)view.getContext().getApplicationContext()).getServerHelper().archive((String)removedGame.getData(GameData.GAMEID), (ArchiveRequester) requester);
+        /**
+         * Called by ServerHelper if after an archive request is issued it realizes that the
+         * connection with the server has been lost. Because archiving a game isn't a big deal, we
+         * choose not to interrupt the user by displaying a dialog, but instead just display a
+         * Toast, before starting a reconnection attempt.
+         */
+        @Override
+        public void connectionLost() {
+            Toast.makeText(activity, "We lost our connection to the server and couldn't archive your game", Toast.LENGTH_LONG).show();
+            new Reconnector(activity).reconnect();
+        }
+
+        /**
+         * Called by ServerHelper if an archive request is met with an error server-side. Because
+         * archiving a game isn't a big deal, we choose not to interrupt the user by displaying a
+         * dialog, but instead just display a Toast.
+         */
+        @Override
+        public void serverError() {
+            Toast.makeText(activity, "The server encountered an unexpected error and your game may not have been archived", Toast.LENGTH_LONG).show();
+        }
+
+        /**
+         * Called by ServerHelper if an archive request is stymied by a system error of some kind.
+         * Because archiving a game isn't a big deal, we choose not to interrupt the user by displaying
+         * a dialog, but instead just display a Toast.
+         */
+        @Override
+        public void systemError() {
+            Toast.makeText(activity, "We encountered an unexpected error and your game may not have been archived", Toast.LENGTH_LONG).show();
         }
     }
 
     /**
-     * Listens to a restore icon, and allows archived games to be restored when the icon to be pressed
+     * Listens to a restore button associated with a particular game, and attempts to restore that
+     * game when the button is clicked.
      */
-    private class RestoreListener implements View.OnClickListener {
+    private class RestoreListener implements View.OnClickListener, RestoreRequester {
         /*
          * The Game that this listener will restore when it registers a click event
          */
@@ -298,14 +348,54 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
 
         @Override
         public void onClick(View view) {
+            // Send the server a restore request
+            ((ChessApplication)view.getContext().getApplicationContext()).getServerHelper().restore((String) game.getData(GameData.GAMEID), this);
+        }
+
+        /**
+         * Called by ServerHelper after the server has confirmed a restore request
+         */
+        @Override
+        public void restoreSuccessful() {
+            Toast.makeText(activity, "Your game was restored successfully", Toast.LENGTH_LONG).show();
+
             int pos = games.indexOf(game);
-            Game removedGame = games.remove(pos);
-            removedGame.setArchived(false);
+            games.remove(game);
+            game.setArchived(false);
             // Removes the card associated with the game from the RecyclerView on the screen
             notifyItemRemoved(pos);
+        }
 
-            // Send the server a restore request
-            ((ChessApplication)view.getContext().getApplicationContext()).getServerHelper().restore((String) game.getData(GameData.GAMEID), (RestoreRequester) requester);
+        /**
+         * Called by ServerHelper if after an archive request is issued it realizes that the
+         * connection with the server has been lost. Because archiving a game isn't a big deal, we
+         * choose not to interrupt the user by displaying a dialog, but instead just display a
+         * Toast, before starting a reconnection attempt.
+         */
+        @Override
+        public void connectionLost() {
+            Toast.makeText(activity, "We lost our connection to the server and couldn't restore your game", Toast.LENGTH_LONG).show();
+            new Reconnector(activity).reconnect();
+        }
+
+        /**
+         * Called by ServerHelper if a restore request is met with an error server-side. Because
+         * restoring a game isn't a big deal, we choose not to interrupt the user by displaying a
+         * dialog, but instead just display a Toast.
+         */
+        @Override
+        public void serverError() {
+            Toast.makeText(activity, "The server encountered an unexpected error and your game may not have been restored", Toast.LENGTH_LONG).show();
+        }
+
+        /**
+         * Called by ServerHelper if a restore request is stymied by a system error of some kind.
+         * Because restoring a game isn't a big deal, we choose not to interrupt the user by displaying
+         * a dialog, but instead just display a Toast.
+         */
+        @Override
+        public void systemError() {
+            Toast.makeText(activity, "We encountered an unexpected error and your game may not have been restored", Toast.LENGTH_LONG).show();
         }
     }
 }

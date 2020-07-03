@@ -19,5 +19,5 @@ public abstract class InteriorActivity extends AppCompatActivity {
      * re-logged in. This callback is used to notify the Activity that they can resume normal
      * execution.
      */
-    public abstract void loginComplete();
+    public abstract void reconnectionComplete();
 }

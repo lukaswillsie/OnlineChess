@@ -49,5 +49,5 @@ public class MainActivity extends InteriorActivity {
      * when this happens.
      */
     @Override
-    public void loginComplete() {}
+    public void reconnectionComplete() {}
 }

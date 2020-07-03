@@ -273,7 +273,7 @@ public class Reconnector implements Connector, LoginRequester {
             this.state = ReconnectState.NOT_ACTIVE;
             ((ChessApplication) activity.getApplicationContext()).setGames(games);
 
-            activity.loginComplete();
+            activity.reconnectionComplete();
         }
     }
 
