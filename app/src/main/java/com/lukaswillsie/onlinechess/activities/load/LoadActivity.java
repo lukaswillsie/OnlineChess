@@ -34,8 +34,10 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
      */
     private static final String tag = "LoadActivity";
 
+    /**
+     * Tracks where we are in our loading process
+     */
     private Request activeRequest = Request.NONE;
-
     private enum Request {
         NONE,
         CONNECT,
@@ -182,12 +184,21 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
         startActivity(new Intent(this, LoginActivity.class));
     }
 
+    /**
+     * Called by ServerHelper when our login attempt is unsuccessful because the password we gave
+     * doesn't match the username. We display an error message and move the user to the LoginActivity
+     */
     @Override
     public void passwordInvalid() {
         Toast.makeText(this, R.string.automatic_login_failure, Toast.LENGTH_LONG).show();
         startActivity(new Intent(this, LoginActivity.class));
     }
 
+    /**
+     * Called by ServerHelper after our login attempt is complete.
+     * @param games - A list of objects representing every game that the logged-in user is a player
+     *              in, sent by the server
+     */
     @Override
     public void loginComplete(List<Game> games) {
         ((ChessApplication)this.getApplicationContext()).setGames(games);
@@ -195,11 +206,18 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
         startActivity(new Intent(this, MainActivity.class));
     }
 
+    /**
+     * Called by ServerHelper when a login attempt fails because ServerHelper discovers our
+     * connection with the server has been lost
+     */
     @Override
     public void connectionLost() {
         this.connectionFailed();
     }
 
+    /**
+     * Called by ServerHelper when a login attempt fails because of an error server-side
+     */
     @Override
     public void serverError() {
         // Tell the user we couldn't log them in automatically and move to the manual login screen

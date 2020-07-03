@@ -1,9 +1,12 @@
 package com.lukaswillsie.onlinechess.network.helper;
 
 /**
- * A thread-safe implementation of a queue using a doubly-linked list
+ * A thread-safe implementation of a Request queue using a linked list with head and tail pointers
  */
 public class RequestQueue {
+    /**
+     * A Node in a linked list
+     */
     private static class Node {
         private Node next;
         private Request request;
@@ -19,6 +22,12 @@ public class RequestQueue {
     private Node head;
     private Node tail;
 
+    /**
+     * Return a reference to the first element in the queue, without removing it, or null if the
+     * list is empty.
+     *
+     * @return the first request object in this queue
+     */
     public synchronized Request getHead() {
         if(head == null) {
             return null;
@@ -29,6 +38,10 @@ public class RequestQueue {
 
     }
 
+    /**
+     * Add the given request to the back of the queue
+     * @param request - the request to append to the queue
+     */
     public synchronized void enqueue(Request request) {
         if(head == null) {
             head = new Node(request);
@@ -41,6 +54,10 @@ public class RequestQueue {
         }
     }
 
+    /**
+     * Remove the request at the head of the queue and return it. Returns null if the queue is emtpy
+     * @return the head of the queue
+     */
     public synchronized Request dequeue() {
         if(head == null) {
             return null;

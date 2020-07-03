@@ -178,7 +178,13 @@ public class ServerHelper extends Handler implements ConnectCaller {
         thread.start();
     }
 
-    public void archive(String gameID, ArchiveRequester requester) throws MultipleRequestException {
+    /**
+     * Attempt to archive the given game by sending a request to the server. requester will receive
+     * callbacks relevant to the request
+     * @param gameID - the ID of the game that should be archived
+     * @param requester - the object that will receive callbacks regarding the outcome of the request
+     */
+    public void archive(String gameID, ArchiveRequester requester) {
         archiveHelper.archive(new ArchiveHelper.ArchiveRequest(gameID, requester));
     }
 

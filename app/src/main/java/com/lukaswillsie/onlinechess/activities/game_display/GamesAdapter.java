@@ -241,8 +241,20 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
         }
     }
 
+    /**
+     * Listens to an archive icon, and allows games to be archived when the icon to be pressed
+     */
     private class ArchiveListener implements View.OnClickListener {
+        /*
+         * The Game that this listener will archive when the View it is listening to is pressed
+         */
         private Game game;
+
+        /**
+         * Create a new ArchiveListener, which will archive the given Game object when a click event
+         * is registered
+         * @param game - the Game that this listener will archive when a click event is registered
+         */
         private ArchiveListener(Game game) {
             this.game = game;
         }
@@ -252,18 +264,28 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
             int pos = games.indexOf(game);
             Game removedGame = games.remove(pos);
             removedGame.setArchived(true);
+            // Removes the card associated with the game from the RecyclerView on the screen
             notifyItemRemoved(pos);
 
-            try {
-                ((ChessApplication)view.getContext().getApplicationContext()).getServerHelper().archive((String)removedGame.getData(GameData.GAMEID), (ActiveGamesActivity) requester);
-            } catch (MultipleRequestException e) {
-                e.printStackTrace();
-            }
+            // Send the server an archive request
+            ((ChessApplication)view.getContext().getApplicationContext()).getServerHelper().archive((String)removedGame.getData(GameData.GAMEID), (ActiveGamesActivity) requester);
         }
     }
 
+    /**
+     * Listens to a restore icon, and allows archived games to be restored when the icon to be pressed
+     */
     private class RestoreListener implements View.OnClickListener {
+        /*
+         * The Game that this listener will restore when it registers a click event
+         */
         private Game game;
+
+        /**
+         * Create a new ArchiveListener, which will restore the given Game object when a click event
+         * is registered.
+         * @param game - the Game that this listener will restore when a click event is registered
+         */
         private RestoreListener(Game game) {
             this.game = game;
         }
@@ -273,6 +295,7 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
             int pos = games.indexOf(game);
             Game removedGame = games.remove(pos);
             removedGame.setArchived(false);
+            // Removes the card associated with the game from the RecyclerView on the screen
             notifyItemRemoved(pos);
         }
     }
