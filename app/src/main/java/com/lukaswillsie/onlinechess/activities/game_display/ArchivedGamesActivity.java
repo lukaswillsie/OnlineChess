@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -99,7 +98,7 @@ public class ArchivedGamesActivity extends InteriorActivity implements RestoreRe
 
     @Override
     public void restoreSuccessful() {
-        Toast.makeText(this, "RESTORATION SUCCESSFUL", Toast.LENGTH_LONG);
+        Toast.makeText(this, "Your game was restored successfully", Toast.LENGTH_LONG).show();
     }
 
     @Override

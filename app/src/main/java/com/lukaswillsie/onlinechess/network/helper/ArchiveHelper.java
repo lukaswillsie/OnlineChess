@@ -74,6 +74,10 @@ public class ArchiveHelper extends SubHelper implements ReturnCodeCaller {
     /**
      * Notifies this object that the request queue has changed; should be called whenever a request
      * has been enqueued or a request has been dequeued.
+     *
+     * Will check if the head of the queue is inactive, meaning that we finished processing the last
+     * request or just added a request to a previously empty queue. Either way, we start to process
+     * the new head of the queue.
      */
     private synchronized void requestsChanged() {
         // Grab the first request in our queue
@@ -92,13 +96,12 @@ public class ArchiveHelper extends SubHelper implements ReturnCodeCaller {
     }
 
     /**
-     * Adds the given ArchiveRequest to this object's request queue. If the queue is empty when
-     * this method is called, a Thread will be created to deal with the request.
-     * @param request - an ArchiveRequest object initialized to contain necessary data about the
-     *                request
+     * Attempt the archive the given game, and give callbacks to the given requester
+     * @param gameID - the ID of the game to try and archive
+     * @param requester - the object that will receive callbacks as to the outcome of the request
      */
-    public synchronized void archive(ArchiveRequest request) {
-        requests.enqueue(request);
+    public synchronized void archive(String gameID, ArchiveRequester requester) {
+        requests.enqueue(new ArchiveRequest(gameID, requester));
         requestsChanged();
     }
 
@@ -160,7 +163,7 @@ public class ArchiveHelper extends SubHelper implements ReturnCodeCaller {
                 // call it a server error
                 msg = obtainMessage(SERVER_ERROR, request.requester);
                 break;
-            // If the server is telling us we encountered an error
+            // If the server is telling us it encountered an error
             case ReturnCodes.SERVER_ERROR:
                 Log.i(tag, "Server says it encountered an error. Can't archive.");
 
@@ -185,10 +188,10 @@ public class ArchiveHelper extends SubHelper implements ReturnCodeCaller {
             // tried to archive
             case ReturnCodes.Archive.USER_NOT_IN_GAME:
                 Log.i(tag, "Server says user isn't in game. Can't archive.");
+
                 // This shouldn't happen, because we only allow the user to archive games that the
                 // server has told us the user is a player in. So if it happens, we call it a server
                 // error
-
                 msg = obtainMessage(SERVER_ERROR, request.requester);
                 break;
             // The cases we enumerated above are exhaustive, so any other result falls outside of

@@ -16,7 +16,9 @@ import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.GameData;
+import com.lukaswillsie.onlinechess.network.helper.requesters.ArchiveRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.ArchivingRequester;
+import com.lukaswillsie.onlinechess.network.helper.requesters.RestoreRequester;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 
 import java.util.List;
@@ -47,12 +49,16 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
     /**
      * Create a new GamesAdapter with the information it needs to run
      * @param games - the list of games this GamesAdapter will be responsible for
-     * @param active - whether or not the given list of games is active, or archived
+     * @param active - whether or not the given list of games is active. If true, requester must
+     *               implement ArchiveRequester for archiving functionality to work. If false,
+     *               requester must implement RestoreRequester for restoration functionality to
+     *               work.
+     *
      */
-    GamesAdapter(List<Game> games, boolean active, ArchivingRequester activity) {
+    GamesAdapter(List<Game> games, boolean active, ArchivingRequester requester) {
         this.games = games;
         this.active = active;
-        this.requester = activity;
+        this.requester = requester;
     }
 
     /**
@@ -268,7 +274,7 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
             notifyItemRemoved(pos);
 
             // Send the server an archive request
-            ((ChessApplication)view.getContext().getApplicationContext()).getServerHelper().archive((String)removedGame.getData(GameData.GAMEID), (ActiveGamesActivity) requester);
+            ((ChessApplication)view.getContext().getApplicationContext()).getServerHelper().archive((String)removedGame.getData(GameData.GAMEID), (ArchiveRequester) requester);
         }
     }
 
@@ -297,6 +303,9 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
             removedGame.setArchived(false);
             // Removes the card associated with the game from the RecyclerView on the screen
             notifyItemRemoved(pos);
+
+            // Send the server a restore request
+            ((ChessApplication)view.getContext().getApplicationContext()).getServerHelper().restore((String) game.getData(GameData.GAMEID), (RestoreRequester) requester);
         }
     }
 }

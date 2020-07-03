@@ -11,6 +11,7 @@ import com.lukaswillsie.onlinechess.network.helper.requesters.Connector;
 import com.lukaswillsie.onlinechess.network.helper.requesters.CreateAccountRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.Networker;
+import com.lukaswillsie.onlinechess.network.helper.requesters.RestoreRequester;
 import com.lukaswillsie.onlinechess.network.threads.callers.ConnectCaller;
 import com.lukaswillsie.onlinechess.network.threads.ConnectThread;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
@@ -92,6 +93,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
     private LoginHelper loginHelper;
     private CreateAccountHelper createAccountHelper;
     private ArchiveHelper archiveHelper;
+    private RestoreHelper restoreHelper;
 
     /*
      * A list of all helpers delegated to by this object, so that they can all be notified at once
@@ -106,11 +108,13 @@ public class ServerHelper extends Handler implements ConnectCaller {
         this.loginHelper = new LoginHelper(this);
         this.createAccountHelper = new CreateAccountHelper(this);
         this.archiveHelper = new ArchiveHelper(this);
+        this.restoreHelper = new RestoreHelper(this);
 
         this.helpers = new ArrayList<>();
         this.helpers.add(loginHelper);
         this.helpers.add(createAccountHelper);
         this.helpers.add(archiveHelper);
+        this.helpers.add(restoreHelper);
     }
 
     /**
@@ -185,7 +189,11 @@ public class ServerHelper extends Handler implements ConnectCaller {
      * @param requester - the object that will receive callbacks regarding the outcome of the request
      */
     public void archive(String gameID, ArchiveRequester requester) {
-        archiveHelper.archive(new ArchiveHelper.ArchiveRequest(gameID, requester));
+        archiveHelper.archive(gameID, requester);
+    }
+
+    public void restore(String gameID, RestoreRequester requester) {
+        restoreHelper.restore(gameID, requester);
     }
 
     /**
