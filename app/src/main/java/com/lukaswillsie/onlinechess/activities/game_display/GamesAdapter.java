@@ -287,6 +287,8 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
          */
         @Override
         public void archiveSuccessful() {
+            Toast.makeText(activity, "Your game was archived successfully", Toast.LENGTH_SHORT).show();
+
             int pos = games.indexOf(game);
             games.remove(game);
             game.setArchived(true);
@@ -357,7 +359,7 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
          */
         @Override
         public void restoreSuccessful() {
-            Toast.makeText(activity, "Your game was restored successfully", Toast.LENGTH_LONG).show();
+            Toast.makeText(activity, "Your game was restored successfully", Toast.LENGTH_SHORT).show();
 
             int pos = games.indexOf(game);
             games.remove(game);

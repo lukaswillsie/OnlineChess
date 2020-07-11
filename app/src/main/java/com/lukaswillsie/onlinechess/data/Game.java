@@ -98,6 +98,8 @@ public class Game {
                 return 1;
             }
 
+            data.put(GameData.OPEN, this.getServerData(serverData, ServerData.OPEN));
+
             data.put(GameData.TURN, this.getServerData(serverData, ServerData.TURN));
 
             // The user has only been offered a draw if it's their turn AND a draw has been offered

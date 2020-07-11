@@ -18,6 +18,7 @@ public enum GameData {
     GAMEID('s'),                  // ID of the game
     OPPONENT('s'),                // Name of the user's opponent in the game. Empty if the
                                         // game is new and there is no opponent yet
+    OPEN('i'),                    // 1 if the game is an open game, 0 otherwise
     STATE('i'),			        // State of the game; 1 if it's the user's turn, 0 if it's
                                         // the opponent's
     TURN('i'),				    // Current turn number
