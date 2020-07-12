@@ -1,5 +1,5 @@
 <resources>
-    <!--Login Screen Strings-->
+    <!--Login Screen-->
     <string name="username_prompt">Username</string>
     <string name="password_prompt">Password</string>
     <string name="login_button">LOGIN</string>
@@ -11,14 +11,14 @@
     <string name="invalid_password_error">That password is invalid</string>
     <string name="username_in_use_error">That username is already taken</string>
 
-    <!--Account Creation Strings-->
+    <!--Account Creation-->
     <string name="confirm_password_prompt">Confirm password</string>
     <string name="create_account_button">CREATE ACCOUNT</string>
     <string name="format_invalid_error">Usernames and passwords must be 5–15 characters long, and can\'t contain spaces or commas</string>
     <string name="account_creation_processing_text">Processing request…</string>
     <string name="confirm_not_equal_to_password">Those passwords don\'t match</string>
 
-    <!--Main Screen Strings-->
+    <!--Main Screen-->
     <string name="app_name">Chess!</string>
     <string name="title">Online Chess</string>
     <string name="author">By: Lukas Willsie</string>
@@ -42,7 +42,7 @@
     <string name="logging_in_dialog_text">Logging in…</string>
     <string name="loading_dialog_text">Loading…</string>
 
-    <!--Active Games Screen Strings-->
+    <!--Active Games Screen-->
     <string name="active_games_title">Your Active Games</string>
     <string name="opponent_label">Opponent: %1$s</string>
     <string name="no_opponent_open">Open - waiting…</string>
@@ -55,6 +55,16 @@
     <string name="user_turn">Your turn</string>
     <string name="draw_offered_to_user">Draw offer</string>
 
-    <!-- Archived Games Screen Strings-->
+    <!-- Archived Games Screen-->
     <string name="archived_games_title">Your Archived Games</string>
+
+    <!-- Join Game Screen-->
+    <string name="join_games_title">Join a Game</string>
+    <string name="enter_gameID_hint">Enter Game ID</string>
+    <string name="join_game_button_text">JOIN</string>
+    <string name="or">OR</string>
+    <string name="open_games_button_text">View open games</string>
+
+    <!-- Open Games Screen-->
+    <string name="open_games_title">Open Games</string>
 </resources>

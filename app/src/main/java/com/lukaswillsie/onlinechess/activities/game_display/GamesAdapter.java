@@ -66,7 +66,7 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
      *                 server to have been lost, this activity will be used in conjunction with a
      *                 Reconnector object to re-establish a connection to the server.
      */
-    GamesAdapter(List<Game> games, GameType gameType, InteriorActivity activity) {
+    public GamesAdapter(List<Game> games, GameType gameType, InteriorActivity activity) {
         this.games = games;
         this.gameType = gameType;
         this.activity = activity;

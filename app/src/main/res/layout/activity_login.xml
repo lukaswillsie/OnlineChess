@@ -41,25 +41,17 @@
             android:inputType="text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:background="@drawable/black_background"
-            android:hint="@string/username_prompt"
-            android:textColorHint="@android:color/white"
-            android:alpha="0.5"
-            android:padding="5dp"/>
+            style="@style/EditTextStyle"
+            android:hint="@string/username_prompt"/>
 
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/password"
+            style="@style/EditTextStyle"
             android:inputType="textPassword"
-            android:textColor="@android:color/white"
             android:hint="@string/password_prompt"
-            android:textColorHint="@android:color/white"
-            android:layout_marginTop="5dp"
-            android:alpha="0.5"
-            android:padding="5dp"
-            android:background="@drawable/black_background"/>
+            android:layout_marginTop="5dp"/>
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"

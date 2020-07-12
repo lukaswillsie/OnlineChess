@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".JoinGameActivity">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/login_background"
+        android:scaleType="centerCrop"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/join_games_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/join_button"
+        style="@style/TitleStyle"/>
+
+    <EditText
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:inputType="text"
+        android:hint="@string/enter_gameID_hint"
+        app:layout_constraintStart_toStartOf="@id/leftGuideline"
+        app:layout_constraintEnd_toStartOf="@id/join_button"
+        app:layout_constraintTop_toTopOf="@id/join_button"
+        app:layout_constraintBottom_toBottomOf="@id/join_button"
+        android:layout_marginRight="10dp"
+        style="@style/EditTextStyle"
+        android:layout_marginEnd="10dp" />
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:id="@+id/join_button"
+        app:layout_constraintEnd_toEndOf="@id/rightGuideline"
+        app:layout_constraintBottom_toTopOf="@id/or"
+        android:layout_marginBottom="10dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/join_game_button_selector">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:text="@string/join_game_button_text"
+                style="@style/MainActivityButtonText"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/white"
+        android:text="@string/or"
+        android:id="@+id/or"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0.25"/>
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="4dp"
+        android:background="@drawable/join_game_line"
+        app:layout_constraintStart_toStartOf="@id/leftGuideline"
+        app:layout_constraintEnd_toStartOf="@id/or"
+        app:layout_constraintTop_toTopOf="@id/or"
+        app:layout_constraintBottom_toBottomOf="@id/or"/>
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="4dp"
+        android:background="@drawable/join_game_line"
+        app:layout_constraintStart_toEndOf="@id/or"
+        app:layout_constraintEnd_toEndOf="@id/rightGuideline"
+        app:layout_constraintTop_toTopOf="@id/or"
+        app:layout_constraintBottom_toBottomOf="@id/or"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/leftGuideline"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.05"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/rightGuideline"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.95"/>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/or"
+        app:layout_constraintWidth_percent="0.3"
+        app:cardCornerRadius="0dp"
+        android:elevation="0dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:onClick="openGames">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/open_games_button_selector">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:text="@string/open_games_button_text"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                style="@style/MainActivityButtonText"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+<!--    <TextView-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="10dp"-->
+<!--        android:paddingTop="8dp"-->
+<!--        android:paddingLeft="8dp"-->
+<!--        android:paddingBottom="8dp"-->
+<!--        android:id="@+id/open_games_subtitle"-->
+<!--        style="@style/SubtitleStyle"-->
+<!--        android:text="Join an Open Game"-->
+<!--        app:layout_constraintStart_toStartOf="@id/open_games_display"-->
+<!--        app:layout_constraintEnd_toEndOf="@id/open_games_display"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/or"-->
+<!--        android:background="@drawable/black_background"/>-->
+<!--    -->
+<!--    <androidx.recyclerview.widget.RecyclerView-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="0dp"-->
+<!--        android:id="@+id/open_games_display"-->
+<!--        app:layout_constraintStart_toStartOf="@id/leftGuideline"-->
+<!--        app:layout_constraintEnd_toEndOf="@id/rightGuideline"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/open_games_subtitle"-->
+<!--        app:layout_constraintBottom_toBottomOf="@id/bottom_guideline">-->
+
+<!--    </androidx.recyclerview.widget.RecyclerView>-->
+
+<!--    <androidx.constraintlayout.widget.Guideline-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:id="@+id/bottom_guideline"-->
+<!--        android:orientation="horizontal"-->
+<!--        app:layout_constraintGuide_percent="0.95"/>-->
+</androidx.constraintlayout.widget.ConstraintLayout>

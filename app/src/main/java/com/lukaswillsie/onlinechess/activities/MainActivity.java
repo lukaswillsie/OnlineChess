@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.lukaswillsie.onlinechess.ChessApplication;
+import com.lukaswillsie.onlinechess.JoinGameActivity;
 import com.lukaswillsie.onlinechess.activities.game_display.ActiveGamesActivity;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.game_display.ArchivedGamesActivity;
@@ -29,8 +30,16 @@ public class MainActivity extends InteriorActivity {
     }
 
     /**
+     * Onclick event for the "Join Game" button
+     * @param view - the View that was clicked
+     */
+    public void joinGame(View view) {
+        startActivity(new Intent(this, JoinGameActivity.class));
+    }
+
+    /**
      * Onclick event for the "Active Games" button
-     * @param view - the view that was clicked
+     * @param view - the View that was clicked
      */
     public void activeGames(View view) {
         startActivity(new Intent(this, ActiveGamesActivity.class));
@@ -38,7 +47,7 @@ public class MainActivity extends InteriorActivity {
 
     /**
      * Onclick event for the "Archived Games" button
-     * @param view - the view that was clicked
+     * @param view - the View that was clicked
      */
     public void archivedGames(View view) {
         startActivity(new Intent(this, ArchivedGamesActivity.class));
