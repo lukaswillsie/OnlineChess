@@ -142,8 +142,6 @@ class CreateAccountHelper extends SubHelper implements ReturnCodeCaller {
      */
     @Override
     public void connectionLost() {
-        super.connectionLost();
-
         this.obtainMessage(CONNECTION_LOST).sendToTarget();
     }
 

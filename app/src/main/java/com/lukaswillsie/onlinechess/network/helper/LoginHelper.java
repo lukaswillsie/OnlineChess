@@ -100,8 +100,6 @@ public class LoginHelper extends SubHelper implements LoginCaller {
      */
     @Override
     public void connectionLost() {
-        super.connectionLost();
-
         Message message = this.obtainMessage(CONNECTION_LOST);
         message.sendToTarget();
     }

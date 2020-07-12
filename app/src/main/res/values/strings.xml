@@ -45,7 +45,8 @@
     <!--Active Games Screen Strings-->
     <string name="active_games_title">Your Active Games</string>
     <string name="opponent_label">Opponent: %1$s</string>
-    <string name="no_opponent">No opponent</string>
+    <string name="no_opponent_open">Open - waiting…</string>
+    <string name="no_opponent_closed">No Opponent</string>
     <string name="turn_number_label">Turn %1$d</string>
     <string name="user_win">You won!</string>
     <string name="user_lose">You lost!</string>

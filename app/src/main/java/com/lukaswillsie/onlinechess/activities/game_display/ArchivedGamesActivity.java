@@ -39,7 +39,7 @@ public class ArchivedGamesActivity extends InteriorActivity {
             // Set up our RecyclerView to display a list of the user's archived games
             RecyclerView recyclerView = findViewById(R.id.games_recycler);
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            recyclerView.setAdapter(new GamesAdapter(getGames(), false, this));
+            recyclerView.setAdapter(new GamesAdapter(getGames(), GamesAdapter.GameType.RESTORABLE, this));
         }
     }
 
@@ -116,6 +116,6 @@ public class ArchivedGamesActivity extends InteriorActivity {
         // Set up our RecyclerView to display a list of the user's archived games
         RecyclerView recyclerView = findViewById(R.id.games_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new GamesAdapter(getGames(), false, this));
+        recyclerView.setAdapter(new GamesAdapter(getGames(), GamesAdapter.GameType.RESTORABLE, this));
     }
 }

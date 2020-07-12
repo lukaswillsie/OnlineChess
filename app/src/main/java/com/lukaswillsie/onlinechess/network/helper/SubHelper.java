@@ -79,32 +79,4 @@ abstract class SubHelper extends Handler {
     void setOutput(PrintWriter writer) {
         this.out = writer;
     }
-
-    /**
-     * Notify this object that the IO devices it is using aren't valid anymore
-     */
-    void closeIO() {
-        this.in = null;
-        this.out = null;
-    }
-
-    /**
-     * Defines some behaviour common to ALL SubHelpers when their request is met with a loss of
-     * connection. Namely, notifies the containing ServerHelper that the request it delegated to
-     * this SubHelper is over, and that the connection with the server has been lost.
-     *
-     * Subclasses should override this method and call this implementation before doing
-     * anything else.
-     */
-    public void connectionLost() {
-        this.notifyContainerConnectionLost();
-    }
-
-    /**
-     * Notifies the ServerHelper that this object is a part of that the connection with the server
-     * has been lost
-     */
-    private void notifyContainerConnectionLost() {
-        container.connectionLost();
-    }
 }

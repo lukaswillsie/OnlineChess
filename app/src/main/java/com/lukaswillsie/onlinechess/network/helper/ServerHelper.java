@@ -118,26 +118,6 @@ public class ServerHelper extends Handler implements ConnectCaller {
     }
 
     /**
-     * This method is called by this object's SubHelpers when they discover that the connection with
-     * the server has been lost. This object closes the IO resources associated with the server that
-     * are shared among all helpers, and then notifies each helper in turn that the IO resources
-     * they are using shouldn't be used anymore.
-     */
-    void connectionLost() {
-        try {
-            this.socket.close();
-            this.in.close();
-        } catch (IOException e) {
-            Log.e(tag, "Couldn't close socket or DataInputStream");
-        }
-        this.out.close();
-
-        for(SubHelper helper : helpers) {
-            helper.closeIO();
-        }
-    }
-
-    /**
      * Process a login request using the given credentials on behalf of the given requester.
      *
      * @param requester - the Activity wishing to log in a user; will be given callbacks as to the
