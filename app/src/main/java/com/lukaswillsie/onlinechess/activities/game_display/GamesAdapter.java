@@ -8,28 +8,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.InteriorActivity;
-import com.lukaswillsie.onlinechess.activities.Reconnector;
 import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.GameData;
-import com.lukaswillsie.onlinechess.network.helper.requesters.ArchiveRequester;
-import com.lukaswillsie.onlinechess.network.helper.requesters.RestoreRequester;
 
 import java.util.List;
 
 /**
  * This class converts Game objects into UI elements, little cards containing important information
  * about the game for the user, at the behest of a RecyclerView. See game_card_layout.xml for the
- * basic layout file that the Adapter inflates before applying styling specific to the game. Also
- * see the comments in activity_active_games.xml for a few examples, in XML, of what this class
- * accomplishes with code.
+ * basic layout file that the Adapter inflates before applying styling specific to the game. This
+ * class does not do anything with the ImageView in the top-right corner of game_card_layout. It
+ * simply fills in and styles the TextViews and background of the card.
  */
 public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHolder> {
     /*
@@ -37,38 +34,22 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
      */
     private List<Game> games;
 
-    public enum GameType {
-        ARCHIVABLE,
-        RESTORABLE,
-        NORMAL;
-    }
-
-    /*
-     * Whether the list of games is active, meaning that the user can archive them if they want.
-     * If the games are active, they're rendered with an icon the user can click to archive them. If
-     * they're not active, they're rendered with an icon the user can click to restore (or
-     * un-archive) them.
+    /**
+     * The activity containing the RecyclerView that this object is adapting for.
      */
-    private GameType gameType;
-
-    private InteriorActivity activity;
+    protected AppCompatActivity activity;
 
     /**
      * Create a new GamesAdapter with the information it needs to run
      * @param games - the list of games this GamesAdapter will be responsible for
-     * @param gameType - the TYPE of the games that this object is displaying. That is, whether
-     *                 they are archivable, and should be displayed with an archive button;
-     *                 restorable, and should be displayed with a restore button; or normal, and
-     *                 should be displayed with no button at all
      * @param activity - the Activity for which this object is doing its work; will be used for UI
      *                 operations, like displaying Toasts. If this object attempts to submit an
      *                 archive/restore request to the server, and discovers the connection to the
      *                 server to have been lost, this activity will be used in conjunction with a
      *                 Reconnector object to re-establish a connection to the server.
      */
-    public GamesAdapter(List<Game> games, GameType gameType, InteriorActivity activity) {
+    public GamesAdapter(List<Game> games, InteriorActivity activity) {
         this.games = games;
-        this.gameType = gameType;
         this.activity = activity;
     }
 
@@ -101,7 +82,7 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
     @Override
     public void onBindViewHolder(@NonNull GameViewHolder holder, int position) {
         Game game = games.get(position);
-        Resources resources = holder.gameID.getContext().getResources();
+        Resources resources = activity.getResources();
 
         // Fetch data about the game
         String gameID = (String)game.getData(GameData.GAMEID);
@@ -132,44 +113,17 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
             holder.status.setText(R.string.user_win);
             holder.status.setTextColor(resources.getColor(R.color.user_win));
 
-            if(gameType == GameType.ARCHIVABLE) {
-                holder.archive.setBackground(resources.getDrawable(R.drawable.archive_icon_game_over));
-                holder.archive.setOnClickListener(new ArchiveListener(game));
-            }
-            else if (gameType == GameType.RESTORABLE) {
-                holder.archive.setBackground(resources.getDrawable(R.drawable.restore_icon_game_over));
-                holder.archive.setOnClickListener(new RestoreListener(game));
-            }
-
             holder.card.setBackground(resources.getDrawable(R.drawable.game_over_background));
         }
         else if (userLost == 1) {
             holder.status.setText(R.string.user_lose);
             holder.status.setTextColor(resources.getColor(R.color.user_lose));
 
-            if(gameType == GameType.ARCHIVABLE) {
-                holder.archive.setBackground(resources.getDrawable(R.drawable.archive_icon_game_over));
-                holder.archive.setOnClickListener(new ArchiveListener(game));
-            }
-            else if(gameType == GameType.RESTORABLE) {
-                holder.archive.setBackground(resources.getDrawable(R.drawable.restore_icon_game_over));
-                holder.archive.setOnClickListener(new RestoreListener(game));
-            }
-
             holder.card.setBackground(resources.getDrawable(R.drawable.game_over_background));
         }
         else if (drawn == 1) {
             holder.status.setText(R.string.game_drawn);
             holder.status.setTextColor(resources.getColor(R.color.drawn));
-
-            if(gameType == GameType.ARCHIVABLE) {
-                holder.archive.setBackground(resources.getDrawable(R.drawable.archive_icon_game_over));
-                holder.archive.setOnClickListener(new ArchiveListener(game));
-            }
-            else if (gameType == GameType.RESTORABLE){
-                holder.archive.setBackground(resources.getDrawable(R.drawable.restore_icon_game_over));
-                holder.archive.setOnClickListener(new RestoreListener(game));
-            }
 
             holder.card.setBackground(resources.getDrawable(R.drawable.game_over_background));
         }
@@ -178,29 +132,11 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
             holder.status.setTextColor(resources.getColor(R.color.opponent_turn));
             holder.status.setAlpha(0.75f);
 
-            if(gameType == GameType.ARCHIVABLE) {
-                holder.archive.setBackground(resources.getDrawable(R.drawable.archive_icon_opponent_turn));
-                holder.archive.setOnClickListener(new ArchiveListener(game));
-            }
-            else if (gameType == GameType.RESTORABLE) {
-                holder.archive.setBackground(resources.getDrawable(R.drawable.restore_icon_opponent_turn));
-                holder.archive.setOnClickListener(new RestoreListener(game));
-            }
-
             holder.card.setBackground(resources.getDrawable(R.drawable.opponent_turn_background));
         }
         else if (drawOffered == 1) {
             holder.status.setText(R.string.draw_offered_to_user);
             holder.status.setTextColor(resources.getColor(R.color.user_turn));
-
-            if(gameType == GameType.ARCHIVABLE) {
-                holder.archive.setBackground(resources.getDrawable(R.drawable.archive_icon_user_turn));
-                holder.archive.setOnClickListener(new ArchiveListener(game));
-            }
-            else if(gameType == GameType.RESTORABLE) {
-                holder.archive.setBackground(resources.getDrawable(R.drawable.restore_icon_user_turn));
-                holder.archive.setOnClickListener(new RestoreListener(game));
-            }
 
             holder.card.setBackground(resources.getDrawable(R.drawable.user_turn_background));
         }
@@ -208,17 +144,29 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
             holder.status.setText(R.string.user_turn);
             holder.status.setTextColor(resources.getColor(R.color.user_turn));
 
-            if(gameType == GameType.ARCHIVABLE) {
-                holder.archive.setBackground(resources.getDrawable(R.drawable.archive_icon_user_turn));
-                holder.archive.setOnClickListener(new ArchiveListener(game));
-            }
-            else if (gameType == GameType.RESTORABLE) {
-                holder.archive.setBackground(resources.getDrawable(R.drawable.restore_icon_user_turn));
-                holder.archive.setOnClickListener(new RestoreListener(game));
-            }
-
             holder.card.setBackground(resources.getDrawable(R.drawable.user_turn_background));
         }
+    }
+
+    /**
+     * Sets the background of the icon in the top-right corner of the game card to the given
+     * drawable.
+     *
+     * @param holder - the GameViewHolder object wrapping up the view that this method should edit
+     * @param resID - the ID of the drawable to place in the background of the icon
+     */
+    protected void setIconBackground(GameViewHolder holder, @DrawableRes int resID) {
+        holder.archive.setBackground(activity.getResources().getDrawable(resID));
+    }
+
+    /**
+     * Apply the given listener to the icon in the top-right corner of the game card.
+     *
+     * @param holder - the GameViewHolder object wrapping up the view that this method should edit
+     * @param listener - the OnClickListener to apply
+     */
+    protected void setIconListener(GameViewHolder holder, View.OnClickListener listener) {
+        holder.archive.setOnClickListener(listener);
     }
 
     /**
@@ -228,6 +176,10 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
     @Override
     public int getItemCount() {
         return games.size();
+    }
+
+    protected List<Game> getGames() {
+        return games;
     }
 
     /**
@@ -265,152 +217,6 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
             this.turn = itemView.findViewById(R.id.turn);
             this.archive = itemView.findViewById(R.id.archive);
             this.card = itemView;
-        }
-    }
-
-    /**
-     * Listens to an archive icon associated with a particular game, and tries to archive that game
-     * when the button is clicked.
-     */
-    private class ArchiveListener implements View.OnClickListener, ArchiveRequester {
-        /*
-         * The Game that this listener will archive when the View it is listening to is pressed
-         */
-        private Game game;
-
-        /**
-         * Create a new ArchiveListener, which will archive the given Game object when a click event
-         * is registered. Assumes, of course, that the view this object listening to is the one
-         * corresponding to the given game.
-         *
-         * @param game - the Game that this listener will archive when a click event is registered
-         */
-        private ArchiveListener(Game game) {
-            this.game = game;
-        }
-
-        @Override
-        public void onClick(View view) {
-            // Send the server an archive request
-            ((ChessApplication)view.getContext().getApplicationContext()).getServerHelper().archive((String)game.getData(GameData.GAMEID), this);
-        }
-
-        /**
-         * Called by ServerHelper after the server has confirmed an archive request.
-         */
-        @Override
-        public void archiveSuccessful() {
-            Toast.makeText(activity, "Your game was archived successfully", Toast.LENGTH_SHORT).show();
-
-            int pos = games.indexOf(game);
-            games.remove(game);
-            game.setArchived(true);
-            // Removes the card associated with the game from the RecyclerView on the screen
-            notifyItemRemoved(pos);
-        }
-
-        /**
-         * Called by ServerHelper if after an archive request is issued it realizes that the
-         * connection with the server has been lost. Because archiving a game isn't a big deal, we
-         * choose not to interrupt the user by displaying a dialog, but instead just display a
-         * Toast, before starting a reconnection attempt.
-         */
-        @Override
-        public void connectionLost() {
-            Toast.makeText(activity, "We lost our connection to the server and couldn't archive your game", Toast.LENGTH_LONG).show();
-            new Reconnector(activity).reconnect();
-        }
-
-        /**
-         * Called by ServerHelper if an archive request is met with an error server-side. Because
-         * archiving a game isn't a big deal, we choose not to interrupt the user by displaying a
-         * dialog, but instead just display a Toast.
-         */
-        @Override
-        public void serverError() {
-            Toast.makeText(activity, "The server encountered an unexpected error and your game may not have been archived", Toast.LENGTH_LONG).show();
-        }
-
-        /**
-         * Called by ServerHelper if an archive request is stymied by a system error of some kind.
-         * Because archiving a game isn't a big deal, we choose not to interrupt the user by displaying
-         * a dialog, but instead just display a Toast.
-         */
-        @Override
-        public void systemError() {
-            Toast.makeText(activity, "We encountered an unexpected error and your game may not have been archived", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    /**
-     * Listens to a restore button associated with a particular game, and attempts to restore that
-     * game when the button is clicked.
-     */
-    private class RestoreListener implements View.OnClickListener, RestoreRequester {
-        /*
-         * The Game that this listener will restore when it registers a click event
-         */
-        private Game game;
-
-        /**
-         * Create a new ArchiveListener, which will restore the given Game object when a click event
-         * is registered.
-         * @param game - the Game that this listener will restore when a click event is registered
-         */
-        private RestoreListener(Game game) {
-            this.game = game;
-        }
-
-        @Override
-        public void onClick(View view) {
-            // Send the server a restore request
-            ((ChessApplication)view.getContext().getApplicationContext()).getServerHelper().restore((String) game.getData(GameData.GAMEID), this);
-        }
-
-        /**
-         * Called by ServerHelper after the server has confirmed a restore request
-         */
-        @Override
-        public void restoreSuccessful() {
-            Toast.makeText(activity, "Your game was restored successfully", Toast.LENGTH_SHORT).show();
-
-            int pos = games.indexOf(game);
-            games.remove(game);
-            game.setArchived(false);
-            // Removes the card associated with the game from the RecyclerView on the screen
-            notifyItemRemoved(pos);
-        }
-
-        /**
-         * Called by ServerHelper if after an archive request is issued it realizes that the
-         * connection with the server has been lost. Because archiving a game isn't a big deal, we
-         * choose not to interrupt the user by displaying a dialog, but instead just display a
-         * Toast, before starting a reconnection attempt.
-         */
-        @Override
-        public void connectionLost() {
-            Toast.makeText(activity, "We lost our connection to the server and couldn't restore your game", Toast.LENGTH_LONG).show();
-            new Reconnector(activity).reconnect();
-        }
-
-        /**
-         * Called by ServerHelper if a restore request is met with an error server-side. Because
-         * restoring a game isn't a big deal, we choose not to interrupt the user by displaying a
-         * dialog, but instead just display a Toast.
-         */
-        @Override
-        public void serverError() {
-            Toast.makeText(activity, "The server encountered an unexpected error and your game may not have been restored", Toast.LENGTH_LONG).show();
-        }
-
-        /**
-         * Called by ServerHelper if a restore request is stymied by a system error of some kind.
-         * Because restoring a game isn't a big deal, we choose not to interrupt the user by displaying
-         * a dialog, but instead just display a Toast.
-         */
-        @Override
-        public void systemError() {
-            Toast.makeText(activity, "We encountered an unexpected error and your game may not have been restored", Toast.LENGTH_LONG).show();
         }
     }
 }
