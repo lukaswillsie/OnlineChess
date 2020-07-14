@@ -11,24 +11,10 @@ import com.lukaswillsie.onlinechess.network.threads.ReturnCodeThread;
 import com.lukaswillsie.onlinechess.network.threads.callers.ReturnCodeCaller;
 
 public class RestoreHelper extends SubHelper implements ReturnCodeCaller {
-    /**
-     * Represents a restore request in code. IS es
-     */
-    static class RestoreRequest extends Request{
-        private String gameID;
-        private RestoreRequester requester;
-
-        RestoreRequest(String gameID, RestoreRequester requester) {
-            this.gameID = gameID;
-            this.requester = requester;
-        }
-    }
-
     /*
      * Tag used for logging to the console
      */
     private static final String tag = "RestoreHelper";
-
     /*
      * Constants this class uses to communicate with itself through Messages
      */
@@ -36,7 +22,6 @@ public class RestoreHelper extends SubHelper implements ReturnCodeCaller {
     private static final int SYSTEM_ERROR = -2;
     private static final int CONNECTION_LOST = -1;
     private static final int RESTORE_SUCCESS = 0;
-
     /**
      * A queue of all requests we have yet to process
      */
@@ -54,7 +39,7 @@ public class RestoreHelper extends SubHelper implements ReturnCodeCaller {
     /**
      * Notifies this object that the request queue has changed; should be called whenever a request
      * has been enqueued or a request has been dequeued.
-     *
+     * <p>
      * Will check if the head of the queue is inactive, meaning that we finished processing the last
      * request or just added a request to a previously empty queue. Either way, we start to process
      * the new head of the queue.
@@ -65,7 +50,7 @@ public class RestoreHelper extends SubHelper implements ReturnCodeCaller {
 
         // If the first request in the queue is not active, that is, not being processed, we create
         // a thread to deal with it, and set it as active
-        if(head != null && !head.isActive()) {
+        if (head != null && !head.isActive()) {
             ReturnCodeThread thread = new ReturnCodeThread(getRequestText(head.gameID), this);
             head.setActive();
 
@@ -79,7 +64,7 @@ public class RestoreHelper extends SubHelper implements ReturnCodeCaller {
      * Issues a request to the server attempting to restore the given game. requester will receive
      * callbacks as to the outcome of the request.
      *
-     * @param gameID - the ID of the game to try and restore
+     * @param gameID    - the ID of the game to try and restore
      * @param requester - the object that will receive callbacks as to the outcome of the request.
      */
     synchronized void restore(String gameID, RestoreRequester requester) {
@@ -107,7 +92,7 @@ public class RestoreHelper extends SubHelper implements ReturnCodeCaller {
         RestoreRequest request = (RestoreRequest) this.requests.dequeue();
 
         Message msg;
-        switch(code) {
+        switch (code) {
             // If the server is telling us we haven't logged in a user yet
             case ReturnCodes.NO_USER:
                 Log.i(tag, "Server says we haven't logged in a user. Can't restore.");
@@ -173,7 +158,7 @@ public class RestoreHelper extends SubHelper implements ReturnCodeCaller {
 
     @Override
     public void handleMessage(@NonNull Message msg) {
-        switch(msg.what) {
+        switch (msg.what) {
             case SERVER_ERROR:
                 ((RestoreRequester) msg.obj).serverError();
                 break;
@@ -210,5 +195,18 @@ public class RestoreHelper extends SubHelper implements ReturnCodeCaller {
 
         obtainMessage(CONNECTION_LOST, request.requester).sendToTarget();
         requestsChanged();
+    }
+
+    /**
+     * Represents a restore request in code. IS es
+     */
+    static class RestoreRequest extends Request {
+        private String gameID;
+        private RestoreRequester requester;
+
+        RestoreRequest(String gameID, RestoreRequester requester) {
+            this.gameID = gameID;
+            this.requester = requester;
+        }
     }
 }

@@ -1,7 +1,5 @@
 package com.lukaswillsie.onlinechess.activities.login;
 
-import androidx.cardview.widget.CardView;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
@@ -12,13 +10,15 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.cardview.widget.CardView;
+
 import com.lukaswillsie.onlinechess.ChessApplication;
-import com.lukaswillsie.onlinechess.activities.MainActivity;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogActivity;
+import com.lukaswillsie.onlinechess.activities.MainActivity;
 import com.lukaswillsie.onlinechess.data.Game;
-import com.lukaswillsie.onlinechess.network.helper.requesters.CreateAccountRequester;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
+import com.lukaswillsie.onlinechess.network.helper.requesters.CreateAccountRequester;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 
 import java.util.ArrayList;
@@ -43,15 +43,6 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
      */
     private State state;
 
-    /**
-     * Represents the activity's current state; we can either be waiting for the user to press the
-     * "Create Account" button or in the middle of processing an account creation request
-     */
-    private enum State {
-        WAITING_FOR_USER_INPUT,
-        PROCESSING;
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +58,7 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
         Formatter.styleEditText(createPassword);
         Formatter.styleEditText(confirmPassword);
 
-        this.serverHelper = ((ChessApplication)getApplicationContext()).getServerHelper();
+        this.serverHelper = ((ChessApplication) getApplicationContext()).getServerHelper();
         this.state = State.WAITING_FOR_USER_INPUT;
     }
 
@@ -76,10 +67,10 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
      */
     @Override
     public void createAccountSuccess() {
-        if(this.state == State.PROCESSING) {
+        if (this.state == State.PROCESSING) {
             // Save an empty list of games (because we've created a totally new user), as well as
             // the user's username and password, globally in ChessApplication
-            ChessApplication application = (ChessApplication)getApplicationContext();
+            ChessApplication application = (ChessApplication) getApplicationContext();
             application.setGames(new ArrayList<Game>());
 
             Intent intent = new Intent(this, MainActivity.class);
@@ -92,7 +83,7 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
      */
     @Override
     public void usernameInUse() {
-        if(this.state == State.PROCESSING) {
+        if (this.state == State.PROCESSING) {
             // Display an error message
             TextView errorText = findViewById(R.id.create_account_input_error);
             errorText.setText(R.string.username_in_use_error);
@@ -109,7 +100,7 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
      */
     @Override
     public void formatInvalid() {
-        if(this.state == State.PROCESSING) {
+        if (this.state == State.PROCESSING) {
             // Display an error message
             TextView errorText = findViewById(R.id.create_account_input_error);
             errorText.setText(R.string.format_invalid_error);
@@ -151,7 +142,6 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
         this.createSystemErrorDialog();
     }
 
-
     /**
      * Provides behaviour in the event that the user presses "Try Again" on a system error dialog
      */
@@ -168,7 +158,6 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
         this.resetUI();
         this.state = State.WAITING_FOR_USER_INPUT;
     }
-
 
     /**
      * Provides behaviour in the event that the user presses "Try Again" on a server error dialog
@@ -188,7 +177,6 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
         this.state = State.WAITING_FOR_USER_INPUT;
     }
 
-
     /**
      * Provides behaviour in the event that the user presses "Try Again" on a lost connection error
      * dialog.
@@ -202,6 +190,7 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
      * Called when the user clicks "Create Account". Grabs information from the EditTexts and sends
      * the request to the server. Also closes the keyboard, deactivates the EditTexts, and changes
      * the colour of the "Create Account" button to indicate that the request is being processed.
+     *
      * @param view
      */
     public void create(View view) {
@@ -213,7 +202,7 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
      * on-screen EditTexts
      */
     public void processCreateAccount() {
-        if(this.state == State.WAITING_FOR_USER_INPUT) {
+        if (this.state == State.WAITING_FOR_USER_INPUT) {
             // Hide any error text that may be showing
             findViewById(R.id.create_account_input_error).setVisibility(View.INVISIBLE);
 
@@ -227,8 +216,8 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
             String password = createPassword.getText().toString();
             String confirm = confirmPassword.getText().toString();
 
-            if(Format.validPassword(password) && Format.validUsername(username)) {
-                if(password.equals(confirm)) {
+            if (Format.validPassword(password) && Format.validUsername(username)) {
+                if (password.equals(confirm)) {
                     // Disable the EditTexts and hide the keyboard
                     createUsername.setFocusable(false);
                     createPassword.setFocusable(false);
@@ -252,15 +241,13 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
                     } catch (MultipleRequestException e) {
                         Log.e(tag, "Submitted multiple requests to ServerHelper");
                     }
-                }
-                else {
+                } else {
                     // Display an error message
                     TextView errorText = findViewById(R.id.create_account_input_error);
                     errorText.setText(R.string.confirm_not_equal_to_password);
                     errorText.setVisibility(View.VISIBLE);
                 }
-            }
-            else {
+            } else {
                 // Display an error message
                 TextView errorText = findViewById(R.id.create_account_input_error);
                 errorText.setText(R.string.format_invalid_error);
@@ -272,16 +259,16 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
     /**
      * Hide the keyboard, so that we present the user with a nice clean loading interface after they
      * press the CREATE ACCOUNT button.
-     *
+     * <p>
      * This code was found on StackOverflow at the following address:
-     *
+     * <p>
      * https://stackoverflow.com/questions/1109022/close-hide-android-soft-keyboard?answertab=votes#tab-top
      */
     private void hideKeyboard() {
-        InputMethodManager manager = (InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);
+        InputMethodManager manager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
         View view = getCurrentFocus();
 
-        if(view == null) {
+        if (view == null) {
             view = new View(this);
         }
 
@@ -292,7 +279,7 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
      * Revert the UI to its initial state. That is, reactivates the EditTexts, changes the colour
      * of the button to black, sets its text as "Create Account", and hides the ProgressBar
      */
-    private void resetUI()  {
+    private void resetUI() {
         // Reactivate all three EditTexts
         EditText username = findViewById(R.id.create_username);
         username.setText("");
@@ -310,12 +297,21 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
         confirmPassword.setFocusable(true);
 
         // Revert the button back to black
-        ((CardView)findViewById(R.id.create_account_button)).setCardBackgroundColor(Color.parseColor("#000000"));
+        ((CardView) findViewById(R.id.create_account_button)).setCardBackgroundColor(Color.parseColor("#000000"));
 
         // Hide the ProgressBar
         findViewById(R.id.create_account_progress).setVisibility(View.INVISIBLE);
 
         // Reset the button text to "Create Account"
-        ((TextView)findViewById(R.id.create_account_button_text)).setText(R.string.create_account_button);
+        ((TextView) findViewById(R.id.create_account_button_text)).setText(R.string.create_account_button);
+    }
+
+    /**
+     * Represents the activity's current state; we can either be waiting for the user to press the
+     * "Create Account" button or in the middle of processing an account creation request
+     */
+    private enum State {
+        WAITING_FOR_USER_INPUT,
+        PROCESSING
     }
 }

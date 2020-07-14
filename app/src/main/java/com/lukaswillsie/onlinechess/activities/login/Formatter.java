@@ -14,10 +14,9 @@ public class Formatter {
         view.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if(hasFocus) {
+                if (hasFocus) {
                     v.setAlpha(1);
-                }
-                else {
+                } else {
                     v.setAlpha(0.5f);
                 }
             }

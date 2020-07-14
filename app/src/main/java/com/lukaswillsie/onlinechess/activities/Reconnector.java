@@ -27,40 +27,38 @@ import java.util.List;
 /**
  * In short, this class provides a way to re-establish a connection with the server in the midst of
  * execution of the app, if we discover that we've lost our connection.
- *
+ * <p>
  * There is a potentially serious problem that Android forces us to be able to handle that this
  * class handles. What if, while our app is running in the background, it is terminated to free
  * up memory? Our ServerHelper reference in ChessApplication will be lost, as will any connection
  * our app had to the server before termination. When the user navigates back to our app, the OS
  * tries to re-launch our app from exactly where the user left off, except now we've got no
  * connection to the server.
- *
+ * <p>
  * If this happens in the "middle" of the app, for example on a screen depicting a game of chess, we
  * have a problem, because our app relies on the server for functionality. So we need a way to,
  * from any activity, re-establish a connection with the server and re-login the user if we detect
  * that our process was shut down. It's also possible that we lose our connection without being shut
  * down, but simply because something went wrong either server-side or on our side. So we need to be
  * able to try to re-establish the connection in this case, too.
- *
+ * <p>
  * Because most activities in our app need to be able to do this, and it's rather complicated, we
  * create this class to centralize code that can re-establish a connection with the server and
  * re-login the user while also managing the UI in a sensible way.
- *
+ * <p>
  * The process is simple: this class displays an AlertDialog with a ProgressBar and a loading
  * message until a connection is established and the user has been re-logged in, at which point the
  * dialog disappears and the class behind the dialog is notified that the process has completed.
  */
 public class Reconnector implements Connector, LoginRequester {
-    /*
-     * The activity that this class is doing its work for.
-     */
-    private InteriorActivity activity;
-
     /**
      * Tag for logging to the console
      */
     private static final String tag = "Reconnector";
-
+    /*
+     * The activity that this class is doing its work for.
+     */
+    private InteriorActivity activity;
     /**
      * The current state of this object
      */
@@ -71,18 +69,6 @@ public class Reconnector implements Connector, LoginRequester {
      * ProgressBar), this keeps a reference to it. Is null otherwise.
      */
     private AlertDialog activeDialog;
-
-    /**
-     * Represents the three states that this object can be in with respect to a reconnection effort:
-     * 1) Not engaged in a reconnection effort
-     * 2) Currently attempting to connect to the server
-     * 3) Connected to the server, and now currently attempting to log in a user
-     */
-    private enum ReconnectState {
-        NOT_ACTIVE,
-        CONNECTING,
-        LOGGING_IN
-    }
 
     /**
      * Create a new Reconnector to do work on behalf of the given InteriorActivity. The argument
@@ -101,7 +87,7 @@ public class Reconnector implements Connector, LoginRequester {
      * they'll be directed back to the login screen.
      */
     public void reconnect() {
-        if(this.state == ReconnectState.NOT_ACTIVE) {
+        if (this.state == ReconnectState.NOT_ACTIVE) {
             // Create a loading dialog that just contains a ProgressBar and some text. Make it
             // uncancellable.
             AlertDialog.Builder builder = new AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar);
@@ -141,7 +127,7 @@ public class Reconnector implements Connector, LoginRequester {
      */
     @Override
     public void connectionEstablished(ServerHelper helper) {
-        if(this.state == ReconnectState.CONNECTING) {
+        if (this.state == ReconnectState.CONNECTING) {
             // Save the given ServerHelper for later use
             ChessApplication application = ((ChessApplication) activity.getApplicationContext());
             application.setServerHelper(helper);
@@ -164,11 +150,10 @@ public class Reconnector implements Connector, LoginRequester {
                     // user data. Otherwise, both are null, and either an error occurred or there
                     // is no saved data. In either case we require here that the user log in again
                     // by moving to LoginActivity
-                    if(username != null) {
+                    if (username != null) {
                         helper.login(this, username, password);
                         this.state = ReconnectState.LOGGING_IN;
-                    }
-                    else {
+                    } else {
                         Intent intent = new Intent(activity, LoginActivity.class);
                         activity.startActivity(intent);
                         activity.finish();
@@ -202,7 +187,7 @@ public class Reconnector implements Connector, LoginRequester {
      */
     @Override
     public void connectionFailed() {
-        if(this.state == ReconnectState.CONNECTING) {
+        if (this.state == ReconnectState.CONNECTING) {
             // As this is the end of a reconnection attempt, change the state back to NOT_ACTIVE,
             // cancel our loading dialog, and show an error dialog. Pressing "Try Again" on the
             // error dialog will start another connection attempt
@@ -220,9 +205,9 @@ public class Reconnector implements Connector, LoginRequester {
      */
     @Override
     public void loginSuccess() {
-        if(this.state == ReconnectState.LOGGING_IN) {
+        if (this.state == ReconnectState.LOGGING_IN) {
             // Change the text in the loading dialog box to read "Loading..."
-            ((TextView)this.activeDialog.findViewById(R.id.connecting_dialog_text)).setText(R.string.loading_dialog_text);
+            ((TextView) this.activeDialog.findViewById(R.id.connecting_dialog_text)).setText(R.string.loading_dialog_text);
         }
     }
 
@@ -235,7 +220,7 @@ public class Reconnector implements Connector, LoginRequester {
      */
     @Override
     public void usernameInvalid() {
-        if(this.state == ReconnectState.LOGGING_IN) {
+        if (this.state == ReconnectState.LOGGING_IN) {
             Toast.makeText(activity.getApplicationContext(), "You need to log in again", Toast.LENGTH_LONG).show();
             Intent intent = new Intent(activity, LoginActivity.class);
             activity.startActivity(intent);
@@ -251,7 +236,7 @@ public class Reconnector implements Connector, LoginRequester {
      */
     @Override
     public void passwordInvalid() {
-        if(this.state == ReconnectState.LOGGING_IN) {
+        if (this.state == ReconnectState.LOGGING_IN) {
             Toast.makeText(activity.getApplicationContext(), "You need to log in again", Toast.LENGTH_LONG).show();
             Intent intent = new Intent(activity, LoginActivity.class);
             activity.startActivity(intent);
@@ -261,12 +246,13 @@ public class Reconnector implements Connector, LoginRequester {
     /**
      * This method should always be overriden in subclasses, so that they know when the reconnection
      * process is over. However, subclasses MUST call this superclass implementation.
+     *
      * @param games - A list of objects representing every game that the logged-in user is a
-     *                participant in
+     *              participant in
      */
     @Override
     public void loginComplete(List<Game> games) {
-        if(this.state == ReconnectState.LOGGING_IN) {
+        if (this.state == ReconnectState.LOGGING_IN) {
             this.activeDialog.cancel();
             this.activeDialog = null;
 
@@ -283,7 +269,7 @@ public class Reconnector implements Connector, LoginRequester {
      */
     @Override
     public void connectionLost() {
-        if(this.state == ReconnectState.LOGGING_IN) {
+        if (this.state == ReconnectState.LOGGING_IN) {
             this.activeDialog.cancel();
             this.activeDialog = null;
 
@@ -300,7 +286,7 @@ public class Reconnector implements Connector, LoginRequester {
      */
     @Override
     public void serverError() {
-        if(this.state == ReconnectState.LOGGING_IN) {
+        if (this.state == ReconnectState.LOGGING_IN) {
             this.activeDialog.cancel();
             this.activeDialog = null;
 
@@ -316,7 +302,7 @@ public class Reconnector implements Connector, LoginRequester {
      */
     @Override
     public void systemError() {
-        if(this.state == ReconnectState.LOGGING_IN) {
+        if (this.state == ReconnectState.LOGGING_IN) {
             this.activeDialog.cancel();
             this.activeDialog = null;
 
@@ -326,9 +312,6 @@ public class Reconnector implements Connector, LoginRequester {
         }
     }
 
-
-    /* CODE FOR CREATING ERROR DIALOGS */
-
     /**
      * Displays a dialog notifying the user of a loss of connection
      */
@@ -337,15 +320,8 @@ public class Reconnector implements Connector, LoginRequester {
         fragment.show(activity.getSupportFragmentManager(), "connection_lost_dialog");
     }
 
-    /**
-     * Listener that gets attached to a connection lost dialog
-     */
-    private class ConnectionLostListener implements ErrorDialogFragment.ErrorDialogListener {
-        @Override
-        public void retry() {
-            reconnect();
-        }
-    }
+
+    /* CODE FOR CREATING ERROR DIALOGS */
 
     /**
      * Displays a dialog notifying the user of a failure to establish a connection
@@ -353,16 +329,6 @@ public class Reconnector implements Connector, LoginRequester {
     private void showConnectionFailedDialog() {
         ErrorDialogFragment fragment = new ErrorDialogFragment(new ConnectionFailedListener(), activity.getResources().getString(R.string.connection_failed_alert));
         fragment.show(activity.getSupportFragmentManager(), "connection_failed_dialog");
-    }
-
-    /**
-     * Listener that gets attached to a connection failed dialog
-     */
-    private class ConnectionFailedListener implements ErrorDialogFragment.ErrorDialogListener {
-        @Override
-        public void retry() {
-            reconnect();
-        }
     }
 
     /**
@@ -382,24 +348,6 @@ public class Reconnector implements Connector, LoginRequester {
     }
 
     /**
-     * In the event of a system or server error, either when connecting or logging in, our app does
-     * the same thing. We display a dialog and give the user the option to "retry" or "cancel".
-     * The behaviour of each is the same regardless of the type of error. So we combine both into
-     * a single listener.
-     */
-    private class ServerOrSystemErrorListener implements ErrorDialogFragment.CancellableErrorDialogListener {
-        @Override
-        public void retry() {
-            retryServerOrSystemError();
-        }
-
-        @Override
-        public void cancel() {
-            cancelServerOrSystemError();
-        }
-    }
-
-    /**
      * If we notify the user of a system or server error, and they want to retry, we do the same
      * thing regardless of which type of error it is: we initiate the reconnection process again.
      * This method condenses code for both errors in one place.
@@ -415,5 +363,55 @@ public class Reconnector implements Connector, LoginRequester {
     private void cancelServerOrSystemError() {
         Intent intent = new Intent(activity, LoadActivity.class);
         activity.startActivity(intent);
+    }
+
+    /**
+     * Represents the three states that this object can be in with respect to a reconnection effort:
+     * 1) Not engaged in a reconnection effort
+     * 2) Currently attempting to connect to the server
+     * 3) Connected to the server, and now currently attempting to log in a user
+     */
+    private enum ReconnectState {
+        NOT_ACTIVE,
+        CONNECTING,
+        LOGGING_IN
+    }
+
+    /**
+     * Listener that gets attached to a connection lost dialog
+     */
+    private class ConnectionLostListener implements ErrorDialogFragment.ErrorDialogListener {
+        @Override
+        public void retry() {
+            reconnect();
+        }
+    }
+
+    /**
+     * Listener that gets attached to a connection failed dialog
+     */
+    private class ConnectionFailedListener implements ErrorDialogFragment.ErrorDialogListener {
+        @Override
+        public void retry() {
+            reconnect();
+        }
+    }
+
+    /**
+     * In the event of a system or server error, either when connecting or logging in, our app does
+     * the same thing. We display a dialog and give the user the option to "retry" or "cancel".
+     * The behaviour of each is the same regardless of the type of error. So we combine both into
+     * a single listener.
+     */
+    private class ServerOrSystemErrorListener implements ErrorDialogFragment.CancellableErrorDialogListener {
+        @Override
+        public void retry() {
+            retryServerOrSystemError();
+        }
+
+        @Override
+        public void cancel() {
+            cancelServerOrSystemError();
+        }
     }
 }

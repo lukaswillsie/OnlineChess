@@ -1,8 +1,8 @@
 package com.lukaswillsie.onlinechess.network.helper;
 
+import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.os.Handler;
 
 import androidx.annotation.NonNull;
 
@@ -10,11 +10,10 @@ import com.lukaswillsie.onlinechess.network.helper.requesters.ArchiveRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.Connector;
 import com.lukaswillsie.onlinechess.network.helper.requesters.CreateAccountRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
-import com.lukaswillsie.onlinechess.network.helper.requesters.Networker;
 import com.lukaswillsie.onlinechess.network.helper.requesters.RestoreRequester;
-import com.lukaswillsie.onlinechess.network.threads.callers.ConnectCaller;
 import com.lukaswillsie.onlinechess.network.threads.ConnectThread;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
+import com.lukaswillsie.onlinechess.network.threads.callers.ConnectCaller;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -28,21 +27,21 @@ import java.util.List;
  * instance that successfully establishes a connection to the server when the app loads is saved in
  * ChessApplication, for access by any Activity that needs to submit a request to the
  * server on behalf of the user during the operation of the app.
- *
+ * <p>
  * Due to the nature of the requests accepted by the server, I thought that it made the most sense
  * to impose a restriction of one ACTIVE request (that is, one to which the server has not yet
  * responded) per Activity, and an Activity should not transfer control or allow the user to
  * navigate away until the request has been handled.
- *
+ * <p>
  * For example, if a user decides to load one of their ongoing games and inputs a move, the app
  * should wait for the server to respond with a success code before allowing the user to go
  * back to the previous screen. That way, if the server responds with an error, the user can be
  * notified of the fact that their move wasn't made.
- *
+ * <p>
  * The only type of request that this object handles directly is a connect request. All other
  * requests are handled by SubHelper objects, for example LoginHelper, for which this object acts as
  * a façade.
- *
+ * <p>
  * This class extends Handler because it needs a way to bridge the gap between ConnectThreads that
  * it spawns and the UI thread (the UI isn't thread-safe so we can't just call requester's callbacks
  * directly).
@@ -52,26 +51,21 @@ public class ServerHelper extends Handler implements ConnectCaller {
      * Tag used for logging
      */
     private static final String tag = "network.ServerHelper";
-
-    private Connector requester;
-
     /*
      * The IP address of the machine running the server. I'm using the below address because that's
      * my machine's local IP address on my network.
      */
     private static final String HOSTNAME = "192.168.2.15";
-
     /*
      * The port that the server is supposed to be listening on
      */
     private static final int PORT = 46751;
-
     /*
      * Constants that this object uses to send messages to itself.
      */
     private static final int CONNECTION_ESTABLISHED = 0;
     private static final int CONNECTION_FAILED = 1;
-
+    private Connector requester;
     /*
      * The socket that represents this object's connection with the server
      */
@@ -122,8 +116,8 @@ public class ServerHelper extends Handler implements ConnectCaller {
      *
      * @param requester - the Activity wishing to log in a user; will be given callbacks as to the
      *                  state of the request
-     * @param username - the username the user wishes to log in with
-     * @param password - the password the user wishes to log in with
+     * @param username  - the username the user wishes to log in with
+     * @param password  - the password the user wishes to log in with
      * @throws MultipleRequestException - if this ServerHelper object already has an ongoing request
      */
     public void login(LoginRequester requester, String username, String password) throws MultipleRequestException {
@@ -138,8 +132,8 @@ public class ServerHelper extends Handler implements ConnectCaller {
      *
      * @param requester - the object that should be notified of the result of the account creation
      *                  request
-     * @param username - the username that the new account should have
-     * @param password - the password that the new account should have
+     * @param username  - the username that the new account should have
+     * @param password  - the password that the new account should have
      * @throws MultipleRequestException - if this ServerHelper object already has an ongoing request
      */
     public void createAccount(CreateAccountRequester requester, String username, String password) throws MultipleRequestException {
@@ -148,12 +142,13 @@ public class ServerHelper extends Handler implements ConnectCaller {
 
     /**
      * Process a connect request on behalf of the given requester.
+     *
      * @param requester - the Activity wishing to establish a connection with the server; will
      *                  receive callbacks relating to the request
      * @throws MultipleRequestException - if this ServerHelper object already has an ongoing request
      */
     public void connect(Connector requester) throws MultipleRequestException {
-        if(this.requester != null) {
+        if (this.requester != null) {
             throw new MultipleRequestException("Tried to make multiple requests of ServerHelper");
         }
         this.requester = requester;
@@ -165,7 +160,8 @@ public class ServerHelper extends Handler implements ConnectCaller {
     /**
      * Attempt to archive the given game by sending a request to the server. requester will receive
      * callbacks relevant to the request
-     * @param gameID - the ID of the game that should be archived
+     *
+     * @param gameID    - the ID of the game that should be archived
      * @param requester - the object that will receive callbacks regarding the outcome of the request
      */
     public void archive(String gameID, ArchiveRequester requester) {
@@ -191,7 +187,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
             this.out = new PrintWriter(socket.getOutputStream(), true);
             this.in = new DataInputStream(socket.getInputStream());
 
-            for(SubHelper helper : helpers) {
+            for (SubHelper helper : helpers) {
                 helper.setInputStream(this.in);
                 helper.setOutput(this.out);
             }
@@ -220,7 +216,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
      */
     @Override
     public void handleMessage(@NonNull Message msg) {
-        switch(msg.what) {
+        switch (msg.what) {
             case CONNECTION_ESTABLISHED:
                 requester.connectionEstablished(this);
                 this.requester = null;  // Signifies that the connection request is over

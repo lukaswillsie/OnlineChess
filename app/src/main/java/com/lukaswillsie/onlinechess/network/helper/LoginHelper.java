@@ -6,16 +6,16 @@ import androidx.annotation.NonNull;
 
 import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
+import com.lukaswillsie.onlinechess.network.threads.LoginThread;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 import com.lukaswillsie.onlinechess.network.threads.callers.LoginCaller;
-import com.lukaswillsie.onlinechess.network.threads.LoginThread;
 
 import java.util.List;
 
 /**
  * A class that makes up part of a ServerHelper façade. Is delegated to for the handling of login
  * requests.
- *
+ * <p>
  * Note that this class extends SubHelper, which extends Handler, so this class is a Handler. This
  * is because this object receives callbacks from LoginThread, which will always be running on a
  * Thread other than the UI thread. So when the LoginThread tells us that the login was successful,
@@ -26,12 +26,6 @@ import java.util.List;
  */
 public class LoginHelper extends SubHelper implements LoginCaller {
     /**
-     * The object that made the current request. This is the object we report back news of the
-     * request to.
-     */
-    private LoginRequester requester;
-
-    /**
      * Constants used by this object to communicate with itself through Messages
      */
     private static final int SYSTEM_ERROR = -3;
@@ -41,9 +35,15 @@ public class LoginHelper extends SubHelper implements LoginCaller {
     private static final int USERNAME_INVALID = 1;
     private static final int PASSWORD_INVALID = 2;
     private static final int LOGIN_COMPLETE = 3;
+    /**
+     * The object that made the current request. This is the object we report back news of the
+     * request to.
+     */
+    private LoginRequester requester;
 
     /**
      * Create a LoginHelper object as part of the given ServerHelper façade.
+     *
      * @param container
      */
     LoginHelper(ServerHelper container) {
@@ -55,12 +55,12 @@ public class LoginHelper extends SubHelper implements LoginCaller {
      * the state of the request.
      *
      * @param requester - the Activity making the login request
-     * @param username - the username of the user logging in
-     * @param password - the password of the user logging in
+     * @param username  - the username of the user logging in
+     * @param password  - the password of the user logging in
      * @throws MultipleRequestException - if this LoginHelper is already processing a request
      */
     void login(LoginRequester requester, String username, String password) throws MultipleRequestException {
-        if(this.requester != null) {
+        if (this.requester != null) {
             throw new MultipleRequestException("Tried to make multiple requests of LoginHelper");
         }
         this.requester = requester;
@@ -136,12 +136,12 @@ public class LoginHelper extends SubHelper implements LoginCaller {
      * Is called once the whole login process is complete. That is, the login has been validated
      * by the server and all of the user's game data has been received and processed by the
      * LoginThread.
-     *
+     * <p>
      * Note that a loginSuccess() call will ALWAYS proceed a loginComplete() call. However, it is
      * possible for there to be a loginSuccess() call without a corresponding loginComplete() call
      * if the server encounters an error or the LoginThread encounters a SystemError after having
      * called loginSuccess().
-     *
+     * <p>
      * The Thread passes the result, a list of Game objects, each representing a game the logged-in
      * user is playing, to this method.
      */
@@ -154,11 +154,12 @@ public class LoginHelper extends SubHelper implements LoginCaller {
     /**
      * We use this method to communicate events pertaining to an active login request to the UI
      * thread. Note that this object only receives messages from itself.
+     *
      * @param msg - the received message
      */
     @Override
     public void handleMessage(@NonNull Message msg) {
-        switch(msg.what) {
+        switch (msg.what) {
             case SYSTEM_ERROR:
                 requester.systemError();
 
@@ -194,7 +195,7 @@ public class LoginHelper extends SubHelper implements LoginCaller {
                 this.requester = null;
                 break;
             case LOGIN_COMPLETE:
-                requester.loginComplete((List<Game>)msg.obj);
+                requester.loginComplete((List<Game>) msg.obj);
 
                 // Allows us to accept another request
                 this.requester = null;

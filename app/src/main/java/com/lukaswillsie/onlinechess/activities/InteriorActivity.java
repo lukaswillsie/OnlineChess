@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
  * the user is in the middle of playing a game and we discover we've lost our connection to the
  * server, we need an elegant way of reconnecting and logging in again, and that's what a
  * Reconnector provides.
- *
+ * <p>
  * This class is called "Interior"Activity because Activities that require this service can be seen
  * as residing in the interior of the app, as the entry point of our app is a loading screen.
  */

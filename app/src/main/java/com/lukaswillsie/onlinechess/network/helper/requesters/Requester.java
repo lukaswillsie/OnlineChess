@@ -7,7 +7,7 @@ package com.lukaswillsie.onlinechess.network.helper.requesters;
  * behaviour central to all types of requests: namely handling the eventuality that the server has
  * disconnected since the last time a request was issued, and the eventuality that the server
  * encounters an error or sends  bad data.
- *
+ * <p>
  * This also allows the front-end of the app to display different error messages to the user
  * depending on the nature of the problem, if it wishes.
  */

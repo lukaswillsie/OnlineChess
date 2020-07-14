@@ -6,8 +6,8 @@ import android.view.View;
 
 import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.JoinGameActivity;
-import com.lukaswillsie.onlinechess.activities.game_display.ActiveGamesActivity;
 import com.lukaswillsie.onlinechess.R;
+import com.lukaswillsie.onlinechess.activities.game_display.ActiveGamesActivity;
 import com.lukaswillsie.onlinechess.activities.game_display.ArchivedGamesActivity;
 
 /**
@@ -23,7 +23,7 @@ public class MainActivity extends InteriorActivity {
 
         // This is how we detect that the system destroyed our app while it was running in the
         // background and is now restarting it.
-        if(((ChessApplication) getApplicationContext()).getGames() == null) {
+        if (((ChessApplication) getApplicationContext()).getGames() == null) {
             // Re-establish a connection with the server and re-login the user
             new Reconnector(this).reconnect();
         }
@@ -31,6 +31,7 @@ public class MainActivity extends InteriorActivity {
 
     /**
      * Onclick event for the "Join Game" button
+     *
      * @param view - the View that was clicked
      */
     public void joinGame(View view) {
@@ -39,6 +40,7 @@ public class MainActivity extends InteriorActivity {
 
     /**
      * Onclick event for the "Active Games" button
+     *
      * @param view - the View that was clicked
      */
     public void activeGames(View view) {
@@ -47,6 +49,7 @@ public class MainActivity extends InteriorActivity {
 
     /**
      * Onclick event for the "Archived Games" button
+     *
      * @param view - the View that was clicked
      */
     public void archivedGames(View view) {
@@ -58,5 +61,6 @@ public class MainActivity extends InteriorActivity {
      * when this happens.
      */
     @Override
-    public void reconnectionComplete() {}
+    public void reconnectionComplete() {
+    }
 }

@@ -13,10 +13,10 @@ import java.net.UnknownHostException;
 /**
  * This thread exists simply to establish connections with the server. Must be given a ConnectCaller
  * object at creation.
- *
+ * <p>
  * The ConnectCaller will receive the relevant callback after a successful/unsuccessful connection
  * attempt.
- *
+ * <p>
  * A ConnectThread will wait 5000 milliseconds for a connection before timing out and calling the
  * connectionFailed() method of its ConnectCaller.
  */
@@ -46,10 +46,11 @@ public class ConnectThread extends Thread {
     /**
      * Create a new ConnectThread, ready when started to establish a connection with the program at
      * the given hostname and port.
+     *
      * @param hostname - the name of the server's host machine
-     * @param port - the port on which the server this Thread is to connect to is running on
-     * @param caller - the object that will receive callbacks relating to the connection attempt
-     *               from this thread
+     * @param port     - the port on which the server this Thread is to connect to is running on
+     * @param caller   - the object that will receive callbacks relating to the connection attempt
+     *                 from this thread
      */
     public ConnectThread(String hostname, int port, ConnectCaller caller) {
         this.hostname = hostname;
@@ -71,15 +72,15 @@ public class ConnectThread extends Thread {
             caller.connectionEstablished(socket);
         } catch (UnknownHostException e) {
             Log.e(tag,
-            "UnknownHostException from Host: \" " + hostname + "\" and Port: " + port);
+                    "UnknownHostException from Host: \" " + hostname + "\" and Port: " + port);
             caller.connectionFailed();
-        } catch(SocketTimeoutException e) {
+        } catch (SocketTimeoutException e) {
             Log.e(tag, "Connection to server timed out after " + TIMEOUT + " milliseconds.");
             caller.connectionFailed();
         } catch (IOException e) {
             Log.e(tag,
-            "IOException when trying to connect to" + " Host: \" " + hostname + "\" and Port: "
-                    + port);
+                    "IOException when trying to connect to" + " Host: \" " + hostname + "\" and Port: "
+                            + port);
             caller.connectionFailed();
         }
     }

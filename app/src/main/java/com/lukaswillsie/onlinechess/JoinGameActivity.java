@@ -1,22 +1,11 @@
 package com.lukaswillsie.onlinechess;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 
-import com.lukaswillsie.onlinechess.activities.InteriorActivity;
-import com.lukaswillsie.onlinechess.activities.game_display.GamesAdapter;
-import com.lukaswillsie.onlinechess.data.Game;
-import com.lukaswillsie.onlinechess.data.GameData;
-
-import java.util.ArrayList;
-import java.util.List;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * This activity allows the user to join games. They can either enter the ID of a game their friend
@@ -32,6 +21,7 @@ public class JoinGameActivity extends AppCompatActivity {
 
     /**
      * An onclick method; is called when the user wants to look at a list of open games
+     *
      * @param view - the view that was clicked
      */
     public void openGames(View view) {

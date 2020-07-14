@@ -15,45 +15,10 @@ import com.lukaswillsie.onlinechess.network.threads.callers.ReturnCodeCaller;
  * a given game as archived and process the server's response.
  */
 public class ArchiveHelper extends SubHelper implements ReturnCodeCaller {
-    /**
-     * An object representing an archive request. Is a wrapper for data associated with a request,
-     * like what object is making the request, and what game they want archived. We use this object
-     * primarily because we want to be able to accept multiple archive requests at once, and keeping
-     * a queue of ArchiveRequest objects is the most straightforward way of doing this.
-     */
-    static class ArchiveRequest extends Request {
-        /**
-         * The gameID associated with the request
-         */
-        private String gameID;
-
-        /**
-         * The object initiating the request, and who will receive the relevant callbacks
-         */
-        private ArchiveRequester requester;
-
-        /**
-         * Create a new ArchiveRequest object.
-         *
-         * @param gameID - the ID of the game that should be archived as part of the request
-         * @param requester - the object making the request, who will receive all relevant callbacks
-         */
-        ArchiveRequest(String gameID, ArchiveRequester requester) {
-            this.requester = requester;
-            this.gameID = gameID;
-        }
-    }
-
     /*
      * Tag used for logging to the console
      */
     private static final String tag = "ArchiveHelper";
-
-    /**
-     * A queue holding all the requests we have yet to finish processing
-     */
-    private RequestQueue requests = new RequestQueue();
-
     /*
      * Constants this class uses to communicate with itself through Messages
      */
@@ -61,7 +26,10 @@ public class ArchiveHelper extends SubHelper implements ReturnCodeCaller {
     private static final int SYSTEM_ERROR = -2;
     private static final int CONNECTION_LOST = -1;
     private static final int ARCHIVE_SUCCESS = 0;
-
+    /**
+     * A queue holding all the requests we have yet to finish processing
+     */
+    private RequestQueue requests = new RequestQueue();
     /**
      * Create a new SubHelper as part of the given ServerHelper
      *
@@ -74,7 +42,7 @@ public class ArchiveHelper extends SubHelper implements ReturnCodeCaller {
     /**
      * Notifies this object that the request queue has changed; should be called whenever a request
      * has been enqueued or a request has been dequeued.
-     *
+     * <p>
      * Will check if the head of the queue is inactive, meaning that we finished processing the last
      * request or just added a request to a previously empty queue. Either way, we start to process
      * the new head of the queue.
@@ -85,7 +53,7 @@ public class ArchiveHelper extends SubHelper implements ReturnCodeCaller {
 
         // If the first request in the queue is not active, that is not being processed, we create a
         // thread to deal with it, and set it as active
-        if(head != null && !head.isActive()) {
+        if (head != null && !head.isActive()) {
             ReturnCodeThread thread = new ReturnCodeThread(getRequestText(head.gameID), this);
             head.setActive();
 
@@ -97,7 +65,8 @@ public class ArchiveHelper extends SubHelper implements ReturnCodeCaller {
 
     /**
      * Attempt the archive the given game, and give callbacks to the given requester
-     * @param gameID - the ID of the game to try and archive
+     *
+     * @param gameID    - the ID of the game to try and archive
      * @param requester - the object that will receive callbacks as to the outcome of the request
      */
     public synchronized void archive(String gameID, ArchiveRequester requester) {
@@ -117,7 +86,7 @@ public class ArchiveHelper extends SubHelper implements ReturnCodeCaller {
 
     @Override
     public void handleMessage(@NonNull Message msg) {
-        switch(msg.what) {
+        switch (msg.what) {
             case SERVER_ERROR:
                 ((ArchiveRequester) msg.obj).serverError();
                 break;
@@ -143,7 +112,7 @@ public class ArchiveHelper extends SubHelper implements ReturnCodeCaller {
         ArchiveRequest request = (ArchiveRequest) requests.dequeue();
 
         Message msg;
-        switch(code) {
+        switch (code) {
             // If the server is telling us we haven't logged in a user, and therefore can't archive
             // a game on anybody's behalf
             case ReturnCodes.NO_USER:
@@ -228,5 +197,34 @@ public class ArchiveHelper extends SubHelper implements ReturnCodeCaller {
 
         obtainMessage(CONNECTION_LOST, request.requester).sendToTarget();
         requestsChanged();
+    }
+
+    /**
+     * An object representing an archive request. Is a wrapper for data associated with a request,
+     * like what object is making the request, and what game they want archived. We use this object
+     * primarily because we want to be able to accept multiple archive requests at once, and keeping
+     * a queue of ArchiveRequest objects is the most straightforward way of doing this.
+     */
+    static class ArchiveRequest extends Request {
+        /**
+         * The gameID associated with the request
+         */
+        private String gameID;
+
+        /**
+         * The object initiating the request, and who will receive the relevant callbacks
+         */
+        private ArchiveRequester requester;
+
+        /**
+         * Create a new ArchiveRequest object.
+         *
+         * @param gameID    - the ID of the game that should be archived as part of the request
+         * @param requester - the object making the request, who will receive all relevant callbacks
+         */
+        ArchiveRequest(String gameID, ArchiveRequester requester) {
+            this.requester = requester;
+            this.gameID = gameID;
+        }
     }
 }

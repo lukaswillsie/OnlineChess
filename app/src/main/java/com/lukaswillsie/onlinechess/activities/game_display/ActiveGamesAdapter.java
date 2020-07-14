@@ -39,7 +39,7 @@ public class ActiveGamesAdapter extends GamesAdapter {
      * Called when the RecyclerView wants us to bind a particular game to a View, which is wrapped
      * up by holder
      *
-     * @param holder - the GameViewHolder wrapping the View that we will place the Game's data into
+     * @param holder   - the GameViewHolder wrapping the View that we will place the Game's data into
      * @param position - tells us which Game object to fetch and bind to the given View
      */
     @Override
@@ -48,30 +48,26 @@ public class ActiveGamesAdapter extends GamesAdapter {
 
         Game game = getGames().get(position);
 
-        int userWon = (Integer)game.getData(GameData.USER_WON);
-        int userLost = (Integer)game.getData(GameData.USER_LOST);
-        int drawn = (Integer)game.getData(GameData.DRAWN);
-        int state = (Integer)game.getData(GameData.STATE);
-        int drawOffered = (Integer)game.getData(GameData.DRAW_OFFERED);
+        int userWon = (Integer) game.getData(GameData.USER_WON);
+        int userLost = (Integer) game.getData(GameData.USER_LOST);
+        int drawn = (Integer) game.getData(GameData.DRAWN);
+        int state = (Integer) game.getData(GameData.STATE);
+        int drawOffered = (Integer) game.getData(GameData.DRAW_OFFERED);
 
 
-        if(userWon == 1) {
+        if (userWon == 1) {
             setIconBackground(holder, R.drawable.archive_icon_game_over);
             setIconListener(holder, new ArchiveListener(game));
-        }
-        else if (userLost == 1) {
+        } else if (userLost == 1) {
             setIconBackground(holder, R.drawable.archive_icon_game_over);
             setIconListener(holder, new ArchiveListener(game));
-        }
-        else if (drawn == 1) {
+        } else if (drawn == 1) {
             setIconBackground(holder, R.drawable.archive_icon_game_over);
             setIconListener(holder, new ArchiveListener(game));
-        }
-        else if (state == 0) {
+        } else if (state == 0) {
             setIconBackground(holder, R.drawable.archive_icon_opponent_turn);
             setIconListener(holder, new ArchiveListener(game));
-        }
-        else if (drawOffered == 1) {
+        } else if (drawOffered == 1) {
             setIconBackground(holder, R.drawable.archive_icon_user_turn);
             setIconListener(holder, new ArchiveListener(game));
         }
@@ -106,7 +102,7 @@ public class ActiveGamesAdapter extends GamesAdapter {
         @Override
         public void onClick(View view) {
             // Send the server an archive request
-            ((ChessApplication)view.getContext().getApplicationContext()).getServerHelper().archive((String)game.getData(GameData.GAMEID), this);
+            ((ChessApplication) view.getContext().getApplicationContext()).getServerHelper().archive((String) game.getData(GameData.GAMEID), this);
         }
 
         /**

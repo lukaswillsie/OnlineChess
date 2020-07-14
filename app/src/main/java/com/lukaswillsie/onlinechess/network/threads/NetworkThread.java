@@ -1,7 +1,5 @@
 package com.lukaswillsie.onlinechess.network.threads;
 
-import android.util.Log;
-
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
@@ -21,6 +19,7 @@ abstract class NetworkThread extends Thread {
 
     /**
      * Give this NetworkThread a PrintWriter to use to write to the server
+     *
      * @param writer - the PrintWriter this thread should use to write to the server
      */
     public void setWriter(PrintWriter writer) {
@@ -29,6 +28,7 @@ abstract class NetworkThread extends Thread {
 
     /**
      * Give this NetworkThread a DataInputStream to use to read from the server
+     *
      * @param reader - the DataInputStream this thread should use to read from the server
      */
     public void setReader(DataInputStream reader) {
@@ -38,12 +38,13 @@ abstract class NetworkThread extends Thread {
 
     /**
      * Read a single integer from the server and return it
+     *
      * @return the integer read from the server
-     * @throws EOFException if the server has willfully closed its connection with us when the read
-     *                      occurs
+     * @throws EOFException    if the server has willfully closed its connection with us when the read
+     *                         occurs
      * @throws SocketException if the connection with the server has been closed for some other
      *                         reason, for example if the server crashed
-     * @throws IOException if there is some other problem with the read, like a system error
+     * @throws IOException     if there is some other problem with the read, like a system error
      */
     int readInt() throws EOFException, SocketException, IOException {
         return reader.readInt();
@@ -54,15 +55,15 @@ abstract class NetworkThread extends Thread {
      * repeatedly until a network newline, "\r\n", is found.
      *
      * @throws SocketException if the server has disconnected when this method tries to read from it
-     * @throws IOException if there is some other problem with the read, like a system error
+     * @throws IOException     if there is some other problem with the read, like a system error
      */
     String readLine() throws SocketException, IOException {
         char[] last = {'\0', '\0'};
         StringBuilder builder = new StringBuilder();
 
         char read;
-        while(last[0] != '\r'|| last[1] != '\n') {
-            read = (char)reader.read();
+        while (last[0] != '\r' || last[1] != '\n') {
+            read = (char) reader.read();
             last[0] = last[1];
             last[1] = read;
 

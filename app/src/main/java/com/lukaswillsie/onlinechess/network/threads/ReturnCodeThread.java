@@ -33,12 +33,12 @@ public class ReturnCodeThread extends NetworkThread {
 
     /**
      * Set up a new ReturnCodeThread.
-     *
+     * <p>
      * NOTE: The superclass methods setWriter and setReader() MUST BE CALLED before this Thread is
      * started.
      *
      * @param request - the request to send to the server when this Thread is run
-     * @param caller - the object to report the result back to
+     * @param caller  - the object to report the result back to
      */
     public ReturnCodeThread(String request, ReturnCodeCaller caller) {
         this.caller = caller;
@@ -58,16 +58,15 @@ public class ReturnCodeThread extends NetworkThread {
             caller.onServerReturn(code);
         }
         // These first two exceptions mean that the server has disconnected
-        catch(EOFException e) {
+        catch (EOFException e) {
             Log.i(tag, "EOFException thrown. Server disconnected.");
             caller.connectionLost();
-        }
-        catch(SocketException e) {
+        } catch (SocketException e) {
             Log.i(tag, "SocketException thrown. Server disconnected.");
             caller.connectionLost();
         }
         // This means that there was some other problem, a system problem, with our attempt to read
-        catch(IOException e) {
+        catch (IOException e) {
             Log.i(tag, "IOException while reading from server");
             e.printStackTrace();
             caller.systemError();

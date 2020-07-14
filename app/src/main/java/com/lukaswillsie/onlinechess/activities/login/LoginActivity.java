@@ -1,7 +1,5 @@
 package com.lukaswillsie.onlinechess.activities.login;
 
-import androidx.cardview.widget.CardView;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
@@ -14,15 +12,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.cardview.widget.CardView;
+
 import com.lukaswillsie.onlinechess.ChessApplication;
-import com.lukaswillsie.onlinechess.activities.MainActivity;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogActivity;
+import com.lukaswillsie.onlinechess.activities.MainActivity;
 import com.lukaswillsie.onlinechess.activities.load.LoadActivity;
 import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.RememberMeHelper;
-import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
+import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 
 import java.io.IOException;
@@ -32,17 +32,6 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
     private static final String tag = "LoginActivity";
     private ServerHelper serverHelper;
     private State state;
-
-    /**
-     * Represents the possible states that this activity can be in
-     */
-    private enum State {
-        WAITING_FOR_USER_INPUT,         // The user is entering their data and hasn't pressed "LOGIN" yet
-        WAITING_FOR_SERVER_RESPONSE,    // The user has pressed "LOGIN" but the server hasn't validated their
-                                        // credentials yet
-        LOADING                         // The user's credentials have been validated, and now the app is processing the
-                                        // game data sent over by the server
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +44,7 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
         Formatter.styleEditText((EditText) findViewById(R.id.username));
         Formatter.styleEditText((EditText) findViewById(R.id.password));
 
-        serverHelper = ((ChessApplication)getApplicationContext()).getServerHelper();
+        serverHelper = ((ChessApplication) getApplicationContext()).getServerHelper();
         Log.i(tag, "serverHelper is " + serverHelper);
     }
 
@@ -70,6 +59,7 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
 
     /**
      * Called when the user wants to create a new account
+     *
      * @param view - the View that the user clicked to communicate that they want to create a new
      *             account
      */
@@ -87,11 +77,11 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
     private void processLogin() {
         // We only want to perform an action if we're at the first stage, and we don't have an
         // ongoing login request being handled
-        if(this.state == State.WAITING_FOR_USER_INPUT) {
+        if (this.state == State.WAITING_FOR_USER_INPUT) {
             String username = ((EditText) findViewById(R.id.username)).getText().toString();
             String password = ((EditText) findViewById(R.id.password)).getText().toString();
 
-            if(Format.validUsername(username) && Format.validPassword(password)) {
+            if (Format.validUsername(username) && Format.validPassword(password)) {
                 // Hide any error text that may be showing from past login attempts
                 findViewById(R.id.login_input_error).setVisibility(View.INVISIBLE);
 
@@ -122,8 +112,7 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
                     this.createServerErrorDialog();
                     Log.e(tag, "Submitted multiple requests to ServerHelper");
                 }
-            }
-            else {
+            } else {
                 this.invalidInfo();
             }
         }
@@ -139,16 +128,16 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
     /**
      * Hide the keyboard, so that we present the user with a nice clean loading interface after they
      * press the LOGIN button.
-     *
+     * <p>
      * This code was found on StackOverflow at the following address:
-     *
+     * <p>
      * https://stackoverflow.com/questions/1109022/close-hide-android-soft-keyboard?answertab=votes#tab-top
      */
     private void hideKeyboard() {
-        InputMethodManager manager = (InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);
+        InputMethodManager manager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
         View view = getCurrentFocus();
 
-        if(view == null) {
+        if (view == null) {
             view = new View(this);
         }
 
@@ -165,24 +154,24 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
      */
     @Override
     public void loginSuccess() {
-        if(this.state == State.WAITING_FOR_SERVER_RESPONSE) {
+        if (this.state == State.WAITING_FOR_SERVER_RESPONSE) {
             // Change login button colour to indicate successful login
             CardView loginCard = findViewById(R.id.login);
             loginCard.setCardBackgroundColor(getResources().getColor(R.color.loginSuccessful));
 
             // Change login button text to indicate change in login request status to user
-            ((TextView)findViewById(R.id.login_button_text)).setText(R.string.loading_text);
+            ((TextView) findViewById(R.id.login_button_text)).setText(R.string.loading_text);
 
             // Now we check if the user clicked 'Remember Me', and save their login info if they did
             try {
-                if(((CheckBox)findViewById(R.id.remember_me_checkbox)).isChecked()) {
-                    String username = ((EditText)findViewById(R.id.username)).getText().toString();
-                    String password = ((EditText)findViewById(R.id.password)).getText().toString();
+                if (((CheckBox) findViewById(R.id.remember_me_checkbox)).isChecked()) {
+                    String username = ((EditText) findViewById(R.id.username)).getText().toString();
+                    String password = ((EditText) findViewById(R.id.password)).getText().toString();
 
                     int code = new RememberMeHelper(this).saveUser(username, password);
 
                     // Return code of 0 means we successfully saved the data
-                    if(code == 0) {
+                    if (code == 0) {
                         Log.i(tag, "User's login information was saved for reuse in future login attempts");
                     }
                     // Only other return code, 1, means there was an error
@@ -210,7 +199,7 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
     @Override
     public void usernameInvalid() {
         // This method should only be called while the activity is in the below state
-        if(this.state == State.WAITING_FOR_SERVER_RESPONSE) {
+        if (this.state == State.WAITING_FOR_SERVER_RESPONSE) {
             // Display appropriate error text
             TextView errorText = findViewById(R.id.login_input_error);
             errorText.setText(R.string.invalid_username_error);
@@ -218,8 +207,7 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
             resetUI();
 
             this.state = State.WAITING_FOR_USER_INPUT;
-        }
-        else {
+        } else {
             Log.e(tag, "usernameInvalid() called while not in " + State.WAITING_FOR_SERVER_RESPONSE + " state.");
         }
     }
@@ -232,7 +220,7 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
     @Override
     public void passwordInvalid() {
         // This method should only be called while the activity is in the below state
-        if(this.state == State.WAITING_FOR_SERVER_RESPONSE) {
+        if (this.state == State.WAITING_FOR_SERVER_RESPONSE) {
             // Display appropriate error text
             TextView errorText = findViewById(R.id.login_input_error);
             errorText.setText(R.string.invalid_password_error);
@@ -241,8 +229,7 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
             resetUI();
 
             this.state = State.WAITING_FOR_USER_INPUT;
-        }
-        else {
+        } else {
             Log.e(tag, "usernameInvalid() called while not in " + State.WAITING_FOR_SERVER_RESPONSE + " state.");
         }
     }
@@ -259,10 +246,10 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
     @Override
     public void loginComplete(List<Game> games) {
         // This callback should only be used when the activity is in the below state
-        if(this.state == State.LOADING) {
+        if (this.state == State.LOADING) {
             // Save the list of games, as well as the user's username and password, globally in
             // ChessApplication
-            ChessApplication application = (ChessApplication)getApplicationContext();
+            ChessApplication application = (ChessApplication) getApplicationContext();
             application.setGames(games);
 
 
@@ -378,7 +365,18 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
         loginCard.setCardBackgroundColor(Color.parseColor("#000000"));
 
         // Reset the button text to "LOGIN" and hide progress bar
-        ((TextView)findViewById(R.id.login_button_text)).setText(R.string.login_button);
+        ((TextView) findViewById(R.id.login_button_text)).setText(R.string.login_button);
         findViewById(R.id.login_progress).setVisibility(View.INVISIBLE);
+    }
+
+    /**
+     * Represents the possible states that this activity can be in
+     */
+    private enum State {
+        WAITING_FOR_USER_INPUT,         // The user is entering their data and hasn't pressed "LOGIN" yet
+        WAITING_FOR_SERVER_RESPONSE,    // The user has pressed "LOGIN" but the server hasn't validated their
+        // credentials yet
+        LOADING                         // The user's credentials have been validated, and now the app is processing the
+        // game data sent over by the server
     }
 }

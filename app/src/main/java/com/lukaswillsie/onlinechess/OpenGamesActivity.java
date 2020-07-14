@@ -1,8 +1,8 @@
 package com.lukaswillsie.onlinechess;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * This activity simply displays a list of all currently open games (games that anyone can join) for

@@ -27,10 +27,10 @@ public class ArchivedGamesAdapter extends GamesAdapter {
      *
      * @param games    - the list of games this GamesAdapter will be responsible for
      * @param activity - the Activity for which this object is doing its work; will be used for UI
-     *                  operations, like displaying Toasts. We force this activity to be an
-     *                  InteriorActivity because restoring games requires a network request, and we
-     *                  need the activity to be able to handle a reconnection attempt if the network
-     *                  request fails due to a loss of connection.
+     *                 operations, like displaying Toasts. We force this activity to be an
+     *                 InteriorActivity because restoring games requires a network request, and we
+     *                 need the activity to be able to handle a reconnection attempt if the network
+     *                 request fails due to a loss of connection.
      */
     public ArchivedGamesAdapter(List<Game> games, InteriorActivity activity) {
         super(games, activity);
@@ -39,7 +39,7 @@ public class ArchivedGamesAdapter extends GamesAdapter {
     /**
      * Called when our RecyclerView wants to bind a Game object to a View, wrapped up in holder
      *
-     * @param holder - the GameViewHolder wrapping the View that we will place the Game's data into
+     * @param holder   - the GameViewHolder wrapping the View that we will place the Game's data into
      * @param position - tells us which Game object to fetch and bind to the given View
      */
     @Override
@@ -48,30 +48,26 @@ public class ArchivedGamesAdapter extends GamesAdapter {
 
         Game game = getGames().get(position);
 
-        int userWon = (Integer)game.getData(GameData.USER_WON);
-        int userLost = (Integer)game.getData(GameData.USER_LOST);
-        int drawn = (Integer)game.getData(GameData.DRAWN);
-        int state = (Integer)game.getData(GameData.STATE);
-        int drawOffered = (Integer)game.getData(GameData.DRAW_OFFERED);
+        int userWon = (Integer) game.getData(GameData.USER_WON);
+        int userLost = (Integer) game.getData(GameData.USER_LOST);
+        int drawn = (Integer) game.getData(GameData.DRAWN);
+        int state = (Integer) game.getData(GameData.STATE);
+        int drawOffered = (Integer) game.getData(GameData.DRAW_OFFERED);
 
 
-        if(userWon == 1) {
+        if (userWon == 1) {
             setIconBackground(holder, R.drawable.restore_icon_game_over);
             setIconListener(holder, new RestoreListener(game));
-        }
-        else if (userLost == 1) {
+        } else if (userLost == 1) {
             setIconBackground(holder, R.drawable.restore_icon_game_over);
             setIconListener(holder, new RestoreListener(game));
-        }
-        else if (drawn == 1) {
+        } else if (drawn == 1) {
             setIconBackground(holder, R.drawable.restore_icon_game_over);
             setIconListener(holder, new RestoreListener(game));
-        }
-        else if (state == 0) {
+        } else if (state == 0) {
             setIconBackground(holder, R.drawable.restore_icon_opponent_turn);
             setIconListener(holder, new RestoreListener(game));
-        }
-        else if (drawOffered == 1) {
+        } else if (drawOffered == 1) {
             setIconBackground(holder, R.drawable.restore_icon_user_turn);
             setIconListener(holder, new RestoreListener(game));
         }
@@ -95,6 +91,7 @@ public class ArchivedGamesAdapter extends GamesAdapter {
         /**
          * Create a new ArchiveListener, which will restore the given Game object when a click event
          * is registered.
+         *
          * @param game - the Game that this listener will restore when a click event is registered
          */
         private RestoreListener(Game game) {
@@ -104,7 +101,7 @@ public class ArchivedGamesAdapter extends GamesAdapter {
         @Override
         public void onClick(View view) {
             // Send the server a restore request
-            ((ChessApplication)view.getContext().getApplicationContext()).getServerHelper().restore((String) game.getData(GameData.GAMEID), this);
+            ((ChessApplication) view.getContext().getApplicationContext()).getServerHelper().restore((String) game.getData(GameData.GAMEID), this);
         }
 
         /**

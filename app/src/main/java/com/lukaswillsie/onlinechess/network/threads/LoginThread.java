@@ -42,7 +42,7 @@ public class LoginThread extends NetworkThread {
      * and reporting the result to the given caller. This thread should not be run until setWriter()
      * and setReader() have been called.
      *
-     * @param caller - the object that this thread will report back to
+     * @param caller   - the object that this thread will report back to
      * @param username - the username to try and log in with
      * @param password - the password to try and log in with
      */
@@ -54,18 +54,18 @@ public class LoginThread extends NetworkThread {
 
     /**
      * Send and process a full login request. A login request consists of about three parts.
-     *
+     * <p>
      * First, the client (this thread) sends a request in the form "login username password"
-     *
+     * <p>
      * Second, the server responds, telling the client whether or not the login succeeded, and the
      * reason for failure if there was one. Return codes are defined in the ReturnCodes enum in
      * this package
-     *
+     * <p>
      * Third, the server sends data corresponding to every game that the logged in user is involved
      * in. First, it sends an integer equal to how many of these games there are to send. Then it
      * sends them, one after the other, as batches of smaller bits of data, all integers or lines of
      * text, in a consistent order and format described in the data.ServerData enum.
-     *
+     * <p>
      * Our Thread will be active the whole time the server is engaged with our request. It will
      * notify caller once after the second stage, according to whether the login succeeded or failed.
      * It will then notify the caller after the third stage, passing it a list of Game objects
@@ -152,16 +152,14 @@ public class LoginThread extends NetworkThread {
 
             // Pass the compiled list of games to the caller.
             caller.loginComplete(games);
-        }
-        catch(EOFException e) {
+        } catch (EOFException e) {
             // This means the server has closed their end of the connection.
             //
             // If the server has disconnected, we can't proceed with a login until a new connection
             // has been made. So notify the caller of the problem, and then exit this thread.
             Log.e(tag, "Server has disconnected.");
             caller.connectionLost();
-        }
-        catch(SocketException e) {
+        } catch (SocketException e) {
             // This means some problem occurred with the connection. The server may have crashed,
             // for example.
             //
@@ -169,8 +167,7 @@ public class LoginThread extends NetworkThread {
             // has been made. So notify the caller of the problem, and then exit this thread.
             Log.e(tag, "Server has disconnected.");
             caller.connectionLost();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Log.e(tag, "IOException while reading from server");
             e.printStackTrace();
             caller.systemError();

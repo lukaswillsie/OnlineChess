@@ -32,10 +32,9 @@ public class ArchivedGamesActivity extends InteriorActivity {
 
         // If our app was terminated by the operating system and is now being resumed, we'll have to
         // re-establish a connection with the server
-        if(((ChessApplication)getApplicationContext()).getServerHelper() == null) {
+        if (((ChessApplication) getApplicationContext()).getServerHelper() == null) {
             new Reconnector(this).reconnect();
-        }
-        else {
+        } else {
             // Set up our RecyclerView to display a list of the user's archived games
             RecyclerView recyclerView = findViewById(R.id.games_recycler);
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -45,23 +44,25 @@ public class ArchivedGamesActivity extends InteriorActivity {
 
     /**
      * Checks if the given Game is over
+     *
      * @param game - the Game to analyze
      * @return true if the given Game is over (somebody has won or a draw has been agreed to),
      * false otherwise
      */
     private boolean isOver(Game game) {
-        return      (int)game.getData(GameData.USER_WON) == 1
-                ||  (int)game.getData(GameData.USER_LOST) == 1
-                ||  (int)game.getData(GameData.DRAWN) == 1;
+        return (int) game.getData(GameData.USER_WON) == 1
+                || (int) game.getData(GameData.USER_LOST) == 1
+                || (int) game.getData(GameData.DRAWN) == 1;
     }
 
     /**
      * Checks if it is the user's opponent's turn in the given Game
+     *
      * @param game - the Game to analyze
      * @return true of it's the user's opponent's turn in the given Game, false otherwise
      */
     private boolean isOpponentTurn(Game game) {
-        return (int)game.getData(GameData.STATE) == 0;
+        return (int) game.getData(GameData.STATE) == 0;
     }
 
     /**
@@ -78,21 +79,19 @@ public class ArchivedGamesActivity extends InteriorActivity {
         int opponentTurnPos = 0;
         int gameOverPos = 0;
         List<Game> archivedGames = new ArrayList<>();
-        List<Game> games = ((ChessApplication)getApplicationContext()).getGames();
-        for(Game game : games) {
-            if((int)game.getData(GameData.ARCHIVED) == 1) {
-                if(isOver(game)) {
+        List<Game> games = ((ChessApplication) getApplicationContext()).getGames();
+        for (Game game : games) {
+            if ((int) game.getData(GameData.ARCHIVED) == 1) {
+                if (isOver(game)) {
                     Log.i(tag, "Game " + game.getData(GameData.GAMEID) + " is over");
                     archivedGames.add(gameOverPos, game);
                     gameOverPos++;
-                }
-                else if(isOpponentTurn(game)) {
+                } else if (isOpponentTurn(game)) {
                     Log.i(tag, game.getData(GameData.GAMEID) + " is opponent turn");
                     archivedGames.add(opponentTurnPos, game);
                     opponentTurnPos++;
                     gameOverPos++;
-                }
-                else {
+                } else {
                     Log.i(tag, game.getData(GameData.GAMEID) + " is user turn");
                     archivedGames.add(userTurnPos, game);
                     userTurnPos++;

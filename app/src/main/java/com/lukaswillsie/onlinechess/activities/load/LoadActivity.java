@@ -1,22 +1,22 @@
 package com.lukaswillsie.onlinechess.activities.load;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
+
 import com.lukaswillsie.onlinechess.ChessApplication;
-import com.lukaswillsie.onlinechess.activities.MainActivity;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogFragment;
+import com.lukaswillsie.onlinechess.activities.MainActivity;
 import com.lukaswillsie.onlinechess.activities.login.LoginActivity;
 import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.RememberMeHelper;
-import com.lukaswillsie.onlinechess.network.helper.requesters.Connector;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
+import com.lukaswillsie.onlinechess.network.helper.requesters.Connector;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 
@@ -38,11 +38,6 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
      * Tracks where we are in our loading process
      */
     private Request activeRequest = Request.NONE;
-    private enum Request {
-        NONE,
-        CONNECT,
-        LOGIN;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,8 +48,7 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
         try {
             new ServerHelper().connect(this);
             this.activeRequest = Request.CONNECT;
-        }
-        catch (MultipleRequestException e) {
+        } catch (MultipleRequestException e) {
             Log.e(tag, "Multiple network requests occurred. Retrying connection");
             retry();
         }
@@ -64,7 +58,7 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
      * After a ServerHelper is tasked with establishing a connection, they will call this method on
      * the success, and pass a reference to themselves so they can be used for future network
      * operations.
-     *
+     * <p>
      * This implementation puts the ServerHelper as a Serializable extra into an Intent and then
      * starts LoginActivity
      *
@@ -74,7 +68,7 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
     @Override
     public void connectionEstablished(ServerHelper helper) {
         // We add the ServerHelper to ChessApplication for use by all subsequent activities
-        ((ChessApplication)getApplicationContext()).setServerHelper(helper);
+        ((ChessApplication) getApplicationContext()).setServerHelper(helper);
 
         // We try to check if we have any saved user data, that is, if a user has recently
         // clicked "Remember Me" when logging in.
@@ -83,7 +77,7 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
 
             // If there was an error querying saved data or there is no saved user data, we simply
             // start the LoginActivity
-            if(savedData.get(RememberMeHelper.ERROR_KEY).equals("1") || savedData.get(RememberMeHelper.USERNAME_KEY) == null) {
+            if (savedData.get(RememberMeHelper.ERROR_KEY).equals("1") || savedData.get(RememberMeHelper.USERNAME_KEY) == null) {
                 startActivity(new Intent(this, LoginActivity.class));
             }
             // Otherwise, we have saved user data that we can use to log in, and we attempt to do
@@ -113,7 +107,7 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
      * If a ServerHelper has been tasked by an implementation of this interface to establish a
      * connection, and the connection could not be successfully created, the ServerHelper will
      * call this method so that this event can be handled.
-     *
+     * <p>
      * This implementation creates a dialog box to inform the user of the failure and present the
      * option to try again.
      */
@@ -132,8 +126,7 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
         try {
             new ServerHelper().connect(this);
             this.activeRequest = Request.CONNECT;
-        }
-        catch (MultipleRequestException e) {
+        } catch (MultipleRequestException e) {
             Log.e(tag, "Multiple network requests occurred. Retrying connection");
             retry();
         }
@@ -148,11 +141,10 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
     @Override
     public void systemError() {
         // We check if the request that was met with an error was a connect or login request
-        if(this.activeRequest == Request.CONNECT) {
+        if (this.activeRequest == Request.CONNECT) {
             // Display a dialog notifying the user that the connection failed
             this.connectionFailed();
-        }
-        else if (this.activeRequest == Request.LOGIN) {
+        } else if (this.activeRequest == Request.LOGIN) {
             // Display an apologetic Toast and move the user to the login screen
             Toast.makeText(this, R.string.automatic_login_failure, Toast.LENGTH_LONG).show();
 
@@ -196,12 +188,13 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
 
     /**
      * Called by ServerHelper after our login attempt is complete.
+     *
      * @param games - A list of objects representing every game that the logged-in user is a player
      *              in, sent by the server
      */
     @Override
     public void loginComplete(List<Game> games) {
-        ((ChessApplication)this.getApplicationContext()).setGames(games);
+        ((ChessApplication) this.getApplicationContext()).setGames(games);
         Toast.makeText(this, R.string.automatic_login_success, Toast.LENGTH_LONG).show();
         startActivity(new Intent(this, MainActivity.class));
     }
@@ -224,5 +217,11 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
         Toast.makeText(this, R.string.automatic_login_failure, Toast.LENGTH_LONG).show();
 
         startActivity(new Intent(this, LoginActivity.class));
+    }
+
+    private enum Request {
+        NONE,
+        CONNECT,
+        LOGIN
     }
 }

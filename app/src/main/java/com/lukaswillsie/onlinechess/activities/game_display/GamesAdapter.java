@@ -29,19 +29,19 @@ import java.util.List;
  * simply fills in and styles the TextViews and background of the card.
  */
 public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHolder> {
+    /**
+     * The activity containing the RecyclerView that this object is adapting for.
+     */
+    protected AppCompatActivity activity;
     /*
      * The list of Game objects this class is adapting for the RecyclerView
      */
     private List<Game> games;
 
     /**
-     * The activity containing the RecyclerView that this object is adapting for.
-     */
-    protected AppCompatActivity activity;
-
-    /**
      * Create a new GamesAdapter with the information it needs to run
-     * @param games - the list of games this GamesAdapter will be responsible for
+     *
+     * @param games    - the list of games this GamesAdapter will be responsible for
      * @param activity - the Activity for which this object is doing its work; will be used for UI
      *                 operations, like displaying Toasts. If this object attempts to submit an
      *                 archive/restore request to the server, and discovers the connection to the
@@ -56,8 +56,9 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
     /**
      * Create an empty, basic game card as a child of the given parent, and return a GameViewHolder as a
      * wrapper for it.
-     * @param parent  the parent ViewGroup that the View we created and wrap wit a GameViewHolder should
-     *                be a child of
+     *
+     * @param parent   the parent ViewGroup that the View we created and wrap wit a GameViewHolder should
+     *                 be a child of
      * @param viewType - the view type of the new view (not used in this implementation)
      * @return a GameViewHolder wrapping a newly-created game card View created as a child of the
      * given parent
@@ -71,12 +72,13 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
 
         View gameCard = inflater.inflate(R.layout.game_card_layout, parent, false);
 
-       return new GameViewHolder(gameCard);
+        return new GameViewHolder(gameCard);
     }
 
     /**
      * Called when the RecyclerView wants to bind a new Game object to a View for being displayed.
-     * @param holder - the GameViewHolder wrapping the View that we will place the Game's data into
+     *
+     * @param holder   - the GameViewHolder wrapping the View that we will place the Game's data into
      * @param position - tells us which Game object to fetch from our and bind to the given View
      */
     @Override
@@ -85,62 +87,55 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
         Resources resources = activity.getResources();
 
         // Fetch data about the game
-        String gameID = (String)game.getData(GameData.GAMEID);
-        String opponent = (String)game.getData(GameData.OPPONENT);
-        int open = (Integer)game.getData(GameData.OPEN);
+        String gameID = (String) game.getData(GameData.GAMEID);
+        String opponent = (String) game.getData(GameData.OPPONENT);
+        int open = (Integer) game.getData(GameData.OPEN);
 
-        int userWon = (Integer)game.getData(GameData.USER_WON);
-        int userLost = (Integer)game.getData(GameData.USER_LOST);
-        int state = (Integer)game.getData(GameData.STATE);
-        int turn = (Integer)game.getData(GameData.TURN);
-        int drawn = (Integer)game.getData(GameData.DRAWN);
-        int drawOffered = (Integer)game.getData(GameData.DRAW_OFFERED);
+        int userWon = (Integer) game.getData(GameData.USER_WON);
+        int userLost = (Integer) game.getData(GameData.USER_LOST);
+        int state = (Integer) game.getData(GameData.STATE);
+        int turn = (Integer) game.getData(GameData.TURN);
+        int drawn = (Integer) game.getData(GameData.DRAWN);
+        int drawOffered = (Integer) game.getData(GameData.DRAW_OFFERED);
 
         holder.gameID.setText(gameID.toUpperCase());
-        if(opponent.length() > 0) {
+        if (opponent.length() > 0) {
             holder.opponent.setText(resources.getString(R.string.opponent_label, opponent));
-        }
-        else if (open == 1) {
+        } else if (open == 1) {
             holder.opponent.setText(R.string.no_opponent_open);
-        }
-        else {
+        } else {
             holder.opponent.setText(R.string.no_opponent_closed);
         }
 
         holder.turn.setText(holder.turn.getContext().getString(R.string.turn_number_label, turn));
 
-        if(userWon == 1) {
+        if (userWon == 1) {
             holder.status.setText(R.string.user_win);
             holder.status.setTextColor(resources.getColor(R.color.user_win));
 
             holder.card.setBackground(resources.getDrawable(R.drawable.game_over_background));
-        }
-        else if (userLost == 1) {
+        } else if (userLost == 1) {
             holder.status.setText(R.string.user_lose);
             holder.status.setTextColor(resources.getColor(R.color.user_lose));
 
             holder.card.setBackground(resources.getDrawable(R.drawable.game_over_background));
-        }
-        else if (drawn == 1) {
+        } else if (drawn == 1) {
             holder.status.setText(R.string.game_drawn);
             holder.status.setTextColor(resources.getColor(R.color.drawn));
 
             holder.card.setBackground(resources.getDrawable(R.drawable.game_over_background));
-        }
-        else if (state == 0) {
+        } else if (state == 0) {
             holder.status.setText(R.string.opponent_turn);
             holder.status.setTextColor(resources.getColor(R.color.opponent_turn));
             holder.status.setAlpha(0.75f);
 
             holder.card.setBackground(resources.getDrawable(R.drawable.opponent_turn_background));
-        }
-        else if (drawOffered == 1) {
+        } else if (drawOffered == 1) {
             holder.status.setText(R.string.draw_offered_to_user);
             holder.status.setTextColor(resources.getColor(R.color.user_turn));
 
             holder.card.setBackground(resources.getDrawable(R.drawable.user_turn_background));
-        }
-        else {
+        } else {
             holder.status.setText(R.string.user_turn);
             holder.status.setTextColor(resources.getColor(R.color.user_turn));
 
@@ -153,7 +148,7 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
      * drawable.
      *
      * @param holder - the GameViewHolder object wrapping up the view that this method should edit
-     * @param resID - the ID of the drawable to place in the background of the icon
+     * @param resID  - the ID of the drawable to place in the background of the icon
      */
     protected void setIconBackground(GameViewHolder holder, @DrawableRes int resID) {
         holder.archive.setBackground(activity.getResources().getDrawable(resID));
@@ -162,7 +157,7 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
     /**
      * Apply the given listener to the icon in the top-right corner of the game card.
      *
-     * @param holder - the GameViewHolder object wrapping up the view that this method should edit
+     * @param holder   - the GameViewHolder object wrapping up the view that this method should edit
      * @param listener - the OnClickListener to apply
      */
     protected void setIconListener(GameViewHolder holder, View.OnClickListener listener) {
@@ -171,6 +166,7 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
 
     /**
      * Return the total number of items that the RecyclerView has to be able to display
+     *
      * @return the total number of items that the RecyclerView has to be able to display
      */
     @Override

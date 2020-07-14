@@ -1,3 +1,4 @@
 package com.lukaswillsie.onlinechess.network.helper.requesters;
 
-public interface ArchivingRequester {}
+public interface ArchivingRequester {
+}

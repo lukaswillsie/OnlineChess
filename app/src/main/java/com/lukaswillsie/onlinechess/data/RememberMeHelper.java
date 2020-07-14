@@ -19,15 +19,15 @@ import java.util.concurrent.TimeUnit;
  * This app provides a "Remember Me" automatic login feature by keeping a file in internal storage
  * that records a username and password saved using the "Remember Me" feature, as well as a
  * timestamp for allowing saved data to expire after a set amount of time.
- *
+ * <p>
  * To be precise, the file has this simple format:
  * Timestamp
  * Username
  * Password
- *
+ * <p>
  * and is located directly in this app's root directory on the device (the directory returned by
  * getFilesDir()).
- *
+ * <p>
  * This data is erased and forgotten about once DAYS_TO_ELAPSE days have passed.
  */
 public class RememberMeHelper {
@@ -53,10 +53,9 @@ public class RememberMeHelper {
     public RememberMeHelper(Context context) throws IOException {
         this.savedUserFile = new File(context.getFilesDir(), SAVED_USER_DATA_FILE);
 
-        if(savedUserFile.createNewFile()) {
+        if (savedUserFile.createNewFile()) {
             Log.i(tag, "File for saving user data created");
-        }
-        else {
+        } else {
             Log.i(tag, "File for saving user data already exists");
         }
     }
@@ -67,7 +66,6 @@ public class RememberMeHelper {
      * STRING), and username and password are null. Otherwise, "error" is "0" (THE STRING), and
      * "username" and "password" are either set to the username and password of the saved user, if
      * there is one, or each null if there isn't.
-     *
      *
      * @return A HashMap containing information about a saved user
      */
@@ -88,7 +86,7 @@ public class RememberMeHelper {
         }
 
         // If the file is empty, we have no saved user
-        if(!scanner.hasNextLine()) {
+        if (!scanner.hasNextLine()) {
             map.put(USERNAME_KEY, null);
             map.put(PASSWORD_KEY, null);
             map.put(ERROR_KEY, "0");
@@ -102,7 +100,7 @@ public class RememberMeHelper {
         Date date;
         try {
             date = dateFormat.parse(line);
-            if(date == null) {
+            if (date == null) {
                 Log.e(tag, "Couldn't parse line \"" + line + "\" from saved user data file into date");
 
                 map.put(USERNAME_KEY, null);
@@ -121,7 +119,7 @@ public class RememberMeHelper {
 
         Date now = new Date();
         // If the user's data was saved more than DAYS_TO_ELAPSE days ago, we erase it and return no data
-        if(TimeUnit.DAYS.convert(date.getTime() - now.getTime(), TimeUnit.MILLISECONDS) > DAYS_TO_ELAPSE) {
+        if (TimeUnit.DAYS.convert(date.getTime() - now.getTime(), TimeUnit.MILLISECONDS) > DAYS_TO_ELAPSE) {
             try {
                 // Opening the file with a FileOutputStream erases it
                 FileOutputStream stream = new FileOutputStream(this.savedUserFile);
@@ -141,7 +139,7 @@ public class RememberMeHelper {
         }
         // Otherwise, the login information is new enough to be valid, and we return it
         else {
-            if(!scanner.hasNextLine()) {
+            if (!scanner.hasNextLine()) {
                 Log.e(tag, "Not enough lines in saved user data file");
 
                 map.put(USERNAME_KEY, null);
@@ -151,7 +149,7 @@ public class RememberMeHelper {
             }
             String username = scanner.nextLine();
 
-            if(!scanner.hasNextLine()) {
+            if (!scanner.hasNextLine()) {
                 Log.e(tag, "Not enough lines in saved user data file");
 
                 map.put(USERNAME_KEY, null);
@@ -171,7 +169,7 @@ public class RememberMeHelper {
     /**
      * Takes the given username and password and saves them, so that the user will be automatically
      * logged in the next time they launch the app.
-     *
+     * <p>
      * Returns an integer detailing the success of the operation
      *
      * @param username - the username to save
@@ -182,8 +180,7 @@ public class RememberMeHelper {
         FileOutputStream stream;
         try {
             stream = new FileOutputStream(this.savedUserFile);
-        }
-        catch(FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             Log.e(tag, "Couldn't open saved user data file for saving");
             return 1;
         }
@@ -195,8 +192,7 @@ public class RememberMeHelper {
             stream.write((format.format(now) + "\n").getBytes());
             stream.write((username + "\n").getBytes());
             stream.write((password + "\n").getBytes());
-        }
-        catch(IOException e) {
+        } catch (IOException e) {
             Log.e(tag, "Couldn't save user data: (" + username + "," + password + ")");
             return 1;
         }

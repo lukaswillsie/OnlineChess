@@ -30,12 +30,12 @@ public interface LoginCaller extends ThreadCaller {
      * To be called once the whole login process is complete. That is, the login has been validated
      * by the server and all of the user's game data has been received and processed by the
      * LoginThread.
-     *
+     * <p>
      * Note that a loginSuccess() call will ALWAYS proceed a loginComplete() call. However, it is
      * possible for there to be a loginSuccess() call without a corresponding loginComplete() call
      * if the server encounters an error or the LoginThread encounters a SystemError after having
      * called loginSuccess().
-     *
+     * <p>
      * The Thread passes the result, a list of Game objects, each representing a game the logged-in
      * user is playing, to this method.
      */

@@ -5,7 +5,7 @@ package com.lukaswillsie.onlinechess.network.threads.callers;
  * to do network work for them. No class should implement this interface directly, but rather
  * should implement the interface specific to the request they are making, like LoginCaller (for
  * objects who want to issue login requests).
- *
+ * <p>
  * The defined behaviour is simple: be able to handle errors on the server-side, errors by the
  * system, or a loss of connection.
  */

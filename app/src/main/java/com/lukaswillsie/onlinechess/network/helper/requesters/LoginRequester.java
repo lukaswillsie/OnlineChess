@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Activities wishing to make login requests of a ServerHelper need to implement this interface so
  * that they can be notified of relevant events like success/failure of the request.
- *
+ * <p>
  * We note that the login process determined by the server is as follows: first, the server returns
  * a code that tells the client whether or not the given username and password are valid. Then, if
  * they were, the server sends over the logged-in user's game data. In the event of a successful
@@ -15,7 +15,6 @@ import java.util.List;
  * password were accepted, then they are notified that all the game data has been received, and are
  * given the collected data. In the event of a server error or a rejection of the user's
  * credentials, there is only one callback.
- *
  */
 public interface LoginRequester extends Requester {
     /**
@@ -44,13 +43,14 @@ public interface LoginRequester extends Requester {
      * has already been called, but will not always be called. For example, if a system error or
      * server error occurs in the intervening time, it is possible for loginSuccess() to be called
      * without any successive loginComplete() call.
-     *
+     * <p>
      * Is called after the ServerHelper has fully processed data sent over by the server, to notify
      * the activity that the application can now proceed. Takes a list of Game objects, each of
      * which is a wrapper for data representing a game the newly logged-in user is playing, so that
      * this data can be saved for later access.
+     *
      * @param games - A list of objects representing every game that the logged-in user is a
-     *                participant in
+     *              participant in
      */
     void loginComplete(List<Game> games);
 }

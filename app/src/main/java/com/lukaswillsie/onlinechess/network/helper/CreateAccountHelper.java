@@ -6,8 +6,8 @@ import android.util.Log;
 import com.lukaswillsie.onlinechess.network.ReturnCodes;
 import com.lukaswillsie.onlinechess.network.helper.requesters.CreateAccountRequester;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
-import com.lukaswillsie.onlinechess.network.threads.callers.ReturnCodeCaller;
 import com.lukaswillsie.onlinechess.network.threads.ReturnCodeThread;
+import com.lukaswillsie.onlinechess.network.threads.callers.ReturnCodeCaller;
 
 
 class CreateAccountHelper extends SubHelper implements ReturnCodeCaller {
@@ -15,8 +15,6 @@ class CreateAccountHelper extends SubHelper implements ReturnCodeCaller {
      * Tag for logging to the console
      */
     private static final String tag = "CreateAccountHelper";
-    private CreateAccountRequester requester;
-
     /**
      * Constants used by this object to communicate with itself through Messages
      */
@@ -26,6 +24,7 @@ class CreateAccountHelper extends SubHelper implements ReturnCodeCaller {
     private static final int SUCCESS = 0;
     private static final int USERNAME_IN_USE = 1;
     private static final int ACCOUNT_FORMAT_INVALID = 2;
+    private CreateAccountRequester requester;
 
     /**
      * Create a new SubHelper as part of the given ServerHelper
@@ -41,13 +40,13 @@ class CreateAccountHelper extends SubHelper implements ReturnCodeCaller {
      * requester
      *
      * @param requester - will receive callbacks as to the result of the request
-     * @param username - the username to try and create an account for
-     * @param password - the password to try and create an account with
+     * @param username  - the username to try and create an account for
+     * @param password  - the password to try and create an account with
      * @throws MultipleRequestException - if this CreateAccountHelper is already processing a
-     * request
+     *                                  request
      */
     void createAccount(CreateAccountRequester requester, String username, String password) throws MultipleRequestException {
-        if(this.requester != null) {
+        if (this.requester != null) {
             throw new MultipleRequestException("Tried to make multiple requests of CreateAccountHelper");
         }
 
@@ -153,7 +152,7 @@ class CreateAccountHelper extends SubHelper implements ReturnCodeCaller {
      */
     @Override
     public void handleMessage(Message msg) {
-        switch(msg.what) {
+        switch (msg.what) {
             case SYSTEM_ERROR:
                 requester.systemError();
 
