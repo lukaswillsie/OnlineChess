@@ -4,7 +4,7 @@ import android.os.Message;
 
 import androidx.annotation.NonNull;
 
-import com.lukaswillsie.onlinechess.data.Game;
+import com.lukaswillsie.onlinechess.data.UserGame;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
 import com.lukaswillsie.onlinechess.network.threads.LoginThread;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
@@ -65,9 +65,7 @@ public class LoginHelper extends SubHelper implements LoginCaller {
         }
         this.requester = requester;
 
-        LoginThread thread = new LoginThread(username, password, this);
-        thread.setReader(this.getIn());
-        thread.setWriter(this.getOut());
+        LoginThread thread = new LoginThread(username, password, this, getOut(), getIn());
         thread.start();
     }
 
@@ -146,7 +144,7 @@ public class LoginHelper extends SubHelper implements LoginCaller {
      * user is playing, to this method.
      */
     @Override
-    public void loginComplete(List<Game> games) {
+    public void loginComplete(List<UserGame> games) {
         Message message = this.obtainMessage(LOGIN_COMPLETE, games);
         message.sendToTarget();
     }
@@ -195,7 +193,7 @@ public class LoginHelper extends SubHelper implements LoginCaller {
                 this.requester = null;
                 break;
             case LOGIN_COMPLETE:
-                requester.loginComplete((List<Game>) msg.obj);
+                requester.loginComplete((List<UserGame>) msg.obj);
 
                 // Allows us to accept another request
                 this.requester = null;

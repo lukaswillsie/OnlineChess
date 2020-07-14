@@ -4,35 +4,49 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
-import com.lukaswillsie.onlinechess.activities.InteriorActivity;
+import com.lukaswillsie.onlinechess.activities.ReconnectListener;
 import com.lukaswillsie.onlinechess.activities.Reconnector;
-import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.GameData;
+import com.lukaswillsie.onlinechess.data.UserGame;
 import com.lukaswillsie.onlinechess.network.helper.requesters.ArchiveRequester;
 
 import java.util.List;
 
 /**
  * This class adapts a list of active games for a RecyclerView. Because the games are active, we
- * need a way for the user to archive them, if desired. GamesAdapter takes of most of the adapting
- * work, this class just provides the logic necessary for the archiving feature.
+ * need a way for the user to archive them, if desired. GamesAdapter takes care of most of the
+ * adapting work, this class just provides the logic necessary for the archiving feature.
  */
 public class ActiveGamesAdapter extends GamesAdapter {
     /**
-     * Create a new GamesAdapter with the information it needs to run
-     *
-     * @param games    - the list of games this GamesAdapter will be responsible for
-     * @param activity - the Activity for which this object is doing its work; will be used for UI
-     *                 operations, like displaying Toasts. We force this activity to be an
-     *                 InteriorActivity because archiving games requires a network request, and we
-     *                 need the activity to be able to handle a reconnection attempt if the network
-     *                 request fails due to a loss of connection.
+     * This class provides ArchiveListener objects that will attach to each game and attempt to
+     * issue archive requests when the user clicks the archive button. If the archive request fails
+     * because the connection with the server has been lost, the ArchiveListener will initiate a
+     * reconnect request using a Reconnector and this object. It will receive a callback when a
+     * reconnection attempt completes successfully.
      */
-    public ActiveGamesAdapter(List<Game> games, InteriorActivity activity) {
-        super(games, activity);
+    private ReconnectListener listener;
+
+    /**
+     * Create a new ActiveGamesAdapter. The given activity will be used for UI operations, in the
+     * event that an archive request fails and error dialogs need to be shown. If an archive request
+     * initiated by this object fails due to a loss of connection, it will initiate a reconnection
+     * attempt. The given listener will receive a callback when this attempt completes, so that the
+     * UI can update in case any game data has changed since the reconnection.
+     *
+     * @param activity - should be the activity containing the RecyclerView this Adapter is working
+     *                 for
+     * @param games    - the list of UserGames this object will adapt
+     * @param listener - will receive callbacks regarding any reconnection attempts initiated by
+     *                 this object
+     */
+    public ActiveGamesAdapter(AppCompatActivity activity, List<UserGame> games, ReconnectListener listener) {
+        super(activity, games);
+        this.listener = listener;
     }
 
     /**
@@ -46,7 +60,7 @@ public class ActiveGamesAdapter extends GamesAdapter {
     public void onBindViewHolder(@NonNull GameViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
 
-        Game game = getGames().get(position);
+        UserGame game = getGames().get(position);
 
         int userWon = (Integer) game.getData(GameData.USER_WON);
         int userLost = (Integer) game.getData(GameData.USER_LOST);
@@ -86,7 +100,7 @@ public class ActiveGamesAdapter extends GamesAdapter {
         /*
          * The Game that this listener will archive when the View it is listening to is pressed
          */
-        private Game game;
+        private UserGame game;
 
         /**
          * Create a new ArchiveListener, which will archive the given Game object when a click event
@@ -95,7 +109,7 @@ public class ActiveGamesAdapter extends GamesAdapter {
          *
          * @param game - the Game that this listener will archive when a click event is registered
          */
-        private ArchiveListener(Game game) {
+        private ArchiveListener(UserGame game) {
             this.game = game;
         }
 
@@ -110,7 +124,7 @@ public class ActiveGamesAdapter extends GamesAdapter {
          */
         @Override
         public void archiveSuccessful() {
-            Toast.makeText(activity, "Your game was archived successfully", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Your game was archived successfully", Toast.LENGTH_SHORT).show();
 
             int pos = getGames().indexOf(game);
             getGames().remove(game);
@@ -127,10 +141,10 @@ public class ActiveGamesAdapter extends GamesAdapter {
          */
         @Override
         public void connectionLost() {
-            Toast.makeText(activity, "We lost our connection to the server and couldn't archive your game", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "We lost our connection to the server and couldn't archive your game", Toast.LENGTH_LONG).show();
             // The cast to InteriorActivity below is fine, because we force activity to be an
             // InteriorActivity in our constructor
-            new Reconnector((InteriorActivity) activity).reconnect();
+            new Reconnector(listener, (AppCompatActivity) context).reconnect();
         }
 
         /**
@@ -140,7 +154,7 @@ public class ActiveGamesAdapter extends GamesAdapter {
          */
         @Override
         public void serverError() {
-            Toast.makeText(activity, "The server encountered an unexpected error and your game may not have been archived", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "The server encountered an unexpected error and your game may not have been archived", Toast.LENGTH_LONG).show();
         }
 
         /**
@@ -150,7 +164,7 @@ public class ActiveGamesAdapter extends GamesAdapter {
          */
         @Override
         public void systemError() {
-            Toast.makeText(activity, "We encountered an unexpected error and your game may not have been archived", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "We encountered an unexpected error and your game may not have been archived", Toast.LENGTH_LONG).show();
         }
     }
 }

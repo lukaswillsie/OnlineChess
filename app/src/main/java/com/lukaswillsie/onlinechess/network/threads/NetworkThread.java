@@ -18,23 +18,16 @@ abstract class NetworkThread extends Thread {
     private DataInputStream reader;
 
     /**
-     * Give this NetworkThread a PrintWriter to use to write to the server
+     * Creates a new NetworkThread that will use the given devices to read from and write to the
+     * server
      *
-     * @param writer - the PrintWriter this thread should use to write to the server
+     * @param writer - the device that this NetworkThread will use to write to the server
+     * @param reader - the device that this NetworkThread will use to read from the server
      */
-    public void setWriter(PrintWriter writer) {
+    public NetworkThread(PrintWriter writer, DataInputStream reader) {
         this.writer = writer;
-    }
-
-    /**
-     * Give this NetworkThread a DataInputStream to use to read from the server
-     *
-     * @param reader - the DataInputStream this thread should use to read from the server
-     */
-    public void setReader(DataInputStream reader) {
         this.reader = reader;
     }
-
 
     /**
      * Read a single integer from the server and return it

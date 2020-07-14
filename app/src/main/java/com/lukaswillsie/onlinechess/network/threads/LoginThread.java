@@ -3,13 +3,15 @@ package com.lukaswillsie.onlinechess.network.threads;
 
 import android.util.Log;
 
-import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.ServerData;
+import com.lukaswillsie.onlinechess.data.UserGame;
 import com.lukaswillsie.onlinechess.network.ReturnCodes;
 import com.lukaswillsie.onlinechess.network.threads.callers.LoginCaller;
 
+import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +48,8 @@ public class LoginThread extends NetworkThread {
      * @param username - the username to try and log in with
      * @param password - the password to try and log in with
      */
-    public LoginThread(String username, String password, LoginCaller caller) {
+    public LoginThread(String username, String password, LoginCaller caller, PrintWriter writer, DataInputStream reader) {
+        super(writer, reader);
         this.caller = caller;
         this.username = username;
         this.password = password;
@@ -123,9 +126,9 @@ public class LoginThread extends NetworkThread {
                 return;
             }
 
-            List<Game> games = new ArrayList<>();
+            List<UserGame> games = new ArrayList<>();
             List<Object> serverData = new ArrayList<>();
-            Game game;
+            UserGame game;
             String line;
             // We read a total of numGames batches of data from the server
             for (int i = 0; i < numGames; i++) {
@@ -143,7 +146,7 @@ public class LoginThread extends NetworkThread {
                     }
                 }
 
-                game = new Game(username);
+                game = new UserGame(username);
                 game.initialize(serverData);
                 games.add(game);
 

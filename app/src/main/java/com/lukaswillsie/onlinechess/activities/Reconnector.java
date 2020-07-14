@@ -8,13 +8,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.load.LoadActivity;
 import com.lukaswillsie.onlinechess.activities.login.LoginActivity;
-import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.RememberMeHelper;
+import com.lukaswillsie.onlinechess.data.UserGame;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 import com.lukaswillsie.onlinechess.network.helper.requesters.Connector;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
@@ -58,7 +59,14 @@ public class Reconnector implements Connector, LoginRequester {
     /*
      * The activity that this class is doing its work for.
      */
-    private InteriorActivity activity;
+    private ReconnectListener listener;
+
+    /**
+     * The Activity that we will use for UI operations, like displaying dialogs, starting other
+     * activities or accessing app resources (mostly strings)
+     */
+    private AppCompatActivity activity;
+
     /**
      * The current state of this object
      */
@@ -71,12 +79,18 @@ public class Reconnector implements Connector, LoginRequester {
     private AlertDialog activeDialog;
 
     /**
-     * Create a new Reconnector to do work on behalf of the given InteriorActivity. The argument
-     * given to this constructor will be used as a context for all UI operations performed by this
-     * object.
+     * Create a new Reconnector object set up to handle a reconnection process. The given activity
+     * will be used for UI operations like displaying dialogs. The given ReconnectListener will
+     * be notified whenever a reconnection attempt handled by this object completes successfully.
+     *
+     * @param listener - will be notified when reconnection attempts by this object complete
+     *                 successfully
+     * @param activity - will be used for necessary UI operations like displaying dialogs, starting
+     *                 other activities, etc.
      */
-    public Reconnector(InteriorActivity activity) {
+    public Reconnector(ReconnectListener listener, AppCompatActivity activity) {
         this.activity = activity;
+        this.listener = listener;
         this.state = ReconnectState.NOT_ACTIVE;
     }
 
@@ -251,7 +265,7 @@ public class Reconnector implements Connector, LoginRequester {
      *              participant in
      */
     @Override
-    public void loginComplete(List<Game> games) {
+    public void loginComplete(List<UserGame> games) {
         if (this.state == ReconnectState.LOGGING_IN) {
             this.activeDialog.cancel();
             this.activeDialog = null;
@@ -259,7 +273,7 @@ public class Reconnector implements Connector, LoginRequester {
             this.state = ReconnectState.NOT_ACTIVE;
             ((ChessApplication) activity.getApplicationContext()).setGames(games);
 
-            activity.reconnectionComplete();
+            listener.reconnectionComplete();
         }
     }
 

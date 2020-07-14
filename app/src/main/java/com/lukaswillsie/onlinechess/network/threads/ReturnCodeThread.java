@@ -4,8 +4,10 @@ import android.util.Log;
 
 import com.lukaswillsie.onlinechess.network.threads.callers.ReturnCodeCaller;
 
+import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.SocketException;
 
 /**
@@ -40,7 +42,8 @@ public class ReturnCodeThread extends NetworkThread {
      * @param request - the request to send to the server when this Thread is run
      * @param caller  - the object to report the result back to
      */
-    public ReturnCodeThread(String request, ReturnCodeCaller caller) {
+    public ReturnCodeThread(String request, ReturnCodeCaller caller, PrintWriter writer, DataInputStream reader) {
+        super(writer, reader);
         this.caller = caller;
         this.request = request;
     }

@@ -1,4 +1,4 @@
-package com.lukaswillsie.onlinechess;
+package com.lukaswillsie.onlinechess.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,6 +6,8 @@ import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.lukaswillsie.onlinechess.R;
 
 /**
  * This activity allows the user to join games. They can either enter the ID of a game their friend

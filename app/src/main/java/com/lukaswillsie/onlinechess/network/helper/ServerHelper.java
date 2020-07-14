@@ -10,6 +10,7 @@ import com.lukaswillsie.onlinechess.network.helper.requesters.ArchiveRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.Connector;
 import com.lukaswillsie.onlinechess.network.helper.requesters.CreateAccountRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
+import com.lukaswillsie.onlinechess.network.helper.requesters.OpenGamesRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.RestoreRequester;
 import com.lukaswillsie.onlinechess.network.threads.ConnectThread;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
@@ -88,6 +89,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
     private CreateAccountHelper createAccountHelper;
     private ArchiveHelper archiveHelper;
     private RestoreHelper restoreHelper;
+    private OpenGamesHelper openGamesHelper;
 
     /*
      * A list of all helpers delegated to by this object, so that they can all be notified at once
@@ -103,12 +105,14 @@ public class ServerHelper extends Handler implements ConnectCaller {
         this.createAccountHelper = new CreateAccountHelper(this);
         this.archiveHelper = new ArchiveHelper(this);
         this.restoreHelper = new RestoreHelper(this);
+        this.openGamesHelper = new OpenGamesHelper(this);
 
         this.helpers = new ArrayList<>();
         this.helpers.add(loginHelper);
         this.helpers.add(createAccountHelper);
         this.helpers.add(archiveHelper);
         this.helpers.add(restoreHelper);
+        this.helpers.add(openGamesHelper);
     }
 
     /**
@@ -118,7 +122,8 @@ public class ServerHelper extends Handler implements ConnectCaller {
      *                  state of the request
      * @param username  - the username the user wishes to log in with
      * @param password  - the password the user wishes to log in with
-     * @throws MultipleRequestException - if this ServerHelper object already has an ongoing request
+     * @throws MultipleRequestException - if this ServerHelper object already has an ongoing login
+     *                                  request
      */
     public void login(LoginRequester requester, String username, String password) throws MultipleRequestException {
         // Delegate to a LoginHelper and designate the LoginHelper as the active helper
@@ -134,7 +139,8 @@ public class ServerHelper extends Handler implements ConnectCaller {
      *                  request
      * @param username  - the username that the new account should have
      * @param password  - the password that the new account should have
-     * @throws MultipleRequestException - if this ServerHelper object already has an ongoing request
+     * @throws MultipleRequestException - if this ServerHelper object already has an ongoing create
+     *                                  account request
      */
     public void createAccount(CreateAccountRequester requester, String username, String password) throws MultipleRequestException {
         this.createAccountHelper.createAccount(requester, username, password);
@@ -145,7 +151,8 @@ public class ServerHelper extends Handler implements ConnectCaller {
      *
      * @param requester - the Activity wishing to establish a connection with the server; will
      *                  receive callbacks relating to the request
-     * @throws MultipleRequestException - if this ServerHelper object already has an ongoing request
+     * @throws MultipleRequestException - if this ServerHelper object already has an ongoing connect
+     *                                  request
      */
     public void connect(Connector requester) throws MultipleRequestException {
         if (this.requester != null) {
@@ -159,7 +166,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
 
     /**
      * Attempt to archive the given game by sending a request to the server. requester will receive
-     * callbacks relevant to the request
+     * callbacks relevant to the request.
      *
      * @param gameID    - the ID of the game that should be archived
      * @param requester - the object that will receive callbacks regarding the outcome of the request
@@ -168,8 +175,28 @@ public class ServerHelper extends Handler implements ConnectCaller {
         archiveHelper.archive(gameID, requester);
     }
 
+    /**
+     * Attempt to restore the given game by sending a request to the server. requester will receive
+     * callbacks relevant to the request.
+     *
+     * @param gameID    - the ID of the game that should be archived
+     * @param requester - the object that will receive callbacks regarding the outcome of the
+     *                  request
+     */
     public void restore(String gameID, RestoreRequester requester) {
         restoreHelper.restore(gameID, requester);
+    }
+
+    /**
+     * Attempt to get a list of all open games in the system from the server. requester will receive
+     * callbacks relevant to the request.
+     *
+     * @param requester - the object that will receive callbacks relevant to the request
+     * @throws MultipleRequestException - if this ServerHelper already has an ongoing getOpenGames
+     *                                  request
+     */
+    public void getOpenGames(OpenGamesRequester requester) throws MultipleRequestException {
+        openGamesHelper.getOpenGames(requester);
     }
 
     /**

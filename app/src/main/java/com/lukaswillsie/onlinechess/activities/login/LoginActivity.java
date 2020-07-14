@@ -19,8 +19,8 @@ import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogActivity;
 import com.lukaswillsie.onlinechess.activities.MainActivity;
 import com.lukaswillsie.onlinechess.activities.load.LoadActivity;
-import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.RememberMeHelper;
+import com.lukaswillsie.onlinechess.data.UserGame;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
@@ -244,7 +244,7 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
      *              participant in
      */
     @Override
-    public void loginComplete(List<Game> games) {
+    public void loginComplete(List<UserGame> games) {
         // This callback should only be used when the activity is in the below state
         if (this.state == State.LOADING) {
             // Save the list of games, as well as the user's username and password, globally in

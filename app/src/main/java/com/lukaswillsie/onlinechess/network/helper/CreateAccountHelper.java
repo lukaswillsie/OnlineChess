@@ -52,9 +52,7 @@ class CreateAccountHelper extends SubHelper implements ReturnCodeCaller {
 
         this.requester = requester;
 
-        ReturnCodeThread thread = new ReturnCodeThread(this.getRequest(username, password), this);
-        thread.setReader(this.getIn());
-        thread.setWriter(this.getOut());
+        ReturnCodeThread thread = new ReturnCodeThread(this.getRequest(username, password), this, getOut(), getIn());
         thread.start();
     }
 

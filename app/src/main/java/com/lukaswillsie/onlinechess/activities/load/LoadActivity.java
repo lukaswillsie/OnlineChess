@@ -13,8 +13,8 @@ import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogFragment;
 import com.lukaswillsie.onlinechess.activities.MainActivity;
 import com.lukaswillsie.onlinechess.activities.login.LoginActivity;
-import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.RememberMeHelper;
+import com.lukaswillsie.onlinechess.data.UserGame;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 import com.lukaswillsie.onlinechess.network.helper.requesters.Connector;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
@@ -193,7 +193,7 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
      *              in, sent by the server
      */
     @Override
-    public void loginComplete(List<Game> games) {
+    public void loginComplete(List<UserGame> games) {
         ((ChessApplication) this.getApplicationContext()).setGames(games);
         Toast.makeText(this, R.string.automatic_login_success, Toast.LENGTH_LONG).show();
         startActivity(new Intent(this, MainActivity.class));

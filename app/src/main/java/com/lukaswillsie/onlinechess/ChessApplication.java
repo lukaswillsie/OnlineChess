@@ -2,7 +2,7 @@ package com.lukaswillsie.onlinechess;
 
 import android.app.Application;
 
-import com.lukaswillsie.onlinechess.data.Game;
+import com.lukaswillsie.onlinechess.data.UserGame;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 
 import java.util.List;
@@ -21,13 +21,13 @@ public class ChessApplication extends Application {
     /**
      * A list of games that the currently logged-in user is a part of
      */
-    private List<Game> games;
+    private List<UserGame> games;
 
-    public List<Game> getGames() {
+    public List<UserGame> getGames() {
         return games;
     }
 
-    public void setGames(List<Game> games) {
+    public void setGames(List<UserGame> games) {
         this.games = games;
     }
 

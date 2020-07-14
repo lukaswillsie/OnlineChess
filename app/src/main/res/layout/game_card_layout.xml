@@ -5,8 +5,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <!-- We leave the text in this layout because it's a lot easier to look at and
-    understand the design that way. The text always gets replaced, so it doesn't matter,
-    anyway.-->
+    understand the design that way. The text always gets replaced, when this layout
+    is inflated, so it doesn't matter, anyway.-->
     <androidx.constraintlayout.widget.Guideline
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -51,11 +51,8 @@ public class RestoreHelper extends SubHelper implements ReturnCodeCaller {
         // If the first request in the queue is not active, that is, not being processed, we create
         // a thread to deal with it, and set it as active
         if (head != null && !head.isActive()) {
-            ReturnCodeThread thread = new ReturnCodeThread(getRequestText(head.gameID), this);
+            ReturnCodeThread thread = new ReturnCodeThread(getRequestText(head.gameID), this, getOut(), getIn());
             head.setActive();
-
-            thread.setReader(getIn());
-            thread.setWriter(getOut());
             thread.start();
         }
     }

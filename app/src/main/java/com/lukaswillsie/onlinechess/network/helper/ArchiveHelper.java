@@ -30,6 +30,7 @@ public class ArchiveHelper extends SubHelper implements ReturnCodeCaller {
      * A queue holding all the requests we have yet to finish processing
      */
     private RequestQueue requests = new RequestQueue();
+
     /**
      * Create a new SubHelper as part of the given ServerHelper
      *
@@ -54,11 +55,8 @@ public class ArchiveHelper extends SubHelper implements ReturnCodeCaller {
         // If the first request in the queue is not active, that is not being processed, we create a
         // thread to deal with it, and set it as active
         if (head != null && !head.isActive()) {
-            ReturnCodeThread thread = new ReturnCodeThread(getRequestText(head.gameID), this);
+            ReturnCodeThread thread = new ReturnCodeThread(getRequestText(head.gameID), this, getOut(), getIn());
             head.setActive();
-
-            thread.setReader(getIn());
-            thread.setWriter(getOut());
             thread.start();
         }
     }

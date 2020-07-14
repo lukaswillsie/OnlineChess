@@ -3,15 +3,16 @@ package com.lukaswillsie.onlinechess.activities.game_display;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
-import com.lukaswillsie.onlinechess.activities.InteriorActivity;
+import com.lukaswillsie.onlinechess.activities.ReconnectListener;
 import com.lukaswillsie.onlinechess.activities.Reconnector;
-import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.GameData;
+import com.lukaswillsie.onlinechess.data.UserGame;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,7 @@ import java.util.List;
  * Displays for the user a list of all their "active" games. That is, all games that the user
  * hasn't yet marked as archived.
  */
-public class ActiveGamesActivity extends InteriorActivity {
+public class ActiveGamesActivity extends AppCompatActivity implements ReconnectListener {
     /*
      * Tag used for logging to the console
      */
@@ -32,12 +33,12 @@ public class ActiveGamesActivity extends InteriorActivity {
         setContentView(R.layout.activity_active_games);
 
         if (((ChessApplication) getApplicationContext()).getServerHelper() == null) {
-            new Reconnector(this).reconnect();
+            new Reconnector(this, this).reconnect();
         } else {
             // Set up our RecyclerView to display a list of the user's archived games
             RecyclerView recyclerView = findViewById(R.id.games_recycler);
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            recyclerView.setAdapter(new ActiveGamesAdapter(getGames(), this));
+            recyclerView.setAdapter(new ActiveGamesAdapter(this, getGames(), this));
         }
     }
 
@@ -50,7 +51,7 @@ public class ActiveGamesActivity extends InteriorActivity {
     public void reconnectionComplete() {
         RecyclerView recyclerView = findViewById(R.id.games_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new ActiveGamesAdapter(getGames(), this));
+        recyclerView.setAdapter(new ActiveGamesAdapter(this, getGames(), this));
     }
 
     /**
@@ -60,7 +61,7 @@ public class ActiveGamesActivity extends InteriorActivity {
      * @return true if the given Game is over (somebody has won or a draw has been agreed to),
      * false otherwise
      */
-    private boolean isOver(Game game) {
+    private boolean isOver(UserGame game) {
         return (int) game.getData(GameData.USER_WON) == 1
                 || (int) game.getData(GameData.USER_LOST) == 1
                 || (int) game.getData(GameData.DRAWN) == 1;
@@ -72,7 +73,7 @@ public class ActiveGamesActivity extends InteriorActivity {
      * @param game - the Game to analyze
      * @return true of it's the user's opponent's turn in the given Game, false otherwise
      */
-    private boolean isOpponentTurn(Game game) {
+    private boolean isOpponentTurn(UserGame game) {
         return (int) game.getData(GameData.STATE) == 0;
     }
 
@@ -84,13 +85,13 @@ public class ActiveGamesActivity extends InteriorActivity {
      *
      * @return a sorted list of all the user's active games, for displaying on the screen.
      */
-    private List<Game> getGames() {
+    private List<UserGame> getGames() {
         int userTurnPos = 0;
         int opponentTurnPos = 0;
         int gameOverPos = 0;
-        List<Game> activeGames = new ArrayList<>();
-        List<Game> games = ((ChessApplication) getApplicationContext()).getGames();
-        for (Game game : games) {
+        List<UserGame> activeGames = new ArrayList<>();
+        List<UserGame> games = ((ChessApplication) getApplicationContext()).getGames();
+        for (UserGame game : games) {
             if (!((int) game.getData(GameData.ARCHIVED) == 1)) {
                 if (isOver(game)) {
                     Log.i(tag, "Game " + game.getData(GameData.GAMEID) + " is over");

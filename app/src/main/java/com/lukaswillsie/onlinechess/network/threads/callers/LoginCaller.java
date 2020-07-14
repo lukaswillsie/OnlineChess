@@ -1,6 +1,6 @@
 package com.lukaswillsie.onlinechess.network.threads.callers;
 
-import com.lukaswillsie.onlinechess.data.Game;
+import com.lukaswillsie.onlinechess.data.UserGame;
 
 import java.util.List;
 
@@ -39,7 +39,7 @@ public interface LoginCaller extends ThreadCaller {
      * The Thread passes the result, a list of Game objects, each representing a game the logged-in
      * user is playing, to this method.
      */
-    void loginComplete(List<Game> games);
+    void loginComplete(List<UserGame> games);
 
 
     /**

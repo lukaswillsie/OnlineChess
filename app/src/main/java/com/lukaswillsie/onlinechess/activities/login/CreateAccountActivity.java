@@ -16,7 +16,7 @@ import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogActivity;
 import com.lukaswillsie.onlinechess.activities.MainActivity;
-import com.lukaswillsie.onlinechess.data.Game;
+import com.lukaswillsie.onlinechess.data.UserGame;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 import com.lukaswillsie.onlinechess.network.helper.requesters.CreateAccountRequester;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
@@ -71,7 +71,7 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
             // Save an empty list of games (because we've created a totally new user), as well as
             // the user's username and password, globally in ChessApplication
             ChessApplication application = (ChessApplication) getApplicationContext();
-            application.setGames(new ArrayList<Game>());
+            application.setGames(new ArrayList<UserGame>());
 
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);

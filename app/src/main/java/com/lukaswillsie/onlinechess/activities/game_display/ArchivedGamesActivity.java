@@ -3,15 +3,16 @@ package com.lukaswillsie.onlinechess.activities.game_display;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
-import com.lukaswillsie.onlinechess.activities.InteriorActivity;
+import com.lukaswillsie.onlinechess.activities.ReconnectListener;
 import com.lukaswillsie.onlinechess.activities.Reconnector;
-import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.GameData;
+import com.lukaswillsie.onlinechess.data.UserGame;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.List;
 /**
  * Displays a list of the user's archived games on the screen
  */
-public class ArchivedGamesActivity extends InteriorActivity {
+public class ArchivedGamesActivity extends AppCompatActivity implements ReconnectListener {
     /*
      * Used for logging things to the console
      */
@@ -33,12 +34,12 @@ public class ArchivedGamesActivity extends InteriorActivity {
         // If our app was terminated by the operating system and is now being resumed, we'll have to
         // re-establish a connection with the server
         if (((ChessApplication) getApplicationContext()).getServerHelper() == null) {
-            new Reconnector(this).reconnect();
+            new Reconnector(this, this).reconnect();
         } else {
             // Set up our RecyclerView to display a list of the user's archived games
             RecyclerView recyclerView = findViewById(R.id.games_recycler);
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            recyclerView.setAdapter(new ArchivedGamesAdapter(getGames(), this));
+            recyclerView.setAdapter(new ArchivedGamesAdapter(this, getGames(), this));
         }
     }
 
@@ -49,7 +50,7 @@ public class ArchivedGamesActivity extends InteriorActivity {
      * @return true if the given Game is over (somebody has won or a draw has been agreed to),
      * false otherwise
      */
-    private boolean isOver(Game game) {
+    private boolean isOver(UserGame game) {
         return (int) game.getData(GameData.USER_WON) == 1
                 || (int) game.getData(GameData.USER_LOST) == 1
                 || (int) game.getData(GameData.DRAWN) == 1;
@@ -61,7 +62,7 @@ public class ArchivedGamesActivity extends InteriorActivity {
      * @param game - the Game to analyze
      * @return true of it's the user's opponent's turn in the given Game, false otherwise
      */
-    private boolean isOpponentTurn(Game game) {
+    private boolean isOpponentTurn(UserGame game) {
         return (int) game.getData(GameData.STATE) == 0;
     }
 
@@ -74,13 +75,13 @@ public class ArchivedGamesActivity extends InteriorActivity {
      *
      * @return A sorted list of the user's archived games, for display on the screen.
      */
-    private List<Game> getGames() {
+    private List<UserGame> getGames() {
         int userTurnPos = 0;
         int opponentTurnPos = 0;
         int gameOverPos = 0;
-        List<Game> archivedGames = new ArrayList<>();
-        List<Game> games = ((ChessApplication) getApplicationContext()).getGames();
-        for (Game game : games) {
+        List<UserGame> archivedGames = new ArrayList<>();
+        List<UserGame> games = ((ChessApplication) getApplicationContext()).getGames();
+        for (UserGame game : games) {
             if ((int) game.getData(GameData.ARCHIVED) == 1) {
                 if (isOver(game)) {
                     Log.i(tag, "Game " + game.getData(GameData.GAMEID) + " is over");
@@ -115,6 +116,6 @@ public class ArchivedGamesActivity extends InteriorActivity {
         // Set up our RecyclerView to display a list of the user's archived games
         RecyclerView recyclerView = findViewById(R.id.games_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new ArchivedGamesAdapter(getGames(), this));
+        recyclerView.setAdapter(new ArchivedGamesAdapter(this, getGames(), this));
     }
 }

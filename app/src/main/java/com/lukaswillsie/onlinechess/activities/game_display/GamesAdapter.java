@@ -2,7 +2,6 @@ package com.lukaswillsie.onlinechess.activities.game_display;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,13 +10,11 @@ import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.lukaswillsie.onlinechess.R;
-import com.lukaswillsie.onlinechess.activities.InteriorActivity;
-import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.GameData;
+import com.lukaswillsie.onlinechess.data.UserGame;
 
 import java.util.List;
 
@@ -30,27 +27,25 @@ import java.util.List;
  */
 public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHolder> {
     /**
-     * The activity containing the RecyclerView that this object is adapting for.
+     * The Context that this object will use to access app resources.
      */
-    protected AppCompatActivity activity;
+    protected Context context;
+
     /*
      * The list of Game objects this class is adapting for the RecyclerView
      */
-    private List<Game> games;
+    private List<UserGame> games;
 
     /**
      * Create a new GamesAdapter with the information it needs to run
      *
-     * @param games    - the list of games this GamesAdapter will be responsible for
-     * @param activity - the Activity for which this object is doing its work; will be used for UI
-     *                 operations, like displaying Toasts. If this object attempts to submit an
-     *                 archive/restore request to the server, and discovers the connection to the
-     *                 server to have been lost, this activity will be used in conjunction with a
-     *                 Reconnector object to re-establish a connection to the server.
+     * @param games   - the list of games this GamesAdapter will be responsible for
+     * @param context - the Context this object is working for; will be used to access app
+     *                resources.
      */
-    public GamesAdapter(List<Game> games, InteriorActivity activity) {
+    public GamesAdapter(Context context, List<UserGame> games) {
         this.games = games;
-        this.activity = activity;
+        this.context = context;
     }
 
     /**
@@ -68,7 +63,6 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
     public GameViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-        Log.i("ADAPTER", parent.toString());
 
         View gameCard = inflater.inflate(R.layout.game_card_layout, parent, false);
 
@@ -83,8 +77,8 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
      */
     @Override
     public void onBindViewHolder(@NonNull GameViewHolder holder, int position) {
-        Game game = games.get(position);
-        Resources resources = activity.getResources();
+        UserGame game = games.get(position);
+        Resources resources = context.getResources();
 
         // Fetch data about the game
         String gameID = (String) game.getData(GameData.GAMEID);
@@ -151,7 +145,7 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
      * @param resID  - the ID of the drawable to place in the background of the icon
      */
     protected void setIconBackground(GameViewHolder holder, @DrawableRes int resID) {
-        holder.archive.setBackground(activity.getResources().getDrawable(resID));
+        holder.archive.setBackground(context.getResources().getDrawable(resID));
     }
 
     /**
@@ -174,7 +168,7 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
         return games.size();
     }
 
-    protected List<Game> getGames() {
+    protected List<UserGame> getGames() {
         return games;
     }
 

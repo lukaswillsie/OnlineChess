@@ -4,8 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.lukaswillsie.onlinechess.ChessApplication;
-import com.lukaswillsie.onlinechess.JoinGameActivity;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.game_display.ActiveGamesActivity;
 import com.lukaswillsie.onlinechess.activities.game_display.ArchivedGamesActivity;
@@ -14,7 +15,7 @@ import com.lukaswillsie.onlinechess.activities.game_display.ArchivedGamesActivit
  * MainActivity is the main screen of our app; the one with our title and a list of buttons allowing
  * the user to navigate our app.
  */
-public class MainActivity extends InteriorActivity {
+public class MainActivity extends AppCompatActivity implements ReconnectListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +26,7 @@ public class MainActivity extends InteriorActivity {
         // background and is now restarting it.
         if (((ChessApplication) getApplicationContext()).getGames() == null) {
             // Re-establish a connection with the server and re-login the user
-            new Reconnector(this).reconnect();
+            new Reconnector(this, this).reconnect();
         }
     }
 

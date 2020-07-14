@@ -1,6 +1,6 @@
 package com.lukaswillsie.onlinechess.network.helper.requesters;
 
-import com.lukaswillsie.onlinechess.data.Game;
+import com.lukaswillsie.onlinechess.data.UserGame;
 
 import java.util.List;
 
@@ -52,5 +52,5 @@ public interface LoginRequester extends Requester {
      * @param games - A list of objects representing every game that the logged-in user is a
      *              participant in
      */
-    void loginComplete(List<Game> games);
+    void loginComplete(List<UserGame> games);
 }
