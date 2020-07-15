@@ -39,6 +39,12 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
      */
     private Request activeRequest = Request.NONE;
 
+    /**
+     * If a "remember me" login attempt is active, stores the name of the user being logged in.
+     * Is null otherwise
+     */
+    String username;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,6 +91,7 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
             else {
                 try {
                     helper.login(this, savedData.get(RememberMeHelper.USERNAME_KEY), savedData.get(RememberMeHelper.PASSWORD_KEY));
+                    this.username = savedData.get(RememberMeHelper.USERNAME_KEY);
                     this.activeRequest = Request.LOGIN;
                 } catch (MultipleRequestException e) {
                     // This shouldn't happen. If it does, we log the problem and then move the user
@@ -194,7 +201,10 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
      */
     @Override
     public void loginComplete(List<UserGame> games) {
-        ((ChessApplication) this.getApplicationContext()).setGames(games);
+        ChessApplication application = (ChessApplication) this.getApplicationContext();
+        application.setGames(games);
+        application.login(username);
+        
         Toast.makeText(this, R.string.automatic_login_success, Toast.LENGTH_LONG).show();
         startActivity(new Intent(this, MainActivity.class));
     }

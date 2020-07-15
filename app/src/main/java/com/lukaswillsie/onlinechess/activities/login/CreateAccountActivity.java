@@ -72,6 +72,7 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
             // the user's username and password, globally in ChessApplication
             ChessApplication application = (ChessApplication) getApplicationContext();
             application.setGames(new ArrayList<UserGame>());
+            application.login(((EditText)findViewById(R.id.create_username)).getText().toString());
 
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
@@ -191,7 +192,7 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
      * the request to the server. Also closes the keyboard, deactivates the EditTexts, and changes
      * the colour of the "Create Account" button to indicate that the request is being processed.
      *
-     * @param view
+     * @param view - the view that was clicked
      */
     public void create(View view) {
         processCreateAccount();
