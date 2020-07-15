@@ -204,7 +204,7 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
         ChessApplication application = (ChessApplication) this.getApplicationContext();
         application.setGames(games);
         application.login(username);
-        
+
         Toast.makeText(this, R.string.automatic_login_success, Toast.LENGTH_LONG).show();
         startActivity(new Intent(this, MainActivity.class));
     }

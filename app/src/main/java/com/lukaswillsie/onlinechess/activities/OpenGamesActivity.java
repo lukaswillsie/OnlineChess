@@ -59,7 +59,6 @@ public class OpenGamesActivity extends ErrorDialogActivity implements OpenGamesR
     @Override
     public void openGames(List<Game> games) {
         ChessApplication application = (ChessApplication) getApplicationContext();
-        Log.i(tag, "USERNAME IS " + application.getUsername());
 
         // Remove all games that the current user is in from the list (we don't want to show them
         // games that they can't join)

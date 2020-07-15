@@ -118,8 +118,9 @@ public class RememberMeHelper {
         }
 
         Date now = new Date();
+        Log.i(tag, "Time diff: " + TimeUnit.DAYS.convert(date.getTime() - now.getTime(), TimeUnit.MILLISECONDS));
         // If the user's data was saved more than DAYS_TO_ELAPSE days ago, we erase it and return no data
-        if (TimeUnit.DAYS.convert(date.getTime() - now.getTime(), TimeUnit.MILLISECONDS) > DAYS_TO_ELAPSE) {
+        if (TimeUnit.DAYS.convert(now.getTime() - date.getTime(), TimeUnit.MILLISECONDS) > DAYS_TO_ELAPSE) {
             try {
                 // Opening the file with a FileOutputStream erases it
                 FileOutputStream stream = new FileOutputStream(this.savedUserFile);
