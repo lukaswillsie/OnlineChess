@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import com.lukaswillsie.onlinechess.network.helper.requesters.ArchiveRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.Connector;
 import com.lukaswillsie.onlinechess.network.helper.requesters.CreateAccountRequester;
+import com.lukaswillsie.onlinechess.network.helper.requesters.JoinGameRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.OpenGamesRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.RestoreRequester;
@@ -90,6 +91,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
     private ArchiveHelper archiveHelper;
     private RestoreHelper restoreHelper;
     private OpenGamesHelper openGamesHelper;
+    private JoinGameHelper joinGameHelper;
 
     /*
      * A list of all helpers delegated to by this object, so that they can all be notified at once
@@ -106,6 +108,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
         this.archiveHelper = new ArchiveHelper(this);
         this.restoreHelper = new RestoreHelper(this);
         this.openGamesHelper = new OpenGamesHelper(this);
+        this.joinGameHelper = new JoinGameHelper(this);
 
         this.helpers = new ArrayList<>();
         this.helpers.add(loginHelper);
@@ -113,6 +116,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
         this.helpers.add(archiveHelper);
         this.helpers.add(restoreHelper);
         this.helpers.add(openGamesHelper);
+        this.helpers.add(joinGameHelper);
     }
 
     /**
@@ -197,6 +201,19 @@ public class ServerHelper extends Handler implements ConnectCaller {
      */
     public void getOpenGames(OpenGamesRequester requester) throws MultipleRequestException {
         openGamesHelper.getOpenGames(requester);
+    }
+
+    /**
+     * Attempt to have the user join the game with the given gameID. requester will receive
+     * callbacks relating to the request
+     *
+     * @param requester - will receive callbacks as to the success or failure of the request
+     * @param gameID - the ID of the game to try and join
+     * @throws MultipleRequestException - thrown if another join game request is ongoing when this method
+     * is called
+     */
+    public void joinGame(JoinGameRequester requester, String gameID) throws MultipleRequestException {
+        joinGameHelper.joinGame(requester, gameID);
     }
 
     /**
