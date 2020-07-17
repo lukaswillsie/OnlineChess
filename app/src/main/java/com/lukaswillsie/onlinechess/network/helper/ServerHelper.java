@@ -57,7 +57,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
      * The IP address of the machine running the server. I'm using the below address because that's
      * my machine's local IP address on my network.
      */
-    private static final String HOSTNAME = "192.168.0.24";
+    private static final String HOSTNAME = "192.168.0.19";
     /*
      * The port that the server is supposed to be listening on
      */
@@ -209,11 +209,12 @@ public class ServerHelper extends Handler implements ConnectCaller {
      *
      * @param requester - will receive callbacks as to the success or failure of the request
      * @param gameID - the ID of the game to try and join
+     * @param username - the username of the user who is trying to join the given game
      * @throws MultipleRequestException - thrown if another join game request is ongoing when this method
      * is called
      */
-    public void joinGame(JoinGameRequester requester, String gameID) throws MultipleRequestException {
-        joinGameHelper.joinGame(requester, gameID);
+    public void joinGame(JoinGameRequester requester, String gameID, String username) throws MultipleRequestException {
+        joinGameHelper.joinGame(requester, gameID, username);
     }
 
     /**

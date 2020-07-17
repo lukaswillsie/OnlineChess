@@ -1,20 +1,20 @@
 package com.lukaswillsie.onlinechess.network.helper;
 
 import android.os.Message;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.lukaswillsie.onlinechess.network.ReturnCodes;
+import com.lukaswillsie.onlinechess.data.UserGame;
 import com.lukaswillsie.onlinechess.network.helper.requesters.JoinGameRequester;
+import com.lukaswillsie.onlinechess.network.threads.JoinGameThread;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 import com.lukaswillsie.onlinechess.network.threads.ReturnCodeThread;
-import com.lukaswillsie.onlinechess.network.threads.callers.ReturnCodeCaller;
+import com.lukaswillsie.onlinechess.network.threads.callers.JoinGameCaller;
 
 /**
  * This class interacts with JoinGameThread to process join game requests on behalf of ServerHelper.
  */
-public class JoinGameHelper extends SubHelper implements ReturnCodeCaller {
+public class JoinGameHelper extends SubHelper implements JoinGameCaller {
     /**
      * Tag used for logging to the console
      */
@@ -47,17 +47,18 @@ public class JoinGameHelper extends SubHelper implements ReturnCodeCaller {
      *
      * @param requester - will receive callbacks regarding the request
      * @param gameID - the ID of the game that we're trying to join
+     * @param username - the username of the user trying to join the given game
      * @throws MultipleRequestException - thrown if another join game request is already being
      * handled when this method is called
      */
-    void joinGame(JoinGameRequester requester, String gameID) throws MultipleRequestException {
+    void joinGame(JoinGameRequester requester, String gameID, String username) throws MultipleRequestException {
         if(this.requester != null) {
             throw new MultipleRequestException("Tried to make multiple requests of JoinGameHelper");
         }
 
         this.requester = requester;
 
-        ReturnCodeThread thread = new ReturnCodeThread(getRequest(gameID), this, getOut(), getIn());
+        JoinGameThread thread = new JoinGameThread(this, gameID, username, getOut(), getIn());
         thread.start();
     }
 
@@ -77,78 +78,11 @@ public class JoinGameHelper extends SubHelper implements ReturnCodeCaller {
     private static final int SERVER_ERROR = -3;
     private static final int SYSTEM_ERROR = -2;
     private static final int CONNECTION_LOST = -1;
-    private static final int SUCCESS = 0;
+    private static final int GAME_JOINED = 0;
     private static final int GAME_DOES_NOT_EXIST = 1;
     private static final int GAME_FULL = 2;
     private static final int USER_ALREADY_IN_GAME = 3;
-
-    /**
-     * Called by ReturnCodeThread once the server has responded to our request
-     *
-     * @param code - the code returned by the server
-     */
-    @Override
-    public void onServerReturn(int code) {
-        switch (code) {
-            case ReturnCodes.FORMAT_INVALID:
-                Log.i(tag, "Server says our request was invalidly formatted. Couldn't join game \"" + gameID + "\"");
-
-                // Because our requests should conform strictly to protocol, we treat this as an
-                // error server-side
-                this.obtainMessage(SERVER_ERROR).sendToTarget();
-                break;
-            case ReturnCodes.NO_USER:
-                // This should never happen, we should never allow a user who hasn't logged in to
-                // make a request like this. But we handle this case as a server error and log the
-                // issue for debugging
-                Log.i(tag, "Server says we don't have a user logged in. Couldn't join game \"" + gameID + "\"");
-
-                this.obtainMessage(SERVER_ERROR).sendToTarget();
-                break;
-            case ReturnCodes.SERVER_ERROR:
-                Log.i(tag, "Server says it encountered an error. Couldn't join game \"" + gameID + "\"");
-
-                this.obtainMessage(SERVER_ERROR).sendToTarget();
-                break;
-            case ReturnCodes.JoinGame.SUCCESS:
-                Log.i(tag, "Server says we successfully joined game \"" + gameID + "\"");
-
-                this.obtainMessage(SUCCESS).sendToTarget();
-                break;
-            case ReturnCodes.JoinGame.GAME_DOES_NOT_EXIST:
-                Log.i(tag, "Server says game \"" + gameID + "\" doesn't exist.");
-
-                this.obtainMessage(GAME_DOES_NOT_EXIST).sendToTarget();
-                break;
-            case ReturnCodes.JoinGame.GAME_FULL:
-                Log.i(tag, "Server says game \"" + gameID + "\" is already full.");
-
-                this.obtainMessage(GAME_FULL).sendToTarget();
-                break;
-            case ReturnCodes.JoinGame.USER_ALREADY_IN_GAME:
-                Log.i(tag, "Server says the user is already in game \"" + gameID + "\"");
-
-                this.obtainMessage(USER_ALREADY_IN_GAME).sendToTarget();
-                break;
-        }
-    }
-
-    /**
-     * Called by ReturnCodeThread if it encounters a system error while processing our request
-     */
-    @Override
-    public void systemError() {
-        this.obtainMessage(SYSTEM_ERROR).sendToTarget();
-    }
-
-    /**
-     * Called by ReturnCodeThread if it discovers our connection to the server has been lost while
-     * processing our request
-     */
-    @Override
-    public void connectionLost() {
-        this.obtainMessage(CONNECTION_LOST).sendToTarget();
-    }
+    private static final int JOIN_GAME_COMPLETE = 4;
 
     /**
      * JoinGameHelpers use this method to send Messages to themselves. We do this because
@@ -181,11 +115,11 @@ public class JoinGameHelper extends SubHelper implements ReturnCodeCaller {
                 // Allows us to accept another request
                 this.requester = null;
                 break;
-            case SUCCESS:
-                requester.success();
+            case GAME_JOINED:
+                requester.gameJoined();
 
-                // Allows us to accept another request
-                this.requester = null;
+                // We don't reset requester here because there is another callback to come;
+                // joinGameComplete() will be called once our request is fully over
                 break;
             case GAME_DOES_NOT_EXIST:
                 requester.gameDoesNotExist();
@@ -200,11 +134,64 @@ public class JoinGameHelper extends SubHelper implements ReturnCodeCaller {
                 this.requester = null;
                 break;
             case USER_ALREADY_IN_GAME:
-                requester.userInGame();
+                requester.userAlreadyInGame();
+
+                // Allows us to accept another request
+                this.requester = null;
+                break;
+            case JOIN_GAME_COMPLETE:
+                requester.joinGameComplete((UserGame)msg.obj);
 
                 // Allows us to accept another request
                 this.requester = null;
                 break;
         }
+    }
+
+    /**
+     * Called by ReturnCodeThread if it encounters a system error while processing our request
+     */
+    @Override
+    public void systemError() {
+        this.obtainMessage(SYSTEM_ERROR).sendToTarget();
+    }
+
+    /**
+     * Called by ReturnCodeThread if it discovers our connection to the server has been lost while
+     * processing our request
+     */
+    @Override
+    public void connectionLost() {
+        this.obtainMessage(CONNECTION_LOST).sendToTarget();
+    }
+
+    @Override
+    public void serverError() {
+        this.obtainMessage(SERVER_ERROR).sendToTarget();
+    }
+
+    @Override
+    public void gameJoined() {
+        this.obtainMessage(GAME_JOINED).sendToTarget();
+    }
+
+    @Override
+    public void gameDoesNotExist() {
+        this.obtainMessage(GAME_DOES_NOT_EXIST).sendToTarget();
+    }
+
+    @Override
+    public void gameFull() {
+        this.obtainMessage(GAME_FULL).sendToTarget();
+    }
+
+    @Override
+    public void userAlreadyInGame() {
+        this.obtainMessage(USER_ALREADY_IN_GAME).sendToTarget();
+    }
+
+    @Override
+    public void joinGameComplete(UserGame game) {
+        this.obtainMessage(JOIN_GAME_COMPLETE, game).sendToTarget();
     }
 }

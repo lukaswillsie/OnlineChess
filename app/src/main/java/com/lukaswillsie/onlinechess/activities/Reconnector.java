@@ -56,6 +56,7 @@ public class Reconnector implements Connector, LoginRequester {
      * Tag for logging to the console
      */
     private static final String tag = "Reconnector";
+
     /*
      * The activity that this class is doing its work for.
      */
