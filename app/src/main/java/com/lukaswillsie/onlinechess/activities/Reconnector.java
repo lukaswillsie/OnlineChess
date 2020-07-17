@@ -57,6 +57,12 @@ public class Reconnector implements Connector, LoginRequester {
      */
     private static final String tag = "Reconnector";
 
+    /**
+     * Tracks the username of the user currently being logged in, if there is an active login
+     * request. Otherwise, is null.
+     */
+    private String username;
+
     /*
      * The activity that this class is doing its work for.
      */
@@ -167,6 +173,7 @@ public class Reconnector implements Connector, LoginRequester {
                     // by moving to LoginActivity
                     if (username != null) {
                         helper.login(this, username, password);
+                        this.username = username;
                         this.state = ReconnectState.LOGGING_IN;
                     } else {
                         Intent intent = new Intent(activity, LoginActivity.class);
@@ -237,6 +244,7 @@ public class Reconnector implements Connector, LoginRequester {
     public void usernameInvalid() {
         if (this.state == ReconnectState.LOGGING_IN) {
             Display.makeToast(activity.getApplicationContext(), "You need to log in again", Toast.LENGTH_LONG);
+            this.username = null;
             Intent intent = new Intent(activity, LoginActivity.class);
             activity.startActivity(intent);
         }
@@ -253,6 +261,7 @@ public class Reconnector implements Connector, LoginRequester {
     public void passwordInvalid() {
         if (this.state == ReconnectState.LOGGING_IN) {
             Display.makeToast(activity.getApplicationContext(), "You need to log in again", Toast.LENGTH_LONG);
+            this.username = null;
             Intent intent = new Intent(activity, LoginActivity.class);
             activity.startActivity(intent);
         }
@@ -273,6 +282,8 @@ public class Reconnector implements Connector, LoginRequester {
 
             this.state = ReconnectState.NOT_ACTIVE;
             ((ChessApplication) activity.getApplicationContext()).setGames(games);
+            ((ChessApplication) activity.getApplicationContext()).login(username);
+            this.username = null;
 
             listener.reconnectionComplete();
         }
@@ -289,6 +300,7 @@ public class Reconnector implements Connector, LoginRequester {
             this.activeDialog = null;
 
             this.state = ReconnectState.NOT_ACTIVE;
+            this.username = null;
 
             showConnectionLostDialog();
         }
@@ -306,6 +318,7 @@ public class Reconnector implements Connector, LoginRequester {
             this.activeDialog = null;
 
             this.state = ReconnectState.NOT_ACTIVE;
+            this.username = null;
 
             showServerErrorDialog();
         }
@@ -322,6 +335,7 @@ public class Reconnector implements Connector, LoginRequester {
             this.activeDialog = null;
 
             this.state = ReconnectState.NOT_ACTIVE;
+            this.username = null;
 
             showSystemErrorDialog();
         }
