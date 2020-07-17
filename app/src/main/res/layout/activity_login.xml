@@ -84,7 +84,6 @@
                     android:id="@+id/login_progress"
                     android:visibility="gone"
                     android:indeterminate="true"
-                    android:indeterminateTint="@android:color/white"
                     android:paddingVertical="5dp"
                     app:layout_constraintEnd_toStartOf="@id/login_button_text"
                     app:layout_constraintTop_toTopOf="parent"

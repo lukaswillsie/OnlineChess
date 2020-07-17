@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,6 +17,7 @@ import androidx.cardview.widget.CardView;
 
 import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
+import com.lukaswillsie.onlinechess.activities.Display;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogActivity;
 import com.lukaswillsie.onlinechess.activities.MainActivity;
 import com.lukaswillsie.onlinechess.activities.load.LoadActivity;
@@ -37,6 +39,15 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        // Change the colour of the ProgressBar hidden in one of our buttons. We do this
+        // programmatically because the only way to do it in XML requires API 21. This code courtesy
+        // of Zeyad Assem on Stack Overflow, from the following post:
+        // https://stackoverflow.com/questions/2638161/how-to-change-android-indeterminate-progressbar-color
+        ProgressBar progressBar = findViewById(R.id.login_progress);
+        progressBar.getIndeterminateDrawable().setColorFilter(
+                getResources().getColor(R.color.white),
+                android.graphics.PorterDuff.Mode.SRC_IN);
 
         this.state = State.WAITING_FOR_USER_INPUT;
 
@@ -177,14 +188,14 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
                     // Only other return code, 1, means there was an error
                     else {
                         Log.e(tag, "There was an error in RememberMeHelper.saveUser(). Login data couldn't be saved.");
-                        Toast.makeText(this, R.string.remember_me_failure, Toast.LENGTH_LONG).show();
+                        Display.makeToast(this, R.string.remember_me_failure, Toast.LENGTH_LONG);
                     }
                 }
             } catch (IOException e) {
                 // In the event of an exception, we have no choice but to log the error and
                 // display an apologetic Toast
                 Log.e(tag, "IOException occurred. Couldn't save user data as part of 'Remember Me' feature");
-                Toast.makeText(this, R.string.remember_me_failure, Toast.LENGTH_LONG).show();
+                Display.makeToast(this, R.string.remember_me_failure, Toast.LENGTH_LONG);
             }
 
             this.state = State.LOADING;

@@ -14,4 +14,6 @@
     <color name="user_win">#34D72F</color>
     <color name="user_lose">#E6391B</color>
     <color name="drawn">@android:color/black</color>
+    <color name="white">@android:color/white</color>
+    <color name="black">@android:color/black</color>
 </resources>

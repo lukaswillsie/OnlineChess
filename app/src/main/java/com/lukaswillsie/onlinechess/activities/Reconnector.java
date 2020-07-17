@@ -235,7 +235,7 @@ public class Reconnector implements Connector, LoginRequester {
     @Override
     public void usernameInvalid() {
         if (this.state == ReconnectState.LOGGING_IN) {
-            Toast.makeText(activity.getApplicationContext(), "You need to log in again", Toast.LENGTH_LONG).show();
+            Display.makeToast(activity.getApplicationContext(), "You need to log in again", Toast.LENGTH_LONG);
             Intent intent = new Intent(activity, LoginActivity.class);
             activity.startActivity(intent);
         }
@@ -251,7 +251,7 @@ public class Reconnector implements Connector, LoginRequester {
     @Override
     public void passwordInvalid() {
         if (this.state == ReconnectState.LOGGING_IN) {
-            Toast.makeText(activity.getApplicationContext(), "You need to log in again", Toast.LENGTH_LONG).show();
+            Display.makeToast(activity.getApplicationContext(), "You need to log in again", Toast.LENGTH_LONG);
             Intent intent = new Intent(activity, LoginActivity.class);
             activity.startActivity(intent);
         }

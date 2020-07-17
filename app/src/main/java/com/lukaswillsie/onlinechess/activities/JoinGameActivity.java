@@ -3,6 +3,7 @@ package com.lukaswillsie.onlinechess.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ProgressBar;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +20,11 @@ public class JoinGameActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join_game);
+    }
+
+    public void joinGame(View view) {
+        findViewById(R.id.join_game_progress).setVisibility(View.VISIBLE);
+        findViewById(R.id.join_button_text).setVisibility(View.INVISIBLE);
     }
 
     /**

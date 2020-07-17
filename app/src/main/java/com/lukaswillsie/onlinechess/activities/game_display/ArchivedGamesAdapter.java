@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
+import com.lukaswillsie.onlinechess.activities.Display;
 import com.lukaswillsie.onlinechess.activities.ReconnectListener;
 import com.lukaswillsie.onlinechess.activities.Reconnector;
 import com.lukaswillsie.onlinechess.data.GameData;
@@ -116,7 +117,7 @@ public class ArchivedGamesAdapter extends GamesAdapter {
          */
         @Override
         public void restoreSuccessful() {
-            Toast.makeText(context, "Your game was restored successfully", Toast.LENGTH_SHORT).show();
+            Display.makeToast(context, "Your game was restored successfully", Toast.LENGTH_SHORT);
 
             int pos = getGames().indexOf(game);
             getGames().remove(game);
@@ -133,7 +134,7 @@ public class ArchivedGamesAdapter extends GamesAdapter {
          */
         @Override
         public void connectionLost() {
-            Toast.makeText(context, "We lost our connection to the server and couldn't restore your game", Toast.LENGTH_LONG).show();
+            Display.makeToast(context, "We lost our connection to the server and couldn't restore your game", Toast.LENGTH_LONG);
             // The cast to InteriorActivity below is fine, because we force activity to be an
             // InteriorActivity in our constructor
             new Reconnector(listener, (AppCompatActivity) context).reconnect();
@@ -146,7 +147,7 @@ public class ArchivedGamesAdapter extends GamesAdapter {
          */
         @Override
         public void serverError() {
-            Toast.makeText(context, "The server encountered an unexpected error and your game may not have been restored", Toast.LENGTH_LONG).show();
+            Display.makeToast(context, "The server encountered an unexpected error and your game may not have been restored", Toast.LENGTH_LONG);
         }
 
         /**
@@ -156,7 +157,7 @@ public class ArchivedGamesAdapter extends GamesAdapter {
          */
         @Override
         public void systemError() {
-            Toast.makeText(context, "We encountered an unexpected error and your game may not have been restored", Toast.LENGTH_LONG).show();
+            Display.makeToast(context, "We encountered an unexpected error and your game may not have been restored", Toast.LENGTH_LONG);
         }
     }
 }

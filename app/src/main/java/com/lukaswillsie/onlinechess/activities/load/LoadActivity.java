@@ -10,6 +10,7 @@ import androidx.fragment.app.DialogFragment;
 
 import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
+import com.lukaswillsie.onlinechess.activities.Display;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogFragment;
 import com.lukaswillsie.onlinechess.activities.MainActivity;
 import com.lukaswillsie.onlinechess.activities.login.LoginActivity;
@@ -97,7 +98,7 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
                     // This shouldn't happen. If it does, we log the problem and then move the user
                     // to the login page, after creating an apologetic Toast
                     Log.e(tag, "Submitted multiple requests to ServerHelper");
-                    Toast.makeText(this, R.string.automatic_login_failure, Toast.LENGTH_LONG).show();
+                    Display.makeToast(this, R.string.automatic_login_failure, Toast.LENGTH_LONG);
 
                     startActivity(new Intent(this, LoginActivity.class));
                 }
@@ -153,7 +154,7 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
             this.connectionFailed();
         } else if (this.activeRequest == Request.LOGIN) {
             // Display an apologetic Toast and move the user to the login screen
-            Toast.makeText(this, R.string.automatic_login_failure, Toast.LENGTH_LONG).show();
+            Display.makeToast(this, R.string.automatic_login_failure, Toast.LENGTH_LONG);
 
             startActivity(new Intent(this, LoginActivity.class));
         }
@@ -179,7 +180,7 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
      */
     @Override
     public void usernameInvalid() {
-        Toast.makeText(this, R.string.automatic_login_failure, Toast.LENGTH_LONG).show();
+        Display.makeToast(this, R.string.automatic_login_failure, Toast.LENGTH_LONG);
         startActivity(new Intent(this, LoginActivity.class));
     }
 
@@ -189,7 +190,7 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
      */
     @Override
     public void passwordInvalid() {
-        Toast.makeText(this, R.string.automatic_login_failure, Toast.LENGTH_LONG).show();
+        Display.makeToast(this, R.string.automatic_login_failure, Toast.LENGTH_LONG);
         startActivity(new Intent(this, LoginActivity.class));
     }
 
@@ -205,7 +206,7 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
         application.setGames(games);
         application.login(username);
 
-        Toast.makeText(this, R.string.automatic_login_success, Toast.LENGTH_LONG).show();
+        Display.makeToast(this, R.string.automatic_login_success, Toast.LENGTH_LONG);
         startActivity(new Intent(this, MainActivity.class));
     }
 
@@ -224,7 +225,7 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
     @Override
     public void serverError() {
         // Tell the user we couldn't log them in automatically and move to the manual login screen
-        Toast.makeText(this, R.string.automatic_login_failure, Toast.LENGTH_LONG).show();
+        Display.makeToast(this, R.string.automatic_login_failure, Toast.LENGTH_LONG);
 
         startActivity(new Intent(this, LoginActivity.class));
     }
