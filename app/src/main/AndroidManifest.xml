@@ -14,7 +14,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.game_display.OpenGamesActivity"></activity>
+        <activity android:name=".CreateGameActivity"></activity>
+        <activity android:name=".activities.game_display.OpenGamesActivity" />
         <activity android:name=".activities.JoinGameActivity" />
         <activity android:name=".activities.game_display.ArchivedGamesActivity" />
         <activity android:name=".activities.game_display.ActiveGamesActivity" />

@@ -73,4 +73,8 @@
 
     <!-- Open Games Screen-->
     <string name="open_games_title">Open Games</string>
+
+    <!-- Create Game Screen-->
+    <string name="create_game_title">Create a Game</string>
+    <string name="open_checkbox_prompt">Allow anyone to join this game</string>
 </resources>

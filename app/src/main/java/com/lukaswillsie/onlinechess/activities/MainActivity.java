@@ -7,6 +7,7 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.lukaswillsie.onlinechess.ChessApplication;
+import com.lukaswillsie.onlinechess.CreateGameActivity;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.game_display.ActiveGamesActivity;
 import com.lukaswillsie.onlinechess.activities.game_display.ArchivedGamesActivity;
@@ -28,6 +29,15 @@ public class MainActivity extends AppCompatActivity implements ReconnectListener
             // Re-establish a connection with the server and re-login the user
             new Reconnector(this, this).reconnect();
         }
+    }
+
+    /**
+     * Onclick event for the "Create Game" button
+     *
+     * @param view - the View that was clicked
+     */
+    public void createGame(View view) {
+        startActivity(new Intent(this, CreateGameActivity.class));
     }
 
     /**
