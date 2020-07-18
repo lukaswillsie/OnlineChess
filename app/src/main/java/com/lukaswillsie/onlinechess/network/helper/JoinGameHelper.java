@@ -21,12 +21,6 @@ public class JoinGameHelper extends SubHelper implements JoinGameCaller {
     private static final String tag = "JoinGameHelper";
 
     /**
-     * If we are actively handling a request, this holds the name of the game we are tring to join.
-     * Otherwise, is null
-     */
-    private String gameID;
-
-    /**
      * Keeps a reference to the object that made the currently active request, so we can give them
      * callbacks
      */
