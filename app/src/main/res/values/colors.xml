@@ -16,4 +16,5 @@
     <color name="drawn">@android:color/black</color>
     <color name="white">@android:color/white</color>
     <color name="black">@android:color/black</color>
+    <color name="join_game_successful">#50DA29</color>
 </resources>

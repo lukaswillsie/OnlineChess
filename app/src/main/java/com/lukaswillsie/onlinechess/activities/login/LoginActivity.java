@@ -19,6 +19,7 @@ import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.Display;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogActivity;
+import com.lukaswillsie.onlinechess.data.Format;
 import com.lukaswillsie.onlinechess.activities.MainActivity;
 import com.lukaswillsie.onlinechess.activities.load.LoadActivity;
 import com.lukaswillsie.onlinechess.data.RememberMeHelper;

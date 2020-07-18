@@ -15,6 +15,7 @@ import androidx.cardview.widget.CardView;
 import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogActivity;
+import com.lukaswillsie.onlinechess.data.Format;
 import com.lukaswillsie.onlinechess.activities.MainActivity;
 import com.lukaswillsie.onlinechess.data.UserGame;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;

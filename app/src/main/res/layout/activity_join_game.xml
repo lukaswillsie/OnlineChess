@@ -19,18 +19,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/join_button"
+        app:layout_constraintBottom_toTopOf="@id/join_card"
         style="@style/TitleStyle"/>
 
     <EditText
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:id="@+id/join_game_input"
         android:inputType="text"
         android:hint="@string/enter_gameID_hint"
         app:layout_constraintStart_toStartOf="@id/leftGuideline"
-        app:layout_constraintEnd_toStartOf="@id/join_button"
-        app:layout_constraintTop_toTopOf="@id/join_button"
-        app:layout_constraintBottom_toBottomOf="@id/join_button"
+        app:layout_constraintEnd_toStartOf="@id/join_card"
+        app:layout_constraintTop_toTopOf="@id/join_card"
+        app:layout_constraintBottom_toBottomOf="@id/join_card"
         android:layout_marginRight="10dp"
         style="@style/EditTextStyle"
         android:layout_marginEnd="10dp" />
@@ -38,7 +39,7 @@
     <androidx.cardview.widget.CardView
         android:layout_width="wrap_content"
         android:layout_height="40dp"
-        android:id="@+id/join_button"
+        android:id="@+id/join_card"
         app:layout_constraintEnd_toEndOf="@id/rightGuideline"
         app:layout_constraintBottom_toTopOf="@id/or"
         android:layout_marginBottom="10dp"
@@ -48,6 +49,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:id="@+id/join_layout"
             android:onClick="joinGame"
             android:background="@drawable/join_game_button_selector">
 

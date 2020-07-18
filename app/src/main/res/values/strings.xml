@@ -41,6 +41,7 @@
     <string name="connecting_dialog_text">Connecting…</string>
     <string name="logging_in_dialog_text">Logging in…</string>
     <string name="loading_dialog_text">Loading…</string>
+    <string name="ok_dialog_button">OK</string>
 
     <!--Active Games Screen-->
     <string name="active_games_title">Your Active Games</string>
@@ -64,6 +65,11 @@
     <string name="join_game_button_text">JOIN</string>
     <string name="or">OR</string>
     <string name="open_games_button_text">View open games</string>
+    <string name="invalid_gameID_format">Game IDs must be non-empty and cannot contain commas</string>
+    <string name="game_does_not_exist_dialog_text">There is no game with that ID in the system!</string>
+    <string name="user_already_in_game_dialog_text">You\'ve already joined that game!</string>
+    <string name="game_full_dialog_text">That game already has two players!</string>
+    <string name="game_joined_text">You successfully joined game %1$s!</string>
 
     <!-- Open Games Screen-->
     <string name="open_games_title">Open Games</string>

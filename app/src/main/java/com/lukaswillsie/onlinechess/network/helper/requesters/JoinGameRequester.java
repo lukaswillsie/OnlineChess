@@ -13,7 +13,8 @@ import com.lukaswillsie.onlinechess.data.UserGame;
  */
 public interface JoinGameRequester extends Requester {
     /**
-     * Called if the join game request is met with success.
+     * Called if the server says we successfully joined the specified game
+     *
      * NOTE: This does NOT indicate the end of the request; the data associated with the game that
      * was joined still needs to be received from the server. This is just a stop on the way.
      */
