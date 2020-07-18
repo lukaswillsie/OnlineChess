@@ -1,4 +1,4 @@
-package com.lukaswillsie.onlinechess.activities;
+package com.lukaswillsie.onlinechess.activities.game_display;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,6 +9,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
+import com.lukaswillsie.onlinechess.activities.ErrorDialogActivity;
+import com.lukaswillsie.onlinechess.activities.JoinGameActivity;
+import com.lukaswillsie.onlinechess.activities.OpenGamesAdapter;
+import com.lukaswillsie.onlinechess.activities.ReconnectListener;
+import com.lukaswillsie.onlinechess.activities.Reconnector;
 import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.ServerData;
 import com.lukaswillsie.onlinechess.network.helper.requesters.OpenGamesRequester;
@@ -75,7 +80,7 @@ public class OpenGamesActivity extends ErrorDialogActivity implements OpenGamesR
 
         RecyclerView recyclerView = findViewById(R.id.games_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new OpenGamesAdapter(games));
+        recyclerView.setAdapter(new OpenGamesAdapter(this, games, this));
     }
 
     /**

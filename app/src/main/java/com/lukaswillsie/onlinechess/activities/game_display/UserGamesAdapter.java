@@ -25,7 +25,7 @@ import java.util.List;
  * class does not do anything with the ImageView in the top-right corner of game_card_layout. It
  * simply fills in and styles the TextViews and background of the card.
  */
-public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHolder> {
+public class UserGamesAdapter extends RecyclerView.Adapter<UserGamesAdapter.GameViewHolder> {
     /**
      * The Context that this object will use to access app resources.
      */
@@ -37,13 +37,13 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
     private List<UserGame> games;
 
     /**
-     * Create a new GamesAdapter with the information it needs to run
+     * Create a new UserGamesAdapter with the information it needs to run
      *
-     * @param games   - the list of games this GamesAdapter will be responsible for
+     * @param games   - the list of games this UserGamesAdapter will be responsible for
      * @param context - the Context this object is working for; will be used to access app
      *                resources.
      */
-    public GamesAdapter(Context context, List<UserGame> games) {
+    public UserGamesAdapter(Context context, List<UserGame> games) {
         this.games = games;
         this.context = context;
     }
@@ -156,6 +156,16 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GameViewHold
      */
     protected void setIconListener(GameViewHolder holder, View.OnClickListener listener) {
         holder.archive.setOnClickListener(listener);
+    }
+
+    /**
+     * Applies an OnClickListener to the whole card being wrapped by the given GameViewHolder
+     *
+     * @param holder - the GameViewHolder wrapping the card that we'll apply the listener to
+     * @param listener - the listener to be applied
+     */
+    protected void setCardListener(GameViewHolder holder, View.OnClickListener listener) {
+        holder.card.setOnClickListener(listener);
     }
 
     /**

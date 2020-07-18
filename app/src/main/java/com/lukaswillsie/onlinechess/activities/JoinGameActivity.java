@@ -16,6 +16,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
+import com.lukaswillsie.onlinechess.activities.game_display.OpenGamesActivity;
 import com.lukaswillsie.onlinechess.data.Format;
 import com.lukaswillsie.onlinechess.data.UserGame;
 import com.lukaswillsie.onlinechess.network.helper.requesters.JoinGameRequester;

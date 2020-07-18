@@ -46,7 +46,7 @@ be difficult to get the gist of the design except by sifting through Java code,
 which is much worse than briefly uncommenting this preview.
 
 Plus, it's a lot easier to pilot changes to the design here than it is to change
-the code for GamesAdapter and have to start up the emulator. -->
+the code for UserGamesAdapter and have to start up the emulator. -->
 
 <!--        <LinearLayout-->
 <!--            android:layout_width="0dp"-->

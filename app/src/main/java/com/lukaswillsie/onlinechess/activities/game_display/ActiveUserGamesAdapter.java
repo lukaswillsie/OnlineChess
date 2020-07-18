@@ -1,11 +1,6 @@
 package com.lukaswillsie.onlinechess.activities.game_display;
 
-import android.graphics.ColorFilter;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.PorterDuff;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -24,10 +19,10 @@ import java.util.List;
 
 /**
  * This class adapts a list of active games for a RecyclerView. Because the games are active, we
- * need a way for the user to archive them, if desired. GamesAdapter takes care of most of the
+ * need a way for the user to archive them, if desired. UserGamesAdapter takes care of most of the
  * adapting work, this class just provides the logic necessary for the archiving feature.
  */
-public class ActiveGamesAdapter extends GamesAdapter {
+public class ActiveUserGamesAdapter extends UserGamesAdapter {
     /**
      * This class provides ArchiveListener objects that will attach to each game and attempt to
      * issue archive requests when the user clicks the archive button. If the archive request fails
@@ -38,7 +33,7 @@ public class ActiveGamesAdapter extends GamesAdapter {
     private ReconnectListener listener;
 
     /**
-     * Create a new ActiveGamesAdapter. The given activity will be used for UI operations, in the
+     * Create a new ActiveUserGamesAdapter. The given activity will be used for UI operations, in the
      * event that an archive request fails and error dialogs need to be shown. If an archive request
      * initiated by this object fails due to a loss of connection, it will initiate a reconnection
      * attempt. The given listener will receive a callback when this attempt completes, so that the
@@ -50,7 +45,7 @@ public class ActiveGamesAdapter extends GamesAdapter {
      * @param listener - will receive callbacks regarding any reconnection attempts initiated by
      *                 this object
      */
-    public ActiveGamesAdapter(AppCompatActivity activity, List<UserGame> games, ReconnectListener listener) {
+    public ActiveUserGamesAdapter(AppCompatActivity activity, List<UserGame> games, ReconnectListener listener) {
         super(activity, games);
         this.listener = listener;
     }
@@ -122,7 +117,7 @@ public class ActiveGamesAdapter extends GamesAdapter {
         @Override
         public void onClick(View view) {
             // Send the server an archive request
-            ((ChessApplication) view.getContext().getApplicationContext()).getServerHelper().archive((String) game.getData(GameData.GAMEID), this);
+            ((ChessApplication) context.getApplicationContext()).getServerHelper().archive((String) game.getData(GameData.GAMEID), this);
         }
 
         /**
@@ -148,8 +143,8 @@ public class ActiveGamesAdapter extends GamesAdapter {
         @Override
         public void connectionLost() {
             Display.makeToast(context, "We lost our connection to the server and couldn't archive your game", Toast.LENGTH_LONG);
-            // The cast to InteriorActivity below is fine, because we force activity to be an
-            // InteriorActivity in our constructor
+            // The cast to AppCompatActivity below is fine, because we force our context to be an
+            // AppCompatActivity in our constructor
             new Reconnector(listener, (AppCompatActivity) context).reconnect();
         }
 

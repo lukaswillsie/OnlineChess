@@ -20,26 +20,26 @@ import java.util.List;
 /**
  * This class adapts a list of archived Game objects to be displayed in a RecyclerView. We allow the
  * user to restore, or "un-archive", games that they have archived, so this class provides code for
- * doing that. GamesAdapter, the superclass, provides all the code for inflating each Game's layout,
+ * doing that. UserGamesAdapter, the superclass, provides all the code for inflating each Game's layout,
  * binding each Game to a view, and styling the view appropriately.
  */
-public class ArchivedGamesAdapter extends GamesAdapter {
+public class ArchivedUserGamesAdapter extends UserGamesAdapter {
     /**
      * Will receive callbacks relating to a reconnection attempt initiated by this object
      */
     private ReconnectListener listener;
 
     /**
-     * Create a new GamesAdapter with the information it needs to run
+     * Create a new UserGamesAdapter with the information it needs to run
      *
-     * @param games    - the list of games this GamesAdapter will be responsible for
+     * @param games    - the list of games this UserGamesAdapter will be responsible for
      * @param activity - the Activity for which this object is doing its work; will be used for UI
      *                 operations, like displaying Toasts. We force this activity to be an
      *                 InteriorActivity because restoring games requires a network request, and we
      *                 need the activity to be able to handle a reconnection attempt if the network
      *                 request fails due to a loss of connection.
      */
-    public ArchivedGamesAdapter(AppCompatActivity activity, List<UserGame> games, ReconnectListener listener) {
+    public ArchivedUserGamesAdapter(AppCompatActivity activity, List<UserGame> games, ReconnectListener listener) {
         super(activity, games);
         this.listener = listener;
     }

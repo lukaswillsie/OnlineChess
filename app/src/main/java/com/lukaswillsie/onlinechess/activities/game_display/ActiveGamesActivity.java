@@ -38,7 +38,7 @@ public class ActiveGamesActivity extends AppCompatActivity implements ReconnectL
             // Set up our RecyclerView to display a list of the user's archived games
             RecyclerView recyclerView = findViewById(R.id.games_recycler);
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            recyclerView.setAdapter(new ActiveGamesAdapter(this, getGames(), this));
+            recyclerView.setAdapter(new ActiveUserGamesAdapter(this, getGames(), this));
         }
     }
 
@@ -51,7 +51,7 @@ public class ActiveGamesActivity extends AppCompatActivity implements ReconnectL
     public void reconnectionComplete() {
         RecyclerView recyclerView = findViewById(R.id.games_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new ActiveGamesAdapter(this, getGames(), this));
+        recyclerView.setAdapter(new ActiveUserGamesAdapter(this, getGames(), this));
     }
 
     /**

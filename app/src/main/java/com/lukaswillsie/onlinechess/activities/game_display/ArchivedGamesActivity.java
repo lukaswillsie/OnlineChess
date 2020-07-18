@@ -39,7 +39,7 @@ public class ArchivedGamesActivity extends AppCompatActivity implements Reconnec
             // Set up our RecyclerView to display a list of the user's archived games
             RecyclerView recyclerView = findViewById(R.id.games_recycler);
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            recyclerView.setAdapter(new ArchivedGamesAdapter(this, getGames(), this));
+            recyclerView.setAdapter(new ArchivedUserGamesAdapter(this, getGames(), this));
         }
     }
 
@@ -116,6 +116,6 @@ public class ArchivedGamesActivity extends AppCompatActivity implements Reconnec
         // Set up our RecyclerView to display a list of the user's archived games
         RecyclerView recyclerView = findViewById(R.id.games_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new ArchivedGamesAdapter(this, getGames(), this));
+        recyclerView.setAdapter(new ArchivedUserGamesAdapter(this, getGames(), this));
     }
 }
