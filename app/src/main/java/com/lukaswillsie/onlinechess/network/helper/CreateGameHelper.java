@@ -2,6 +2,7 @@ package com.lukaswillsie.onlinechess.network.helper;
 
 import android.os.Message;
 import android.util.Log;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 
@@ -55,15 +56,15 @@ public class CreateGameHelper extends SubHelper implements ReturnCodeCaller {
     /**
      * Will send a request to the server to try and create a game with the given ID and open status
      *
+     * @param requester - the object that will receive callbacks relevant to the request
      * @param gameID - the ID of the game to be created
      * @param open - a boolean representing whether or not the game to be created should be "open",
      *             meaning that anybody can view and join it
      * @param username - the username of the user trying to create the game
-     * @param requester - the object that will receive callbacks relevant to the request
      * @throws MultipleRequestException - if this object is already handling another createGame
      * request when this method is called
      */
-    void createGame(String gameID, boolean open, String username, CreateGameRequester requester) throws MultipleRequestException {
+    void createGame(CreateGameRequester requester, String gameID, boolean open, String username) throws MultipleRequestException {
         if(this.requester != null) {
             throw new MultipleRequestException("Tried to make multiple requests of CreateGameHelper");
         }
@@ -125,12 +126,25 @@ public class CreateGameHelper extends SubHelper implements ReturnCodeCaller {
                 UserGame game = new UserGame(username);
                 List<Object> initialData = new ArrayList<>();
                 for(ServerData data : ServerData.order) {
-                    initialData.add(data.initial);
+                    if(data == ServerData.WHITE) {
+                        initialData.add(username);
+                    }
+                    else if (data == ServerData.GAMEID) {
+                        initialData.add(gameID);
+                    }
+                    else {
+                        initialData.add(data.initial);
+                    }
                 }
 
-                game.initialize(initialData);
-
-                msg = this.obtainMessage(SUCCESS, game);
+                int result = game.initialize(initialData);
+                if(result == 1) {
+                    Log.e(tag, "Error initializing a UserGame with the data sent by server");
+                    msg = this.obtainMessage(SERVER_ERROR);
+                }
+                else {
+                    msg = this.obtainMessage(SUCCESS, game);
+                }
                 break;
             case ReturnCodes.CreateGame.GAMEID_IN_USE:
                 Log.i(tag, "Server says gameID \"" + gameID + "\" is in use");
@@ -221,7 +235,7 @@ public class CreateGameHelper extends SubHelper implements ReturnCodeCaller {
                 this.requester = null;
                 break;
             case GAMEID_IN_USE:
-                requester.gameExists();
+                requester.gameIDInUse();
 
                 // Allows us to accept another request
                 this.requester = null;

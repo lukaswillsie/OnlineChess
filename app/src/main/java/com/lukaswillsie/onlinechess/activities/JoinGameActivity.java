@@ -113,32 +113,13 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
             this.state = State.JOINING;
             // Close the keyboard and make the cursor in the EditText go away to provide a nice,
             // clean UI while we process the request
-            hideKeyboard();
+            Display.hideKeyboard(this);
             findViewById(R.id.join_game_input).setFocusable(false);
         }
         else {
-            showSimpleDialog(R.string.invalid_gameID_format);
+            Display.showSimpleDialog(R.string.invalid_gameID_format, this);
         }
 
-    }
-
-    /**
-     * Hide the keyboard, so that we present the user with a nice clean loading interface after they
-     * press the LOGIN button.
-     * <p>
-     * This code was found on StackOverflow at the following address:
-     * <p>
-     * https://stackoverflow.com/questions/1109022/close-hide-android-soft-keyboard?answertab=votes#tab-top
-     */
-    private void hideKeyboard() {
-        InputMethodManager manager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-        View view = getCurrentFocus();
-
-        if (view == null) {
-            view = new View(this);
-        }
-
-        manager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     /**
@@ -158,16 +139,7 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
         findViewById(R.id.join_layout).setBackground(getResources().getDrawable(R.drawable.join_game_button_selector));
     }
 
-    /**
-     * Creates a simple AlertDialog that just displays the given message, along with an OK button
-     * that does nothing but disperse the dialog when clicked
-     *
-     * @param resId - the ID of the string resource to display as a message in the dialog
-     */
-    private void showSimpleDialog(@StringRes int resId) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(resId).setPositiveButton(R.string.ok_dialog_button, null).show();
-    }
+
 
     /**
      * An onclick method; is called when the user wants to look at a list of open games
@@ -203,7 +175,7 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
             resetUI();
             this.state = State.WAITING;
 
-            showSimpleDialog(R.string.game_does_not_exist_dialog_text);
+            Display.showSimpleDialog(R.string.game_does_not_exist_dialog_text, this);
         }
     }
 
@@ -217,7 +189,7 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
             resetUI();
             this.state = State.WAITING;
 
-            showSimpleDialog(R.string.game_full_dialog_text);
+            Display.showSimpleDialog(R.string.game_full_dialog_text, this);
         }
     }
 
@@ -230,7 +202,7 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
             resetUI();
             this.state = State.WAITING;
 
-            showSimpleDialog(R.string.user_already_in_game_dialog_text);
+            Display.showSimpleDialog(R.string.user_already_in_game_dialog_text, this);
         }
     }
 
@@ -271,8 +243,6 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
     @Override
     public void serverError() {
         if(this.state != State.WAITING) {
-            resetUI();
-            this.state = State.WAITING;
             super.createServerErrorDialog();
         }
     }
@@ -283,8 +253,6 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
     @Override
     public void systemError() {
         if(this.state != State.WAITING) {
-            resetUI();
-            this.state = State.WAITING;
             super.createSystemErrorDialog();
         }
     }
@@ -305,6 +273,7 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
     @Override
     public void cancelSystemError() {
         resetUI();
+        this.state = State.WAITING;
     }
 
     /**
@@ -321,6 +290,7 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
     @Override
     public void cancelServerError() {
         resetUI();
+        this.state = State.WAITING;
     }
 
     /**

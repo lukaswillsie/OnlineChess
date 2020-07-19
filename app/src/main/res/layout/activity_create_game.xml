@@ -90,11 +90,13 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:background="@drawable/create_game_button_selector">
+            android:background="@drawable/create_game_button_selector"
+            android:onClick="createGame">
             
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:id="@+id/create_game_button_text"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -103,6 +105,17 @@
                 android:paddingRight="18dp"
                 android:text="@string/create_game_button_text"
                 style="@style/MainActivityButtonText"/>
+            
+            <ProgressBar
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/create_game_progress"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:paddingVertical="2dp"
+                android:visibility="gone"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
         
     </androidx.cardview.widget.CardView>

@@ -1,13 +1,17 @@
 package com.lukaswillsie.onlinechess.activities;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.view.Gravity;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.StringRes;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.lukaswillsie.onlinechess.R;
 
@@ -59,5 +63,37 @@ public class Display {
         text.setTextColor(context.getResources().getColor(R.color.black));
 
         toast.show();
+    }
+
+    /**
+     * Creates a simple AlertDialog that just displays the given message, along with an OK button
+     * that does nothing but disperse the dialog when clicked
+     *
+     * @param resId - the ID of the string resource to display as a message in the dialog
+     * @param context - the Context to create the dialog in
+     */
+    public static void showSimpleDialog(@StringRes int resId, Context context) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage(resId).setPositiveButton(R.string.ok_dialog_button, null).show();
+    }
+
+    /**
+     * Hide the keyboard for the given activity
+     * <p>
+     * This code was found on StackOverflow at the following address:
+     * <p>
+     * https://stackoverflow.com/questions/1109022/close-hide-android-soft-keyboard?answertab=votes#tab-top
+     *
+     * @param activity - the activity for which we are hiding the keyboard
+     */
+    public static void hideKeyboard(AppCompatActivity activity) {
+        InputMethodManager manager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        View view = activity.getCurrentFocus();
+
+        if (view == null) {
+            view = new View(activity);
+        }
+
+        manager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }

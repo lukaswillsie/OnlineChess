@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import com.lukaswillsie.onlinechess.network.helper.requesters.ArchiveRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.Connector;
 import com.lukaswillsie.onlinechess.network.helper.requesters.CreateAccountRequester;
+import com.lukaswillsie.onlinechess.network.helper.requesters.CreateGameRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.JoinGameRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.OpenGamesRequester;
@@ -92,6 +93,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
     private RestoreHelper restoreHelper;
     private OpenGamesHelper openGamesHelper;
     private JoinGameHelper joinGameHelper;
+    private CreateGameHelper createGameHelper;
 
     /*
      * A list of all helpers delegated to by this object, so that they can all be notified at once
@@ -109,6 +111,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
         this.restoreHelper = new RestoreHelper(this);
         this.openGamesHelper = new OpenGamesHelper(this);
         this.joinGameHelper = new JoinGameHelper(this);
+        this.createGameHelper = new CreateGameHelper(this);
 
         this.helpers = new ArrayList<>();
         this.helpers.add(loginHelper);
@@ -117,6 +120,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
         this.helpers.add(restoreHelper);
         this.helpers.add(openGamesHelper);
         this.helpers.add(joinGameHelper);
+        this.helpers.add(createGameHelper);
     }
 
     /**
@@ -215,6 +219,10 @@ public class ServerHelper extends Handler implements ConnectCaller {
      */
     public void joinGame(JoinGameRequester requester, String gameID, String username) throws MultipleRequestException {
         joinGameHelper.joinGame(requester, gameID, username);
+    }
+
+    public void createGame(CreateGameRequester requester, String gameID, boolean open, String username) throws MultipleRequestException {
+        createGameHelper.createGame(requester, gameID, open, username);
     }
 
     /**

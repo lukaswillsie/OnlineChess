@@ -108,7 +108,7 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
 
                 // Prevent the user from interacting with the EditTexts and 'Remember Me' CheckBox
                 // until the login request is complete
-                hideKeyboard();
+                Display.hideKeyboard(this);
                 findViewById(R.id.username).setFocusable(false);
                 findViewById(R.id.password).setFocusable(false);
                 findViewById(R.id.remember_me_checkbox).setFocusable(false);
@@ -135,25 +135,6 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
         TextView errorText = findViewById(R.id.login_input_error);
         errorText.setText(R.string.format_invalid_error);
         errorText.setVisibility(View.VISIBLE);
-    }
-
-    /**
-     * Hide the keyboard, so that we present the user with a nice clean loading interface after they
-     * press the LOGIN button.
-     * <p>
-     * This code was found on StackOverflow at the following address:
-     * <p>
-     * https://stackoverflow.com/questions/1109022/close-hide-android-soft-keyboard?answertab=votes#tab-top
-     */
-    private void hideKeyboard() {
-        InputMethodManager manager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-        View view = getCurrentFocus();
-
-        if (view == null) {
-            view = new View(this);
-        }
-
-        manager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     /**

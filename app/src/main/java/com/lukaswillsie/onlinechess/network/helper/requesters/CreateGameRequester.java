@@ -23,7 +23,7 @@ public interface CreateGameRequester extends Requester {
     /**
      * Called if the game we tried to create already exists, according to the server
      */
-    void gameExists();
+    void gameIDInUse();
 
     /**
      * Called if the gameID given as part of the request is invalidly formatted
