@@ -6,6 +6,7 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.lukaswillsie.onlinechess.activities.board.BoardActivity;
 import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.game_display.ActiveGamesActivity;
@@ -66,6 +67,14 @@ public class MainActivity extends AppCompatActivity implements ReconnectListener
         startActivity(new Intent(this, ArchivedGamesActivity.class));
     }
 
+    /**
+     * Onclick for "Test" button. We use it to test BoardActivity
+     *
+     * @param v - the view that was clicked
+     */
+    public void test(View v) {
+        startActivity(new Intent(this, BoardActivity.class));
+    }
     /**
      * Called by Reconnector when a reconnection process is complete. We don't do anything special
      * when this happens.

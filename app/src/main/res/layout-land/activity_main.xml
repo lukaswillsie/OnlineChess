@@ -74,7 +74,7 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_marginTop="3dp"
-                    android:src="@drawable/pawn"
+                    android:src="@drawable/white_pawn"
                     app:layout_constraintDimensionRatio="1:1"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.1"
@@ -86,7 +86,7 @@
                 <ImageView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:src="@drawable/pawn"
+                    android:src="@drawable/white_pawn"
                     app:layout_constraintDimensionRatio="1:1"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.9"
@@ -121,7 +121,7 @@
                 <ImageView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:src="@drawable/knight"
+                    android:src="@drawable/white_knight"
                     app:layout_constraintDimensionRatio="1:1"
                     app:layout_constraintHorizontal_bias="0.1"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -132,7 +132,7 @@
                 <ImageView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:src="@drawable/knight"
+                    android:src="@drawable/white_knight"
                     app:layout_constraintDimensionRatio="1:1"
                     app:layout_constraintHorizontal_bias="0.9"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -167,7 +167,7 @@
                 <ImageView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:src="@drawable/king"
+                    android:src="@drawable/white_king"
                     app:layout_constraintDimensionRatio="1:1"
                     app:layout_constraintHorizontal_bias="0.1"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -178,7 +178,7 @@
                 <ImageView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:src="@drawable/king"
+                    android:src="@drawable/white_king"
                     app:layout_constraintDimensionRatio="1:1"
                     app:layout_constraintHorizontal_bias="0.9"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -212,7 +212,7 @@
                 <ImageView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:src="@drawable/bishop"
+                    android:src="@drawable/white_bishop"
                     app:layout_constraintDimensionRatio="1:1"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -223,7 +223,7 @@
                 <ImageView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:src="@drawable/bishop"
+                    android:src="@drawable/white_bishop"
                     app:layout_constraintDimensionRatio="1:1"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
