@@ -11,6 +11,7 @@ import com.lukaswillsie.onlinechess.network.helper.requesters.Connector;
 import com.lukaswillsie.onlinechess.network.helper.requesters.CreateAccountRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.CreateGameRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.JoinGameRequester;
+import com.lukaswillsie.onlinechess.network.helper.requesters.LoadGameRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.OpenGamesRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.RestoreRequester;
@@ -94,6 +95,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
     private OpenGamesHelper openGamesHelper;
     private JoinGameHelper joinGameHelper;
     private CreateGameHelper createGameHelper;
+    private LoadGameHelper loadGameHelper;
 
     /*
      * A list of all helpers delegated to by this object, so that they can all be notified at once
@@ -112,6 +114,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
         this.openGamesHelper = new OpenGamesHelper(this);
         this.joinGameHelper = new JoinGameHelper(this);
         this.createGameHelper = new CreateGameHelper(this);
+        this.loadGameHelper = new LoadGameHelper(this);
 
         this.helpers = new ArrayList<>();
         this.helpers.add(loginHelper);
@@ -221,8 +224,33 @@ public class ServerHelper extends Handler implements ConnectCaller {
         joinGameHelper.joinGame(requester, gameID, username);
     }
 
+    /**
+     * Will send a request to the server to try and create a game with the given ID and open status
+     *
+     * @param requester - the object that will receive callbacks relevant to the request
+     * @param gameID - the ID of the game to be created
+     * @param open - a boolean representing whether or not the game to be created should be "open",
+     *             meaning that anybody can view and join it
+     * @param username - the username of the user trying to create the game
+     * @throws MultipleRequestException - if this object is already handling another createGame
+     * request when this method is called
+     */
     public void createGame(CreateGameRequester requester, String gameID, boolean open, String username) throws MultipleRequestException {
         createGameHelper.createGame(requester, gameID, open, username);
+    }
+
+    /**
+     * Initiate a request to load the game with the specified gameID. requester will receive
+     * callbacks when the request terminates, either successfully or in error.
+     *
+     * @param requester - the object that will receive the relevant callback when the request
+     *                  terminates
+     * @param gameID - the gameID of the game that should be requested
+     * @throws MultipleRequestException - if this object is already handling a load game request
+     * when this method is called
+     */
+    public void loadGame(LoadGameRequester requester, String gameID) throws MultipleRequestException {
+        this.loadGameHelper.loadGame(requester, gameID);
     }
 
     /**
