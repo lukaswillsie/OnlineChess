@@ -73,7 +73,12 @@ public class MainActivity extends AppCompatActivity implements ReconnectListener
      * @param v - the view that was clicked
      */
     public void test(View v) {
-        startActivity(new Intent(this, BoardActivity.class));
+        Intent intent = new Intent(this, BoardActivity.class);
+
+        // This is the ID of a game I've created on the server and know exists, so I can use it for
+        // testing purposes
+        intent.putExtra(BoardActivity.GAMEID_TAG, "test2");
+        startActivity(intent);
     }
     /**
      * Called by Reconnector when a reconnection process is complete. We don't do anything special

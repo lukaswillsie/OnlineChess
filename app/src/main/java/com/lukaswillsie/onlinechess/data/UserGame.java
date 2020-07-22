@@ -5,6 +5,8 @@ import android.util.Log;
 import java.util.HashMap;
 import java.util.List;
 
+import Chess.com.lukaswillsie.chess.Colour;
+
 /**
  * A class that represents a chess game BEING PLAYED BY THE USER by encapsulating the information
  * associated with it, like the name of the game, the name of the user's opponent, whose turn it is,
@@ -13,14 +15,26 @@ import java.util.List;
  * Objects of this kind should only be created AFTER A USER HAS BEEN LOGGED IN.
  */
 public class UserGame {
+    /**
+     * Tag used for logging to the console
+     */
     private static final String tag = "Game";
 
+    /**
+     * A HashMap containing all the data associated with this game, like gameID, names of players,
+     * etc.
+     */
     private HashMap<GameData, Object> data;
 
     /**
      * The name of the user currently logged into the app
      */
     private String username;
+
+    /**
+     * Tracks which colour the user is playing as in this game
+     */
+    private Colour colour;
 
     /**
      * Create an empty new Game object. This object should not be used until initialize() is called.
@@ -80,6 +94,8 @@ public class UserGame {
                 data.put(GameData.ARCHIVED, this.getServerData(serverData, ServerData.WHITE_ARCHIVED));
 
                 data.put(GameData.CHECK, this.getServerData(serverData, ServerData.WHITE_CHK));
+
+                this.colour = Colour.WHITE;
             } else if (black.equals(username)) {
                 data.put(GameData.OPPONENT, white);
 
@@ -92,6 +108,7 @@ public class UserGame {
                 data.put(GameData.ARCHIVED, this.getServerData(serverData, ServerData.BLACK_ARCHIVED));
 
                 data.put(GameData.CHECK, this.getServerData(serverData, ServerData.BLACK_CHK));
+                this.colour = Colour.BLACK;
             } else {
                 Log.e(tag, "Tried to create game " + this.data.get(GameData.GAMEID) + " but user is not a player in it");
                 return 1;
@@ -136,8 +153,23 @@ public class UserGame {
         }
     }
 
+    /**
+     * Access the specified piece of data about this game
+     *
+     * @param data - specifies which unit of data is desired
+     * @return This game's value for the specified piece of data
+     */
     public Object getData(GameData data) {
         return this.data.get(data);
+    }
+
+    /**
+     * Returns the colour being played by the user in this game
+     *
+     * @return The colour being played by the user in this game
+     */
+    public Colour getUserColour() {
+        return colour;
     }
 
     /**

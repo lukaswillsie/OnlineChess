@@ -124,6 +124,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
         this.helpers.add(openGamesHelper);
         this.helpers.add(joinGameHelper);
         this.helpers.add(createGameHelper);
+        this.helpers.add(loadGameHelper);
     }
 
     /**
