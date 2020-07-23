@@ -1,9 +1,19 @@
 package com.lukaswillsie.onlinechess.activities.board;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Point;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
+import android.view.DragEvent;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import androidx.annotation.DrawableRes;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.lukaswillsie.onlinechess.R;
@@ -22,14 +32,14 @@ import Chess.com.lukaswillsie.chess.Rook;
  */
 public class Square {
     /**
-     * This square's x-coordinate
+     * The row this square occupies on the board. row 0 is the bottom row of the board.
      */
-    private final int x;
+    private final int row;
 
     /**
-     * This square's y-coordinate
+     * This column this square occupies on the board. column 0 is the leftmost column on the board
      */
-    private final int y;
+    private final int column;
 
     /**
      * The ConstraintLayout corresponding to this square on the screen
@@ -37,94 +47,281 @@ public class Square {
     private ConstraintLayout layout;
 
     /**
-     * The Context containing the ConstraintLayout that this class is managing
+     * The Context containing the ConstraintLayout that this object is managing
      */
     private Context context;
 
     /**
-     * Contains a reference to the ImageView currently being displayed in this square. null if there
-     * is no such ImageView.
+     * Contains a reference to the ImageView currently being displayed in this Square.
      */
     private ImageView image;
 
     /**
-     * Create a new Square with the given position, corresponding to the given layout on the screen
-     * @param x - the square's x-coordinate, with x=0 representing the left side of the board
-     * @param y - the square's y-coordinate, with y=0 representing the bottom of the board
+     * The Piece that this Square is currently displaying. null if this Square is empty.
+     */
+    private Piece piece;
+
+    /**
+     * This object will be notified when this square is clicked.
+     */
+    private SquareOnTouchListener listener;
+
+    /**
+     *
+     */
+    private final Drawable lightBackground;
+    private final Drawable darkBackground;
+
+    /**
+     * Create a new Square with the given position, corresponding to the given layout on the screen.
+     * The given layout should not have any children, and should at this point have no attributes
+     * applied to it other than its layout parameters
+     *
+     * @param row - this Square's row, with row=0 representing the bottom of the board
+     * @param column - the square's column, with column=0 representing the left side of the board
      * @param layout - the ConstraintLayout corresponding to this square on the screen
      */
-    public Square(int x, int y, ConstraintLayout layout) {
-        this.x = x;
-        this.y = y;
+    public Square(int row, int column, ConstraintLayout layout) {
+        this.row = row;
+        this.column = column;
         this.layout = layout;
         this.context = layout.getContext();
-    }
+        this.lightBackground = new ColorDrawable(context.getResources().getColor(R.color.white));
+        this.darkBackground = new ColorDrawable(0xFF4BA2E3);
 
-    public void setPiece(Piece piece) {
-        if(image != null) {
-            layout.removeView(image);
+        if(isLightSquare()) {
+            layout.setBackground(lightBackground);
+        }
+        else {
+            layout.setBackground(darkBackground);
         }
 
-        image = createView(piece);
+        image = new ImageView(context);
+        image.setLayoutParams(new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
         layout.addView(image);
     }
 
     /**
-     * Create an ImageView to hold a representation of the given piece in the ConstraintLayout
-     * being manager by this object.
+     * Starts a drag, originating from this Square. If this square is empty, does nothing.
+     * Otherwise, starts a drag event and uses as a drag shadow the image of the piece occupying
+     * this Square.
+     */
+    public void startDrag() {
+        if(piece != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                layout.startDragAndDrop(null, new PieceDragShadowBuilder(), null, View.DRAG_FLAG_OPAQUE);
+            }
+            else {
+                layout.startDrag(null, new PieceDragShadowBuilder(), null, 0);
+            }
+        }
+    }
+
+    /**
+     * This class is responsible for building drag shadows originating from this square
+     */
+    private class PieceDragShadowBuilder extends View.DragShadowBuilder {
+        Drawable shadow;
+
+        private PieceDragShadowBuilder() {
+            this.shadow = context.getResources().getDrawable(getDrawableID(piece));
+        }
+
+        @Override
+        public void onProvideShadowMetrics(Point outShadowSize, Point outShadowTouchPoint) {
+            int width = image.getWidth();
+            int height = image.getHeight();
+
+            shadow.setBounds(0, 0, width, height);
+
+            outShadowSize.set(width, height);
+            outShadowTouchPoint.set(width/2, height/2);
+        }
+
+        @Override
+        public void onDrawShadow(Canvas canvas) {
+            shadow.draw(canvas);
+        }
+    }
+
+    /**
+     * Set this Square to display a picture of the given Piece. If piece is null, this Square will
+     * be emptied of whatever it is displaying now and will remain empty.
+     *
+     * @param piece - the piece to be displayed in this square
+     */
+    public void setPiece(Piece piece) {
+        if(piece == null) {
+            image.setImageResource(android.R.color.transparent);
+            this.piece = null;
+        }
+        else {
+            this.piece = piece;
+            this.drawPiece(piece);
+        }
+    }
+
+    /**
+     * Draw a representation of the given Piece in the ImageView being managed by this Square.
      *
      * @param piece - the piece that will be displayed in the ImageView
-     * @return An ImageView containing a representation of the given piece, ready to be placed
-     * inside the ConstraintLayout that this object is wrapping
      */
-    private ImageView createView(Piece piece) {
-        ImageView imageView = new ImageView(context);
-        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        imageView.setLayoutParams(params);
+    private void drawPiece(Piece piece) {
+        image.setImageResource(getDrawableID(piece));
+    }
 
+    /**
+     * Takes the given piece and returns a drawable resource ID that can be used to represent that
+     * piece.
+     *
+     * @param piece - the Piece to convert into a drawable
+     * @return A drawable resource ID for a drawable that can represent the given piece
+     */
+    private @DrawableRes int getDrawableID(Piece piece) {
         if(piece.getColour() == Colour.WHITE) {
             if(piece instanceof Pawn) {
-                imageView.setBackground(context.getResources().getDrawable(R.drawable.white_pawn));
+                return R.drawable.white_pawn;
             }
             else if(piece instanceof Rook) {
-                imageView.setBackground(context.getResources().getDrawable(R.drawable.white_rook));
+                return R.drawable.white_rook;
             }
             else if(piece instanceof Knight) {
-                imageView.setBackground(context.getResources().getDrawable(R.drawable.white_knight));
+                return R.drawable.white_knight;
             }
             else if(piece instanceof Bishop) {
-                imageView.setBackground(context.getResources().getDrawable(R.drawable.white_bishop));
+                return R.drawable.white_bishop;
             }
             else if(piece instanceof Queen) {
-                imageView.setBackground(context.getResources().getDrawable(R.drawable.white_queen));
+                return R.drawable.white_queen;
             }
             // Otherwise, piece is a King
             else {
-                imageView.setBackground(context.getResources().getDrawable(R.drawable.white_king));
+                return R.drawable.white_knight;
             }
         }
         else {
             if(piece instanceof Pawn) {
-                imageView.setBackground(context.getResources().getDrawable(R.drawable.black_pawn));
+                return R.drawable.black_pawn;
             }
             else if(piece instanceof Rook) {
-                imageView.setBackground(context.getResources().getDrawable(R.drawable.black_rook));
+                return R.drawable.black_rook;
             }
             else if(piece instanceof Knight) {
-                imageView.setBackground(context.getResources().getDrawable(R.drawable.black_knight));
+                return R.drawable.black_knight;
             }
             else if(piece instanceof Bishop) {
-                imageView.setBackground(context.getResources().getDrawable(R.drawable.black_bishop));
+                return R.drawable.black_bishop;
             }
             else if(piece instanceof Queen) {
-                imageView.setBackground(context.getResources().getDrawable(R.drawable.black_queen));
+                return R.drawable.black_queen;
             }
             // Otherwise, piece is a King
             else {
-                imageView.setBackground(context.getResources().getDrawable(R.drawable.black_king));
+                return R.drawable.black_king;
             }
         }
+    }
 
-        return imageView;
+    /**
+     * HIGHLIGHTS this square. This means highlighting it as one that can be moved to by some piece
+     * selected by the user.
+     */
+    public void highlight() {
+        this.layout.setBackground(new ColorDrawable(0xFF62E69E));
+    }
+
+    /**
+     * Reset the background of this Square. Does not change what piece this Square is showing, but
+     * resets the background if this square was previously highlighted.
+     */
+    public void reset() {
+        if(isLightSquare()) {
+            layout.setBackground(lightBackground);
+        }
+        else {
+            layout.setBackground(darkBackground);
+        }
+    }
+
+    /**
+     * Determine whether or not this square is a light square on the chessboard.
+     * @return true if this square is a light square, false if it is a dark square
+     */
+    private boolean isLightSquare() {
+        // If you look at a chess board using the row,column system that we're using, you'll
+        // notice the following pattern determines which squares are light and which dark
+        return row % 2 == 0 && column % 2 == 1 || row % 2 == 1 && column % 2 == 0;
+    }
+
+    /**
+     * Applies the given listener to this Square. The given listener will receive all touch events
+     * received by this Square.
+     *
+     * @param listener - the object that will receive touch events from this Square
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    public void setSquareOnTouchListener(final SquareOnTouchListener listener) {
+        this.layout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return listener.onTouch(row, column, event);
+            }
+        });
+    }
+
+    /**
+     * Set the given SquareDragListener to receive drag events from this Square
+     *
+     * @param listener - the object that will receive any and all subsequent drag events from this
+     *                 square
+     */
+    public void setSquareDragListener(final SquareDragListener listener) {
+        this.layout.setOnDragListener(new View.OnDragListener() {
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+                return listener.onDrag(row, column, event);
+            }
+        });
+    }
+
+    /**
+     * Objects wishing to be notified of touch events relevant to this Square and the
+     * ConstraintLayout it is managing must implement this interface.
+     */
+    public interface SquareOnTouchListener {
+        /**
+         * This method will be called whenever a touch event is received by a Square, passing on the
+         * relevant information to the SquareOnTouchListener.
+         *
+         * @param row - the row that the Square that received the event occupies on the screen
+         * @param column - the column that the Square that received the event occupies on the screen
+         * @param event - contains information about the type of touch event that was received
+         * @return true if the SquareOnTouchListener wants to receive any subsequent touch events
+         * relating to the current action, false otherwise. For example, if a click is made (meaning
+         * an ACTION_ DOWN event followed by an ACTION_UP event), and the SquareOnTouchListener
+         * returns false after the ACTION_DOWN event, they won't be notified when the ACTION_UP
+         * event occurs. However, they'll be notified the next time a new click or other action
+         * starts.
+         */
+        boolean onTouch(int row, int column, MotionEvent event);
+    }
+
+    /**
+     * Objects wishing to be notified of drag events relating to this Square must implement this
+     * interface.
+     */
+    public interface SquareDragListener {
+        /**
+         * Whenever a DragEvent is received by this Square, the following method will be called,
+         * notifying the Listener of the even, as well as this Square's position on the screen.
+         *
+         * @param row - the row that the Square that received the event occupies on the screen
+         * @param column - the column that the Square that received the event occupies on the screen
+         * @param event - the DragEvent that was received by this square
+         * @return true if the SquareDragListener wants to continue to receive drag events relating
+         * to the current drag, false otherwise.
+         */
+        boolean onDrag(int row, int column, DragEvent event);
     }
 }

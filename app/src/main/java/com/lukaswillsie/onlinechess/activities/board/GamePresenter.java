@@ -1,5 +1,7 @@
 package com.lukaswillsie.onlinechess.activities.board;
 
+import com.lukaswillsie.onlinechess.data.Game;
+import com.lukaswillsie.onlinechess.data.GameData;
 import com.lukaswillsie.onlinechess.data.UserGame;
 
 import Chess.com.lukaswillsie.chess.Board;
@@ -42,6 +44,16 @@ public class GamePresenter {
         else {
             return null;
         }
+    }
+
+    /**
+     * Returns the specified piece of information about this game
+     *
+     * @param data - specifies the piece of information about this game that is desired
+     * @return As either an Integer or String, the piece of data requested
+     */
+    public Object getData(GameData data) {
+        return game.getData(data);
     }
 
     /**

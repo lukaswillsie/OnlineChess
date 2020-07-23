@@ -144,6 +144,7 @@ public class LoadGameThread extends NetworkThread {
             return;
         }
 
+        System.out.println(data);
         // Wrap a scanner around the data we read from the server so that Board will accept it
         Scanner scanner = new Scanner(data.toString());
         Board board = new Board();
