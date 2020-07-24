@@ -127,8 +127,9 @@ public class BoardDisplay {
      * IMPORTANT NOTE: Row and column should be given as BOARD COORDINATES, independent of what
      * colour the user is playing. Does nothing if row and column are not both between 0 and 7,
      * inclusive.
-     * @param row
-     * @param column
+     *
+     * @param row - the row occupied by the square to start the drag at
+     * @param column - the column occupied by the square to start the drag at
      */
     public void startDrag(int row, int column) {
         if(0 <= row && row <= 7 && 0 <= column && column <= 7) {
@@ -179,6 +180,28 @@ public class BoardDisplay {
             else {
                 board[7 - row][7 - column].setPiece(piece);
             }
+        }
+    }
+
+    /**
+     * Execute the given Move. Moves the piece at move.src to the square move.dest. move.src and
+     * move.dest should both be given in BOARD COORDINATES, independent of what colour the user is
+     * playing. Does nothing if the square specified by move.src is empty or if either square is
+     * invalid (either one has row or column outside of 0,1,...,7)
+     *
+     * @param move - the Move to be executed
+     */
+    public void move(Move move) {
+        int src_row = move.src.first();
+        int src_column = move.src.second();
+        int dest_row = move.dest.first();
+        int dest_column = move.dest.second();
+
+        if(presenter.getPiece(src_row, src_column) != null) {
+            // Put an empty square where the piece used to be
+            set(src_row, src_column, null);
+            // Place the piece on the destination square
+            set(dest_row, dest_column, presenter.getPiece(src_row, src_column));
         }
     }
 

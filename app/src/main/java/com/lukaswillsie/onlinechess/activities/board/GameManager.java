@@ -67,51 +67,104 @@ public class GameManager implements BoardDisplay.DisplayListener {
 
     @Override
     public boolean onTouch(int row, int column, MotionEvent event) {
-        Log.i(tag, event.toString());
-        if(event.getAction() == MotionEvent.ACTION_DOWN) {
-            // If it's the user's turn, they might be clicking one of their pieces because they want
-            // to see where it can move
-            if(userTurn) {
-                Piece piece = getPiece(row, column);
+        Log.i(tag, "(" + row + ", " + column + ")\n" + event.toString());
+        int action = event.getAction();
+        Piece piece;
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                // If the user clicks an ally piece, we want to select that piece and show the
+                // squares it can move to immediately. We don't want to wait until after ACTION_UP.
+                // This way, if the user clicks a piece and then drags it to move it, the squares
+                // that piece can move to will already be highlighted.
+                if(userTurn) {
+                    piece = getPiece(row, column);
 
-                if(piece == null) {
-                    display.resetSquares();
-                    return false;
+                    // If the user is clicking an ally piece different from the currently selected
+                    // piece, they select the new piece
+                    if(piece != null && piece.getColour() == presenter.getUserColour()
+                            && piece != selected) {
+                        this.selected = piece;
+                        display.resetSquares();
+                        List<Pair> moves = selected.getMoves();
+                        display.highlightSquares(convertToScreenCoords(moves));
+                    }
+                    return true;
                 }
                 else {
-                    // We know they're clicking a piece. So they're either clicking the piece they
-                    // already have selected, in which case we do nothing because they're just
-                    // re-selecting a piece they've already selected; or they're selecting another
-                    // one of their pieces; or they're clicking an enemy piece, in which case we
-                    // just reset their selection.
-                    if(piece == selected) {
-                        return true;
-                    }
-                    else if(piece.getColour() == presenter.getUserColour()) {
-                        display.resetSquares();
+                    return false;
+                }
+            case MotionEvent.ACTION_UP:
+                if(userTurn) {
+                    piece = getPiece(row, column);
 
-                        // The user is selecting one of their pieces. So highlight on the screen
-                        // the squares that the selected piece can move to.
-                        List<Pair> moves = getPiece(row, column).getMoves();
-                        display.highlightSquares(convertToScreenCoords(moves));
-                        return true;
+                    // The user clicked an empty square. They might be issuing a move command.
+                    if(piece == null) {
+                        Pair tapped = converToBoardCoords(row, column);
+                        // If the user has a piece selected and the empty square they are clicking
+                        // is a square that that piece can move to
+                        if(this.selected != null) {
+                            if(selected.getMoves().contains(tapped)) {
+                                Pair src = new Pair(selected.getRow(), selected.getColumn());
+                                display.move(new Move(src, tapped));
+                                this.userTurn = false;
+                                this.selected = null;
+
+                                // Now that the user has moved, we can un-highlight all the move
+                                // squares we previously had highlighted
+                                display.resetSquares();
+                                return false;
+                            }
+                            else {
+                                display.resetSquares();
+                                this.selected = null;
+                                return false;
+                            }
+                        }
+                        else {
+                            return false;
+                        }
                     }
+                    // The user clicked an enemy piece
+                    else if (piece.getColour() != presenter.getUserColour()) {
+                        // If the user has a piece selected and they are tapping an opponent piece
+                        // that they can capture
+                        Pair tapped = new Pair(piece.getRow(), piece.getColumn());
+                        if(this.selected != null) {
+                            if(selected.getMoves().contains(tapped)) {
+                                Pair src = new Pair(selected.getRow(), selected.getColumn());
+                                display.move(new Move(src, tapped));
+                                this.userTurn = false;
+                                this.selected = null;
+
+                                // Now that the user has moved, we can un-highlight all the move
+                                // squares we previously had highlighted
+                                display.resetSquares();
+                                return false;
+                            }
+                            else {
+                                this.selected = null;
+                                display.resetSquares();
+                                return false;
+                            }
+                        }
+                        else {
+                            return false;
+                        }
+                    }
+                    // If the user is clicking an ally piece, we've already handled the click in
+                    // ACTION_DOWN, so we do nothing here
                     else {
-                        display.resetSquares();
                         return false;
                     }
                 }
-            }
-            else {
+                else {
+                    return false;
+                }
+            case MotionEvent.ACTION_MOVE:
+                display.startDrag(row, column);
                 return false;
-            }
-        }
-        else if(event.getAction() == MotionEvent.ACTION_MOVE) {
-            display.startDrag(row, column);
-            return false;
-        }
-        else {
-            return false;
+            default:
+                return false;
         }
     }
 
@@ -159,6 +212,15 @@ public class GameManager implements BoardDisplay.DisplayListener {
             }
 
             return converted;
+        }
+    }
+
+    private Pair converToBoardCoords(int row, int column) {
+        if(presenter.getUserColour() == Colour.WHITE) {
+            return new Pair(row, column);
+        }
+        else {
+            return new Pair(7 - row, 7 - column);
         }
     }
 }

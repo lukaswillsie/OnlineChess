@@ -197,7 +197,7 @@ public class Square {
             }
             // Otherwise, piece is a King
             else {
-                return R.drawable.white_knight;
+                return R.drawable.white_king;
             }
         }
         else {
