@@ -15,6 +15,8 @@ import android.widget.ImageView;
 
 import androidx.annotation.DrawableRes;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.core.view.ViewCompat;
 
 import com.lukaswillsie.onlinechess.R;
 
@@ -160,6 +162,99 @@ public class Square {
             this.piece = piece;
             this.drawPiece(piece);
         }
+    }
+
+    /**
+     * Return the Piece that this Square is displaying. Is null if this Square is empty.
+     *
+     * @return The Piece object that this Square is displaying.
+     */
+    public Piece getPiece() {
+        return piece;
+    }
+
+    /**
+     * Creates and returns an ImageView, placed directly on top of this Square, but as a child of
+     * the root layout of the current activity, not this Square's ConstraintLayout. The ImageView
+     * contains an image of the piece being displayed in this Square. The ImageView is placed and
+     * sized so perfectly that when it is created the appearance of this Square does not change at
+     * all. However, because the created ImageView is a child of the root layout of the activity, it
+     * can be animated as part of a move animation.
+     *
+     * Does nothing and returns null if this Square is empty when this method is called.
+     *
+     * @return A newly-created ImageView containing an image of the Piece on this Square. On the
+     * screen, the ImageView will be placed perfectly on top of this Square, so that no visual
+     * change is discernible. The ImageView will be a child of the ConstraintLayout containing
+     * the TableLayout of which this Square is a cell.
+     */
+    public ImageView getAnimatableView() {
+        if (piece != null) {
+            ImageView im = new ImageView(context);
+            // Our Square's ConstraintLayout is inside a LinearLayout which is inside a TableLayout
+            // which is inside the root ConstraintLayout.
+            ConstraintLayout root = (ConstraintLayout)layout.getParent().getParent().getParent();
+
+            // Set the ImageView to be precisely as large as our square.
+            im.setLayoutParams(new ConstraintLayout.LayoutParams(layout.getWidth(), layout.getWidth()));
+
+            // Constrain the ImageView within the root layout
+            int id = ViewCompat.generateViewId();
+            im.setId(id);
+            ConstraintSet constraints = new ConstraintSet();
+            constraints.clone(root);
+            constraints.connect(id, ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT);
+            constraints.connect(id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+            constraints.connect(id, ConstraintSet.RIGHT, ConstraintSet.PARENT_ID, ConstraintSet.RIGHT);
+            constraints.connect(id, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
+            constraints.applyTo(root);
+
+            // Make the ImageView hold the same image as this Square
+            im.setBackgroundResource(getDrawableID(piece));
+
+            im.setX(getAbsoluteX());
+            im.setY(getAbsoluteY());
+
+            root.addView(im);
+            return im;
+        }
+        else {
+            return null;
+        }
+    }
+
+    /**
+     * Get this Square's absolute x coordinate in pixels. This means the square's horizontal
+     * distance from the top left corner of the root layout.
+     *
+     * @return - this Square's absolute x coordinate
+     */
+    public float getAbsoluteX() {
+        // Our layout is nested as follows: we have a ConstraintLayout as our root. Then we have
+        // a TableLayout. The TableLayout has 8 rows, each of which is a LinearLayout. Then each
+        // LinearLayout contains 8 ConstraintLayouts, which act as the squares in that row. So
+        // to get the x-coordinate of this Square with respect to the top left of the root layout,
+        // we need to get the x-coordinate of our ConstraintLayout within the LinearLayout. Then
+        // we need to add the x-coordinate of that LinearLayout within the TableLayout. Then we need
+        // to add the x-coordinate of the TableLayout within the root ConstraintLayout.
+        return layout.getX() + ((View)layout.getParent()).getX() + ((View)layout.getParent().getParent()).getX();
+    }
+
+    /**
+     * Get this Square's absolute y coordinate in pixels. This means the square's horizontal
+     * distance from the top left corner of the root layout.
+     *
+     * @return - this Square's absolute y coordinate
+     */
+    public float getAbsoluteY() {
+        // Our layout is nested as follows: we have a ConstraintLayout as our root. Then we have
+        // a TableLayout. The TableLayout has 8 rows, each of which is a LinearLayout. Then each
+        // LinearLayout contains 8 ConstraintLayouts, which act as the squares in that row. So
+        // to get the y-coordinate of this Square with respect to the top left of the root layout,
+        // we need to get the y-coordinate of our ConstraintLayout within the LinearLayout. Then
+        // we need to add the y-coordinate of that LinearLayout within the TableLayout. Then we need
+        // to add the y-coordinate of the TableLayout within the root ConstraintLayout.
+        return layout.getY() + ((View)layout.getParent()).getY() + ((View)layout.getParent().getParent()).getY();
     }
 
     /**
@@ -318,9 +413,9 @@ public class Square {
          *
          * @param row - the row that the Square that received the event occupies on the screen
          * @param column - the column that the Square that received the event occupies on the screen
-         * @param event - the DragEvent that was received by this square
+         * @param event - the DragEvent that was received by this Square
          * @return true if the SquareDragListener wants to continue to receive drag events relating
-         * to the current drag, false otherwise.
+         * to the current drag from this Square, false otherwise.
          */
         boolean onDrag(int row, int column, DragEvent event);
     }

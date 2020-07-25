@@ -101,7 +101,7 @@ public class GameManager implements BoardDisplay.DisplayListener {
                     if(piece == null) {
                         Pair tapped = converToBoardCoords(row, column);
                         // If the user has a piece selected and the empty square they are clicking
-                        // is a square that that piece can move to
+                        // is a square that that piece can move to, we execute a move
                         if(this.selected != null) {
                             if(selected.getMoves().contains(tapped)) {
                                 Pair src = new Pair(selected.getRow(), selected.getColumn());

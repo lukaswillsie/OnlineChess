@@ -1,14 +1,22 @@
 package com.lukaswillsie.onlinechess.activities.board;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.viewpager.widget.ViewPager;
+
+import com.lukaswillsie.onlinechess.R;
 
 import java.util.List;
 
@@ -37,6 +45,11 @@ public class BoardDisplay {
     private DisplayListener listener;
 
     /**
+     * The Context of the board that this object is managing
+     */
+    private Context context;
+
+    /**
      * Takes the given TableLayout and builds a chessboard on it. The given TableLayout should be
      * a TableLayout formatted exactly as in empty_chessboard_layout.xml, with 8 equally-weighted
      * LinearLayouts as children. Does nothing if the given TableLayout does not have the proper
@@ -45,7 +58,7 @@ public class BoardDisplay {
      * @param layout - the TableLayout that will be turned into a chessboard
      */
     public void build(TableLayout layout) {
-        Context context = layout.getContext();
+        context = layout.getContext();
 
         for(int i = 0; i < 8; i++) {
             View child = layout.getChildAt(i);
@@ -184,24 +197,92 @@ public class BoardDisplay {
     }
 
     /**
+     * Sets the square specified by row and column to display the given piece. If piece is null, the
+     * specified square will be emptied.
+     *
+     * IMPORTANT NOTE: Row and column should be given as SCREEN COORDINATES, that depend on what
+     * colour the user is playing. Does nothing if row and column are not both between 0 and 7,
+     * inclusive.
+     *
+     * @param row - the row on the board that the square to be set occupies
+     * @param column - the column on the board that the square to be set occupies
+     * @param piece - the piece to be displayed on the given square
+     */
+    private void setOnScreen(int row, int column, Piece piece) {
+        if(0 <= row && row <= 7 && 0 <= column && column <= 7) {
+            board[row][column].setPiece(piece);
+        }
+    }
+
+    /**
      * Execute the given Move. Moves the piece at move.src to the square move.dest. move.src and
      * move.dest should both be given in BOARD COORDINATES, independent of what colour the user is
-     * playing. Does nothing if the square specified by move.src is empty or if either square is
-     * invalid (either one has row or column outside of 0,1,...,7)
+     * playing. Animates the piece being moved so that it actually slides across the board to the
+     * destination square.
+     *
+     * Does nothing if the square specified by move.src is empty or if either square is
+     * invalid (either one has row or column outside of 0,1,...,7).
      *
      * @param move - the Move to be executed
      */
     public void move(Move move) {
-        int src_row = move.src.first();
-        int src_column = move.src.second();
-        int dest_row = move.dest.first();
-        int dest_column = move.dest.second();
+        Pair src = convertToScreenCoords(move.src);
+        Pair dest = convertToScreenCoords(move.dest);
 
-        if(presenter.getPiece(src_row, src_column) != null) {
+        // SCREEN COORDINATES for the source and destination square of the move
+        final int src_row = src.first();
+        final int src_column = src.second();
+        final int dest_row = dest.first();
+        final int dest_column = dest.second();
+
+        final Piece piece = presenter.getPiece(move.src.first(), move.src.second());
+        if(piece != null) {
+            // This creates an ImageView, floating on top of the Square at src_row and src_column,
+            // that we can animate as part of the move
+            final ImageView animate = board[src_row][src_column].getAnimatableView();
+            float[] srcCoords = {board[src_row][src_column].getAbsoluteX(), board[src_row][src_column].getAbsoluteY()};
+            float[] destCoords = {board[dest_row][dest_column].getAbsoluteX(), board[dest_row][dest_column].getAbsoluteY()};
+
+
             // Put an empty square where the piece used to be
-            set(src_row, src_column, null);
-            // Place the piece on the destination square
-            set(dest_row, dest_column, presenter.getPiece(src_row, src_column));
+            setOnScreen(src_row, src_column, null);
+
+            // Will animate the ImageView we created from the source square to the destination
+            // square
+            final TranslateAnimation anim = new TranslateAnimation(0, destCoords[0] - srcCoords[0], 0, destCoords[1] - srcCoords[1]);
+            anim.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {}
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    // Now that the animation is done, place the piece from the source square on the
+                    // destination square and destroy the ImageView we used for the animation.
+                    setOnScreen(dest_row, dest_column, piece);
+                    ((ViewGroup)animate.getParent()).removeView(animate);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {}
+            });
+            anim.setDuration(200);
+            animate.startAnimation(anim);
+        }
+    }
+
+    /**
+     * Convert the given Pair of board coordinates to screen coordinates.
+     *
+     * @param pair - the Pair of board coordinates to be converted
+     * @return A new Pair, containing the screen coordinates that correspond to the given Pair of
+     * board coordinates
+     */
+    private Pair convertToScreenCoords(Pair pair) {
+        if(presenter.getUserColour() == Colour.WHITE) {
+            return new Pair(pair.first(), pair.second());
+        }
+        else {
+            return new Pair(7 - pair.first(), 7 - pair.second());
         }
     }
 
@@ -255,7 +336,7 @@ public class BoardDisplay {
          * @param column - the row on the screen occupied by the square that received the event
          * @param event - the DragEvent that was received
          * @return true if the DisplayListener wants to keep receiving drag events relating to this
-         * drag, false otherwise
+         * drag from the specified square, false otherwise
          */
         boolean onDrag(int row, int column, DragEvent event);
     }
