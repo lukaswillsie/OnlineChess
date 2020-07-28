@@ -99,7 +99,10 @@ public class Square {
         }
 
         image = new ImageView(context);
-        image.setLayoutParams(new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        int margin = 5;
+        params.setMargins(margin, margin, margin, margin);
+        image.setLayoutParams(params);
 
         layout.addView(image);
     }
