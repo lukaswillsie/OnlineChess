@@ -6,6 +6,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.lukaswillsie.onlinechess.activities.board.Move;
 import com.lukaswillsie.onlinechess.network.helper.requesters.ArchiveRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.Connector;
 import com.lukaswillsie.onlinechess.network.helper.requesters.CreateAccountRequester;
@@ -13,6 +14,7 @@ import com.lukaswillsie.onlinechess.network.helper.requesters.CreateGameRequeste
 import com.lukaswillsie.onlinechess.network.helper.requesters.JoinGameRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoadGameRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
+import com.lukaswillsie.onlinechess.network.helper.requesters.MoveRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.OpenGamesRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.RestoreRequester;
 import com.lukaswillsie.onlinechess.network.threads.ConnectThread;
@@ -96,6 +98,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
     private JoinGameHelper joinGameHelper;
     private CreateGameHelper createGameHelper;
     private LoadGameHelper loadGameHelper;
+    private MoveHelper moveHelper;
 
     /*
      * A list of all helpers delegated to by this object, so that they can all be notified at once
@@ -115,6 +118,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
         this.joinGameHelper = new JoinGameHelper(this);
         this.createGameHelper = new CreateGameHelper(this);
         this.loadGameHelper = new LoadGameHelper(this);
+        this.moveHelper = new MoveHelper(this);
 
         this.helpers = new ArrayList<>();
         this.helpers.add(loginHelper);
@@ -125,6 +129,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
         this.helpers.add(joinGameHelper);
         this.helpers.add(createGameHelper);
         this.helpers.add(loadGameHelper);
+        this.helpers.add(moveHelper);
     }
 
     /**
@@ -252,6 +257,19 @@ public class ServerHelper extends Handler implements ConnectCaller {
      */
     public void loadGame(LoadGameRequester requester, String gameID) throws MultipleRequestException {
         this.loadGameHelper.loadGame(requester, gameID);
+    }
+
+    /**
+     * Sends a move request to the server, trying to make the given move in the given game
+     *
+     * @param requester - will receive callbacks once the request has been handled
+     * @param gameID - the game to try and make the move in
+     * @param move - represents the move that this object will try and make with its request
+     * @throws MultipleRequestException - if this object is already handling a move request when
+     * this method is called
+     */
+    public void move(MoveRequester requester, String gameID, Move move) throws MultipleRequestException {
+        moveHelper.move(requester, gameID, move);
     }
 
     /**

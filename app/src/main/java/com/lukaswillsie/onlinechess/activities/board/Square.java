@@ -7,7 +7,6 @@ import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.util.Log;
 import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -116,10 +115,10 @@ public class Square {
     public void startDrag() {
         if(piece != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                layout.startDragAndDrop(null, new PieceDragShadowBuilder(), piece, View.DRAG_FLAG_OPAQUE);
+                layout.startDragAndDrop(null, new PieceDragShadowBuilder(), null, View.DRAG_FLAG_OPAQUE);
             }
             else {
-                layout.startDrag(null, new PieceDragShadowBuilder(), piece, 0);
+                layout.startDrag(null, new PieceDragShadowBuilder(), null, 0);
             }
         }
     }
