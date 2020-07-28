@@ -47,6 +47,11 @@ public class GameManager implements BoardDisplay.DisplayListener {
     private boolean userTurn;
 
     /**
+     * Keeps track of whether or not an active drag event has ended
+     */
+    private boolean dragEnded = false;
+
+    /**
      * Create a new GameManager that will manage the game represented by the given GamePresenter
      * and use the given BoardDisplay object to interact with the UI. The BoardDisplay object
      * must already have been built when it is given to this object (.build() must already have been
@@ -67,7 +72,7 @@ public class GameManager implements BoardDisplay.DisplayListener {
 
     @Override
     public boolean onTouch(int row, int column, MotionEvent event) {
-        Log.i(tag, "(" + row + ", " + column + ")\n" + event.toString());
+        Log.i(tag, "(" + event.getRawX() + ", " + event.getRawY() + ")\n" + event.toString());
         int action = event.getAction();
         Piece piece;
         switch (action) {
@@ -161,7 +166,13 @@ public class GameManager implements BoardDisplay.DisplayListener {
                     return false;
                 }
             case MotionEvent.ACTION_MOVE:
-                display.startDrag(row, column);
+                Piece dragged = getPiece(row, column);
+                if(userTurn && dragged != null && dragged.getColour() == presenter.getUserColour()) {
+                    Pair src = converToBoardCoords(row, column);
+                    dragEnded = false;
+                    display.startDrag(row, column);
+                    display.set(src.first(), src.second(), null);
+                }
                 return false;
             default:
                 return false;
@@ -170,7 +181,46 @@ public class GameManager implements BoardDisplay.DisplayListener {
 
     @Override
     public boolean onDrag(int row, int column, DragEvent event) {
-        return false;
+        switch (event.getAction()) {
+            case DragEvent.ACTION_DRAG_STARTED:
+                // When a drag starts, the only squares on the board that care about the drag are
+                // the squares that the piece being dragged can move to. So we only return true for
+                // these squares.
+                return (selected.getMoves().contains(converToBoardCoords(row, column)));
+            case DragEvent.ACTION_DRAG_ENTERED:
+                // Return true because we don't do anything special here but want to keep getting
+                // callbacks
+                return true;
+            case DragEvent.ACTION_DRAG_LOCATION:
+                // Return true because we don't do anything special here but want to keep getting
+                // callbacks
+                return true;
+            case DragEvent.ACTION_DRAG_EXITED:
+                // Return true because we don't do anything special here but want to keep getting
+                // callbacks
+                return true;
+            case DragEvent.ACTION_DROP:
+                // We've already ensured in the ACTION_DRAG_STARTED case that the only squares that
+                // can receive an ACTION_DROP event are ones that the piece being dragged can move
+                // to. So all we have to do is move the piece being dragged.
+                Pair src = new Pair(selected.getRow(), selected.getColumn());
+                Pair dest = converToBoardCoords(row, column);
+                display.set(dest.first(), dest.second(), selected);
+                display.resetSquares();
+                this.selected = null;
+                this.userTurn = false;
+                return true;
+            case DragEvent.ACTION_DRAG_ENDED:
+                // Once our drag event ends, all the squares that could have been moved to get this
+                // method call. We only care about the first one, so we use boolean dragEnded to
+                // ensure we only run the below code the first time.
+                if(!dragEnded && !event.getResult()) {
+                    display.set(selected.getRow(), selected.getColumn(), selected);
+                    dragEnded = true;
+                }
+                return true;
+        }
+        return true;
     }
 
     /**

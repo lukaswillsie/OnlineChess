@@ -7,6 +7,7 @@ import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.util.Log;
 import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -100,9 +101,9 @@ public class Square {
 
         image = new ImageView(context);
         ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        int margin = 5;
-        params.setMargins(margin, margin, margin, margin);
         image.setLayoutParams(params);
+        int padding = 5;
+        image.setPadding(padding, padding, padding, padding);
 
         layout.addView(image);
     }
@@ -115,10 +116,10 @@ public class Square {
     public void startDrag() {
         if(piece != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                layout.startDragAndDrop(null, new PieceDragShadowBuilder(), null, View.DRAG_FLAG_OPAQUE);
+                layout.startDragAndDrop(null, new PieceDragShadowBuilder(), piece, View.DRAG_FLAG_OPAQUE);
             }
             else {
-                layout.startDrag(null, new PieceDragShadowBuilder(), null, 0);
+                layout.startDrag(null, new PieceDragShadowBuilder(), piece, 0);
             }
         }
     }
@@ -363,7 +364,24 @@ public class Square {
         this.layout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                return listener.onTouch(row, column, event);
+                // I discovered that if the user clicks a square, holds the click, and then drags
+                // their finger all over the board, the touch events for the touch continue to get
+                // sent to the original square. So the user could press down on one square, move
+                // their finger, and release on another square, and the original square would get
+                // all those events. I don't want it to work like that. For example, if the user has
+                // a piece selected and clicks down on a square that that piece can move to, I want
+                // them to be able to move their finger off that square and let go without moving.
+                // They have to click both down and up on the same square to issue a move command.
+                // So we add a check to make sure that the touch event hasn't left the bounds of the
+                // square before sending off a touch event to the listener.
+                float x = event.getX();
+                float y = event.getY();
+                if(0 <= x  && x <= layout.getWidth() && 0 <= y && y <= layout.getHeight()) {
+                    return listener.onTouch(row, column, event);
+                }
+                else {
+                    return false;
+                }
             }
         });
     }
