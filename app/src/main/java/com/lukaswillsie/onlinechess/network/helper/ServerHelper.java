@@ -61,7 +61,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
      * The IP address of the machine running the server. I'm using the below address because that's
      * my machine's local IP address on my network.
      */
-    private static final String HOSTNAME = "192.168.0.19";
+    private static final String HOSTNAME = "192.168.2.23";
     /*
      * The port that the server is supposed to be listening on
      */

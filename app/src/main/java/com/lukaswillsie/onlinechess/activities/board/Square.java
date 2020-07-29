@@ -322,11 +322,22 @@ public class Square {
     }
 
     /**
-     * HIGHLIGHTS this square. This means highlighting it as one that can be moved to by some piece
-     * selected by the user.
+     * HIGHLIGHTS this square. This means highlighting it on the screen as one that can be moved to
+     * by a piece with the given colour that has been selected by the user.
+     *
+     * @param colour - the colour of the piece who can move to this square. Used to highlight
+     *               potential capture opportunities.
      */
-    public void highlight() {
-        this.layout.setBackground(new ColorDrawable(0xFF62E69E));
+    public void highlight(Colour colour) {
+        if(piece != null && piece.getColour() != colour) {
+            this.layout.setBackground(new ColorDrawable(0xFFFA1D1D));
+        }
+        else if(isLightSquare()) {
+            this.layout.setBackground(new ColorDrawable(0xFF62E69E));
+        }
+        else {
+            this.layout.setBackground(new ColorDrawable(0xFF4DB37B));
+        }
     }
 
     /**

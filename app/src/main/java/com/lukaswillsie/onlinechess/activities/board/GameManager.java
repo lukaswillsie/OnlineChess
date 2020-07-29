@@ -91,7 +91,7 @@ public class GameManager implements BoardDisplay.DisplayListener {
                         this.selected = piece;
                         display.resetSquares();
                         List<Pair> moves = selected.getMoves();
-                        display.highlightSquares(convertToScreenCoords(moves));
+                        display.highlightSquares(convertToScreenCoords(moves), presenter.getUserColour());
                     }
                     return true;
                 }

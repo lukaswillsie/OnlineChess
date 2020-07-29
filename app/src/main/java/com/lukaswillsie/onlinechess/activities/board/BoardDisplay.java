@@ -107,17 +107,21 @@ public class BoardDisplay {
     }
 
     /**
-     * Highlights the squares specified in the given list. Each Pair in the given list should
-     * contain a valid set of coordinates (each coordinate should be between 0 and 7, inclusive on
-     * both ends). Also, each Pair should specify a square on the SCREEN to be highlighted. Note
-     * that the coordinates then are dependent on what colour the user is playing as.
+     * Highlights the squares specified in the given list. Highlighting means that a piece the user
+     * has selected can move the specified squares, so we want to make that apparent to the user.
+     * Each Pair in the given list should contain a valid set of coordinates (each coordinate should
+     * be between 0 and 7, inclusive on both ends). Also, each Pair should specify a square on the
+     * SCREEN to be highlighted. Note that the coordinates then are dependent on what colour the
+     * user is playing as. The given Colour will be used to highlight squares containing enemy
+     * pieces for the user.
      *
      * @param squares - a list of squares to be highlighted
+     * @param colour - the colour
      */
-    public void highlightSquares(List<Pair> squares) {
+    public void highlightSquares(List<Pair> squares, Colour colour) {
         for(Pair pair : squares) {
             if(0 <= pair.first() && pair.first() <= 7 && 0 <= pair.second() && pair.second() <= 7) {
-                board[pair.first()][pair.second()].highlight();
+                board[pair.first()][pair.second()].highlight(colour);
             }
         }
     }

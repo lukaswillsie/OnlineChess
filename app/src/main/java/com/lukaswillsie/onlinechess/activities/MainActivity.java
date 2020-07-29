@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements ReconnectListener
 
         // This is the ID of a game I've created on the server and know exists, so I can use it for
         // testing purposes
-        intent.putExtra(BoardActivity.GAMEID_TAG, "test2");
+        intent.putExtra(BoardActivity.GAMEID_TAG, "third");
         startActivity(intent);
     }
     /**
