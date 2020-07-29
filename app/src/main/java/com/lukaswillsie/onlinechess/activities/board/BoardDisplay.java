@@ -1,6 +1,7 @@
 package com.lukaswillsie.onlinechess.activities.board;
 
 import android.content.Context;
+import android.media.MediaPlayer;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.MotionEvent;
@@ -50,6 +51,12 @@ public class BoardDisplay {
     private Context context;
 
     /**
+     * Used for playing sound effects
+     */
+    private static MediaPlayer movePlayer;
+    private static MediaPlayer capturePlayer;
+
+    /**
      * Takes the given TableLayout and builds a chessboard on it. The given TableLayout should be
      * a TableLayout formatted exactly as in empty_chessboard_layout.xml, with 8 equally-weighted
      * LinearLayouts as children. Does nothing if the given TableLayout does not have the proper
@@ -59,6 +66,14 @@ public class BoardDisplay {
      */
     public void build(TableLayout layout) {
         context = layout.getContext();
+
+        if(movePlayer == null) {
+            movePlayer = MediaPlayer.create(context, R.raw.move_sound);
+        }
+
+        if(capturePlayer == null) {
+            capturePlayer = MediaPlayer.create(context, R.raw.capture_sound);
+        }
 
         for(int i = 0; i < 8; i++) {
             View child = layout.getChildAt(i);
@@ -197,6 +212,20 @@ public class BoardDisplay {
             else {
                 board[7 - row][7 - column].setPiece(piece);
             }
+
+            // If the piece being set is non-null we play a sound effect. If it is moving onto an
+            // empty square, we play one sound effect. If it is moving onto an  enemy piece, a
+            // capture, we play another.
+            Piece movedTo = presenter.getPiece(row, column);
+            if(piece != null) {
+                if(movedTo != null
+                && movedTo.getColour() != piece.getColour()) {
+                    capturePlayer.start();
+                }
+                else {
+                    movePlayer.start();
+                }
+            }
         }
     }
 
@@ -229,7 +258,7 @@ public class BoardDisplay {
      *
      * @param move - the Move to be executed
      */
-    public void move(Move move) {
+    public void move(final Move move) {
         Pair src = convertToScreenCoords(move.src);
         Pair dest = convertToScreenCoords(move.dest);
 
@@ -260,6 +289,14 @@ public class BoardDisplay {
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
+                    Piece movedTo = presenter.getPiece(move.dest.first(), move.dest.second());
+                    if(movedTo != null && movedTo.getColour() != piece.getColour()) {
+                        capturePlayer.start();
+                    }
+                    else {
+                        movePlayer.start();
+                    }
+
                     // Now that the animation is done, place the piece from the source square on the
                     // destination square and destroy the ImageView we used for the animation.
                     setOnScreen(dest_row, dest_column, piece);
