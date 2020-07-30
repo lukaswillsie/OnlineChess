@@ -110,18 +110,27 @@ public class GameManager implements BoardDisplay.DisplayListener {
                         if(this.selected != null) {
                             if(selected.getMoves().contains(tapped)) {
                                 Pair src = new Pair(selected.getRow(), selected.getColumn());
+                                Move move = new Move(src, tapped);
 
                                 // If the user is trying to castle, we handle things slightly
                                 // differently, because we also need to move the Rook being castled
                                 // with
-                                Move rookMove = presenter.isCastle(new Move(src, tapped));
+                                Move rookMove = presenter.isCastle(move);
+                                Pair enPassantCapture = presenter.isEnPassant(move);
                                 if(rookMove != null) {
                                     // Move the King and Rook
-                                    display.move(new Move(src, tapped));
+                                    display.move(move);
                                     display.move(rookMove);
                                 }
+                                // If the user is doing an en passant capture, we need to remove the
+                                // pawn that they are capturing from the board
+                                else if(enPassantCapture != null) {
+                                    display.move(move);
+                                    display.set(enPassantCapture.first(), enPassantCapture.second(), null);
+                                }
+                                // Otherwise, just move the piece
                                 else {
-                                    // Just move the piece
+
                                     display.move(new Move(src, tapped));
                                 }
 
@@ -229,6 +238,13 @@ public class GameManager implements BoardDisplay.DisplayListener {
                 Move rookMove = presenter.isCastle(new Move(src, dest));
                 if(rookMove != null) {
                     display.move(rookMove);
+                }
+
+                // If the user is doing an en passant capture, we need to remove the pawn that they
+                // are capturing from the board
+                Pair enPassantCapture = presenter.isEnPassant(new Move(src, dest));
+                if(enPassantCapture != null) {
+                    display.set(enPassantCapture.first(), enPassantCapture.second(), null);
                 }
 
                 display.resetSquares();

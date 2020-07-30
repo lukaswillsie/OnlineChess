@@ -8,6 +8,7 @@ import Chess.com.lukaswillsie.chess.Board;
 import Chess.com.lukaswillsie.chess.Colour;
 import Chess.com.lukaswillsie.chess.King;
 import Chess.com.lukaswillsie.chess.Pair;
+import Chess.com.lukaswillsie.chess.Pawn;
 import Chess.com.lukaswillsie.chess.Piece;
 
 /**
@@ -104,6 +105,54 @@ public class GamePresenter {
                 Pair rookDest = new Pair(moved.getRow(), dest.second() - direction);
 
                 return new Move(rookSrc, rookDest);
+            }
+            else {
+                return null;
+            }
+        }
+        else {
+            return null;
+        }
+    }
+
+    /**
+     * Determine if the given Move represents a valid en passant capture by the user. If it does,
+     * return a Pair object representing the square on the board occupied by the pawn that WOULD BE
+     * CAPTURED as part of the given move. Returns null if the given Move does not represent a valid
+     * en passant capture by the user.
+     *
+     * @param move - the Move to be considered as a potential en passant capture
+     * @return If the given Move represents a valid en passant capture by the user, returns a Pair
+     * object pinpointing on the board the location of the enemy pawn that would be captured as part
+     * of the Move. Otherwise, returns null.
+     */
+    public Pair isEnPassant(Move move) {
+        Pair src = move.src;
+        Pair dest = move.dest;
+
+        if(board.validSquare(src.first(), src.second()) && board.validSquare(dest.first(), dest.second())) {
+            Piece moved = board.getPiece(src.first(), src.second());
+
+            if(moved instanceof Pawn && moved.getColour() == getUserColour() && board.isEnPassant(dest, (Pawn) moved)) {
+                // If we're returning the square occupied by the pawn being captured, we know from
+                // the definition of en passant that the pawn being captured is, prior to capture,
+                // in the same row as the pawn which is capturing it. We also know that the pawn
+                // being captured is in the same column that the capturing pawn ENDS UP IN, after
+                // the capture.
+                // Here's a quick diagram. Before:
+                //
+                // XX
+                // EX
+                // pP
+                //
+                // The 'E' represents where the white pawn (the 'P') can move to do an en passant
+                // capture. After:
+                // XX
+                // PX
+                // XX
+                // As you can see, the pawn capturing and the pawn getting captured share the same
+                // row initially, and the same column after the capture.
+                return new Pair(src.first(), dest.second());
             }
             else {
                 return null;
