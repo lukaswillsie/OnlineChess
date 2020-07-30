@@ -110,7 +110,22 @@ public class GameManager implements BoardDisplay.DisplayListener {
                         if(this.selected != null) {
                             if(selected.getMoves().contains(tapped)) {
                                 Pair src = new Pair(selected.getRow(), selected.getColumn());
-                                display.move(new Move(src, tapped));
+
+                                // If the user is trying to castle, we handle things slightly
+                                // differently, because we also need to move the Rook being castled
+                                // with
+                                Move rookMove = presenter.isCastle(new Move(src, tapped));
+                                if(rookMove != null) {
+                                    // Move the King and Rook
+                                    display.move(new Move(src, tapped));
+                                    display.move(rookMove);
+                                }
+                                else {
+                                    // Just move the piece
+                                    display.move(new Move(src, tapped));
+                                }
+
+
                                 this.userTurn = false;
                                 this.selected = null;
 
@@ -119,6 +134,9 @@ public class GameManager implements BoardDisplay.DisplayListener {
                                 display.resetSquares();
                                 return false;
                             }
+                            // If they're just tapping an empty square, we take this to mean that
+                            // the user wants to de-select their current selection (if they have
+                            // one)
                             else {
                                 display.resetSquares();
                                 this.selected = null;
@@ -206,6 +224,13 @@ public class GameManager implements BoardDisplay.DisplayListener {
                 Pair src = new Pair(selected.getRow(), selected.getColumn());
                 Pair dest = converToBoardCoords(row, column);
                 display.set(dest.first(), dest.second(), selected);
+
+                // If the user is castling, we also need to move the Rook being castled with
+                Move rookMove = presenter.isCastle(new Move(src, dest));
+                if(rookMove != null) {
+                    display.move(rookMove);
+                }
+
                 display.resetSquares();
                 this.selected = null;
                 this.userTurn = false;
