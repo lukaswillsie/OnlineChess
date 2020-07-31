@@ -205,8 +205,13 @@ public class BoardDisplay {
      * @param row - the row on the board that the square to be set occupies
      * @param column - the column on the board that the square to be set occupies
      * @param piece - the piece to be displayed on the given square
+     * @param playSoundEffect - whether or not to play a sound effect along with updating the
+     *                        specified square
+     * @param capture - if playSoundEffect is true, this boolean controls whether this method will
+     *                play a capture sound effect or a normal move sound effect. If playSoundEffect
+     *                is false, this parameter is ignored.
      */
-    public void set(int row, int column, Piece piece) {
+    public void set(int row, int column, Piece piece, boolean playSoundEffect, boolean capture) {
         if(0 <= row && row <= 7 && 0 <= column && column <= 7) {
             if(presenter.getUserColour() == Colour.WHITE) {
                 board[row][column].setPiece(piece);
@@ -215,13 +220,9 @@ public class BoardDisplay {
                 board[7 - row][7 - column].setPiece(piece);
             }
 
-            // If the piece being set is non-null we play a sound effect. If it is moving onto an
-            // empty square, we play one sound effect. If it is moving onto an  enemy piece, a
-            // capture, we play another.
-            Piece movedTo = presenter.getPiece(row, column);
-            if(piece != null) {
-                if(movedTo != null
-                && movedTo.getColour() != piece.getColour()) {
+            // Play a sound effect, if we've been instructed to
+            if(playSoundEffect) {
+                if(capture) {
                     capturePlayer.start();
                 }
                 else {
@@ -253,14 +254,19 @@ public class BoardDisplay {
      * Execute the given Move. Moves the piece at move.src to the square move.dest. move.src and
      * move.dest should both be given in BOARD COORDINATES, independent of what colour the user is
      * playing. Animates the piece being moved so that it actually slides across the board to the
-     * destination square.
+     * destination square. If instructed, will play a sound effect when it reaches its destination.
      *
      * Does nothing if the square specified by move.src is empty or if either square is
-     * invalid (either one has row or column outside of 0,1,...,7).
+     * invalid (either one has row or column outside of {0,1,...,7}).
      *
      * @param move - the Move to be executed
+     * @param playSoundEffect - whether or not to play a sound effect when the move animation is
+     *                        finished
+     * @param capture - whether or not this move is a capture move. If it is, and playSoundEffect is
+     *                true, a different sound effect will be played than if it is a normal move, say
+     *                to an empty square.
      */
-    public void move(final Move move) {
+    public void move(final Move move, final boolean playSoundEffect, final boolean capture) {
         Pair src = convertToScreenCoords(move.src);
         Pair dest = convertToScreenCoords(move.dest);
 
@@ -291,12 +297,13 @@ public class BoardDisplay {
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
-                    Piece movedTo = presenter.getPiece(move.dest.first(), move.dest.second());
-                    if(movedTo != null && movedTo.getColour() != piece.getColour()) {
-                        capturePlayer.start();
-                    }
-                    else {
-                        movePlayer.start();
+                    if(playSoundEffect) {
+                        if(capture) {
+                            capturePlayer.start();
+                        }
+                        else {
+                            movePlayer.start();
+                        }
                     }
 
                     // Now that the animation is done, place the piece from the source square on the

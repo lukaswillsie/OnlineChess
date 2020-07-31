@@ -139,20 +139,20 @@ public class GameManager implements BoardDisplay.DisplayListener {
                                 Move rookMove = presenter.isCastle(move);
                                 Pair enPassantCapture = presenter.isEnPassant(move);
                                 if(rookMove != null) {
-                                    // Move the King and Rook
-                                    display.move(move);
-                                    display.move(rookMove);
+                                    // Move the King and Rook, only playing a sound effect for one
+                                    // of their moves
+                                    display.move(move, false, false);
+                                    display.move(rookMove, true, false);
                                 }
                                 // If the user is doing an en passant capture, we need to remove the
                                 // pawn that they are capturing from the board
                                 else if(enPassantCapture != null) {
-                                    display.move(move);
-                                    display.set(enPassantCapture.first(), enPassantCapture.second(), null);
+                                    display.move(move, true, true);
+                                    display.set(enPassantCapture.first(), enPassantCapture.second(), null, false, false);
                                 }
-                                // Otherwise, just move the piece
+                                // Otherwise, just move the piece to the empty square
                                 else {
-
-                                    display.move(new Move(src, tapped));
+                                    display.move(new Move(src, tapped), true, false);
                                 }
 
 
@@ -185,7 +185,9 @@ public class GameManager implements BoardDisplay.DisplayListener {
                         if(this.selected != null) {
                             if(selected.getMoves().contains(tapped)) {
                                 Pair src = new Pair(selected.getRow(), selected.getColumn());
-                                display.move(new Move(src, tapped));
+                                // Move the piece to the square tapped by the user and play a
+                                // capture sound effect
+                                display.move(new Move(src, tapped), true, true);
                                 this.userTurn = false;
                                 this.selected = null;
 
@@ -219,7 +221,7 @@ public class GameManager implements BoardDisplay.DisplayListener {
                     Pair src = converToBoardCoords(row, column);
                     dragEnded = false;
                     display.startDrag(row, column);
-                    display.set(src.first(), src.second(), null);
+                    display.set(src.first(), src.second(), null,false, false);
                 }
                 return false;
             default:
@@ -253,20 +255,38 @@ public class GameManager implements BoardDisplay.DisplayListener {
                 // to. So all we have to do is move the piece being dragged.
                 Pair src = new Pair(selected.getRow(), selected.getColumn());
                 Pair dest = converToBoardCoords(row, column);
-                display.set(dest.first(), dest.second(), selected);
 
-                // If the user is castling, we also need to move the Rook being castled with
-                Move rookMove = presenter.isCastle(new Move(src, dest));
-                if(rookMove != null) {
-                    display.move(rookMove);
+                // If the move is a normal capture
+                if(presenter.getPiece(dest) != null && presenter.getPiece(dest).getColour() != selected.getColour()) {
+                    display.set(dest.first(), dest.second(), selected, true, true);
+                }
+                // If the move is onto an empty square
+                else {
+                    Move rookMove = presenter.isCastle(new Move(src, dest));
+                    Pair enPassantCapture = presenter.isEnPassant(new Move(src, dest));
+
+                    // If the user is castling, we need to move the Rook being castled with, as well
+                    // as place the King being moved on the destination square
+                    if(rookMove != null) {
+                        // Set the King and move the Rook, playing a sound effect for each
+                        display.set(dest.first(), dest.second(), selected, true, false);
+                        display.move(rookMove, true, false);
+                    }
+                    // If the user is doing an en passant capture, we need to remove the pawn that they
+                    // are capturing from the board
+                    else if(enPassantCapture != null) {
+                        // Set the pawn performing the capture and erase the pawn being captured,
+                        // playing a single capture sound effect
+                        display.set(dest.first(), dest.second(), selected, true, true);
+                        display.set(enPassantCapture.first(), enPassantCapture.second(), null, false, false);
+                    }
+                    else {
+                        display.set(dest.first(), dest.second(), selected, true, false);
+                    }
                 }
 
-                // If the user is doing an en passant capture, we need to remove the pawn that they
-                // are capturing from the board
-                Pair enPassantCapture = presenter.isEnPassant(new Move(src, dest));
-                if(enPassantCapture != null) {
-                    display.set(enPassantCapture.first(), enPassantCapture.second(), null);
-                }
+
+
 
                 display.resetSquares();
                 this.selected = null;
@@ -277,7 +297,7 @@ public class GameManager implements BoardDisplay.DisplayListener {
                 // method call. We only care about the first one, so we use boolean dragEnded to
                 // ensure we only run the below code the first time.
                 if(!dragEnded && !event.getResult()) {
-                    display.set(selected.getRow(), selected.getColumn(), selected);
+                    display.set(selected.getRow(), selected.getColumn(), selected, false, false);
                     dragEnded = true;
                 }
                 return true;

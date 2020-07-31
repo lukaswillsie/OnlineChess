@@ -50,6 +50,19 @@ public class GamePresenter {
     }
 
     /**
+     * Identical to getPiece(int row, int column), but accepts a Pair object instead of two
+     * integers. The restrictions on the coordinates contained in the Pair are identical to those
+     * imposed on row and column in getPiece(int row, int column).
+     *
+     * @param pair - the Pair specifying the square on the board to access
+     * @return The Piece representing the specified spot on the board, or null if the specified
+     * square is empty. Also returns null if row and column don't satisfy the precondition.
+     */
+    public Piece getPiece(Pair pair) {
+        return getPiece(pair.first(), pair.second());
+    }
+
+    /**
      * Check if the user can castle, and, if they can, whether the given Move represents the user
      * trying to castle.
      *
@@ -85,12 +98,13 @@ public class GamePresenter {
             && moved.getColour() == getUserColour()
             && (moved.getColumn() - dest.second() == 2 || moved.getColumn() - dest.second() == -2)) {
                 // Get the sign of the king's movement (+1 for right, -1 for left)
-                int direction = moved.getColumn() - dest.second() / Math.abs(moved.getColumn() - dest.second());
+                int direction = (dest.second() - moved.getColumn() > 0) ? 1 : -1;
 
                 // Figure out which column the rook being castled with occupies. We asssume, since
                 // the King told us that the Move being considered is valid, that there is a Rook
                 // that can be castled with in the same row as the King. We just need to determine
-                // its column (it could be either to the left of the King or the right)
+                // its column (it could be either to the left of the King or the right), determined
+                // by which direction the King is moving in
                 int column;
                 if(direction > 0) {
                     column = 7;
