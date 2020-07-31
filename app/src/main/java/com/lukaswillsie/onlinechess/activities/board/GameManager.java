@@ -91,7 +91,28 @@ public class GameManager implements BoardDisplay.DisplayListener {
                         this.selected = piece;
                         display.resetSquares();
                         List<Pair> moves = selected.getMoves();
-                        display.highlightSquares(convertToScreenCoords(moves), presenter.getUserColour());
+
+                        // We parse the list of moves into capture moves and normal moves
+                        List<Pair> normalMoves = new ArrayList<>();
+                        List<Pair> captureMoves = new ArrayList<>();
+                        for(Pair move : moves) {
+                            if(presenter.getPiece(move.first(), move.second()) == null) {
+                                // If the move ends on an empty square, it can still be a capture
+                                // move if it's an en passant capture
+                                if(presenter.isEnPassant(new Move(new Pair(selected.getRow(), selected.getColumn()), move)) != null) {
+                                    captureMoves.add(move);
+                                }
+                                else {
+                                    normalMoves.add(move);
+                                }
+                            }
+                            else {
+                                captureMoves.add(move);
+                            }
+                        }
+
+                        display.highlightSquares(convertToScreenCoords(captureMoves), true);
+                        display.highlightSquares(convertToScreenCoords(normalMoves), false);
                     }
                     return true;
                 }

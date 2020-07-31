@@ -123,7 +123,7 @@ public class BoardDisplay {
 
     /**
      * Highlights the squares specified in the given list. Highlighting means that a piece the user
-     * has selected can move the specified squares, so we want to make that apparent to the user.
+     * has selected can move to the specified squares, so we want to make that apparent to the user.
      * Each Pair in the given list should contain a valid set of coordinates (each coordinate should
      * be between 0 and 7, inclusive on both ends). Also, each Pair should specify a square on the
      * SCREEN to be highlighted. Note that the coordinates then are dependent on what colour the
@@ -131,12 +131,14 @@ public class BoardDisplay {
      * pieces for the user.
      *
      * @param squares - a list of squares to be highlighted
-     * @param colour - the colour
+     * @param capture - whether or not to highlight these squares as capture squares, i.e. squares
+     *                that the user can capture an enemy piece on. These squares will be highlighted
+     *                red, while normal move squares will be highlighted turquoise-ish
      */
-    public void highlightSquares(List<Pair> squares, Colour colour) {
+    public void highlightSquares(List<Pair> squares, boolean capture) {
         for(Pair pair : squares) {
             if(0 <= pair.first() && pair.first() <= 7 && 0 <= pair.second() && pair.second() <= 7) {
-                board[pair.first()][pair.second()].highlight(colour);
+                board[pair.first()][pair.second()].highlight(capture);
             }
         }
     }

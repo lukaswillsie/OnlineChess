@@ -323,13 +323,14 @@ public class Square {
 
     /**
      * HIGHLIGHTS this square. This means highlighting it on the screen as one that can be moved to
-     * by a piece with the given colour that has been selected by the user.
+     * by the user.
      *
-     * @param colour - the colour of the piece who can move to this square. Used to highlight
-     *               potential capture opportunities.
+     * @param capture - Whether or not to highlight this square as a potential capture, as opposed
+     *                to a normal move. Capture squares will be highlighted red, while normal move
+     *                squares will be highlighted a turquoise-ish colour
      */
-    public void highlight(Colour colour) {
-        if(piece != null && piece.getColour() != colour) {
+    public void highlight(boolean capture) {
+        if(capture) {
             this.layout.setBackground(new ColorDrawable(0xFFFA1D1D));
         }
         else if(isLightSquare()) {
