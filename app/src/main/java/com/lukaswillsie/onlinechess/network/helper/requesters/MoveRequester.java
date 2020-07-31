@@ -8,8 +8,11 @@ package com.lukaswillsie.onlinechess.network.helper.requesters;
 public interface MoveRequester extends Requester {
     /**
      * Called if the move is successfully made.
+     *
+     * @param promotionNeeded - true if a promotion is needed now that the move has been made (i.e.
+     *                        the move resulted in a pawn making it to the back row)
      */
-    void moveSuccess();
+    void moveSuccess(boolean promotionNeeded);
 
     /**
      * Called if the game that we tried to make a move in does not exist, according to the server's

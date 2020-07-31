@@ -18,7 +18,7 @@ import Chess.com.lukaswillsie.chess.Piece;
  * to actions made by the user. It interacts with the UI at a high-level by using a BoardDisplay
  * object. It accesses data about the game it is managing by using a GamePresenter object.
  */
-public class GameManager implements BoardDisplay.DisplayListener {
+public class ChessManager implements BoardDisplay.DisplayListener{
     /**
      * Tag used for logging to the console
      */
@@ -60,7 +60,7 @@ public class GameManager implements BoardDisplay.DisplayListener {
      * @param presenter - a GamePresenter representing the game that this object will manage
      * @param display - the object that this GameManager will use to interact with the UI
      */
-    GameManager(GamePresenter presenter, BoardDisplay display) {
+    ChessManager(GamePresenter presenter, BoardDisplay display) {
         this.presenter = presenter;
         this.display = display;
 

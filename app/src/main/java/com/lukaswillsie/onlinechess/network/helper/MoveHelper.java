@@ -85,6 +85,8 @@ public class MoveHelper extends SubHelper implements ReturnCodeCaller {
                 msg.what = SERVER_ERROR;
             case ReturnCodes.Move.SUCCESS:
                 msg.what = SUCCESS;
+            case ReturnCodes.Move.SUCCESS_PROMOTION_NEEDED:
+                msg.what = SUCCESS_PROMOTION_NEEDED;
             case ReturnCodes.Move.GAME_DOES_NOT_EXIST:
                 msg.what = GAME_DOES_NOT_EXIST;
             case ReturnCodes.Move.USER_NOT_IN_GAME:
@@ -132,14 +134,15 @@ public class MoveHelper extends SubHelper implements ReturnCodeCaller {
     public static final int SYSTEM_ERROR = -2;
     public static final int SERVER_ERROR = -1;
     public static final int SUCCESS = 0;
-    public static final int GAME_DOES_NOT_EXIST = 1;
-    public static final int USER_NOT_IN_GAME = 2;
-    public static final int NO_OPPONENT = 3;
-    public static final int GAME_IS_OVER = 4;
-    public static final int NOT_USER_TURN = 5;
-    public static final int HAS_TO_PROMOTE = 6;
-    public static final int RESPOND_TO_DRAW = 7;
-    public static final int MOVE_INVALID = 8;
+    public static final int SUCCESS_PROMOTION_NEEDED = 1;
+    public static final int GAME_DOES_NOT_EXIST = 2;
+    public static final int USER_NOT_IN_GAME = 3;
+    public static final int NO_OPPONENT = 4;
+    public static final int GAME_IS_OVER = 5;
+    public static final int NOT_USER_TURN = 6;
+    public static final int HAS_TO_PROMOTE = 7;
+    public static final int RESPOND_TO_DRAW = 8;
+    public static final int MOVE_INVALID = 9;
 
     /**
      * We use this method to give callbacks to our requester. We use Messages instead of calling
@@ -171,7 +174,13 @@ public class MoveHelper extends SubHelper implements ReturnCodeCaller {
                 this.requester = null;
                 break;
             case SUCCESS:
-                requester.moveSuccess();
+                requester.moveSuccess(false);
+
+                // Allows us to handle another request
+                this.requester = null;
+                break;
+            case SUCCESS_PROMOTION_NEEDED:
+                requester.moveSuccess(true);
 
                 // Allows us to handle another request
                 this.requester = null;
