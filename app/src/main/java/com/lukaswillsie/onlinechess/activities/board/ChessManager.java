@@ -90,6 +90,9 @@ public class ChessManager implements BoardDisplay.DisplayListener{
                             && piece != selected) {
                         this.selected = piece;
                         display.resetSquares();
+
+                        display.selectSquare(row, column);
+
                         List<Pair> moves = selected.getMoves();
 
                         // We parse the list of moves into capture moves and normal moves
@@ -234,9 +237,10 @@ public class ChessManager implements BoardDisplay.DisplayListener{
         switch (event.getAction()) {
             case DragEvent.ACTION_DRAG_STARTED:
                 // When a drag starts, the only squares on the board that care about the drag are
-                // the squares that the piece being dragged can move to. So we only return true for
-                // these squares.
-                return (selected.getMoves().contains(converToBoardCoords(row, column)));
+                // the squares that the piece being dragged can move to, or the square that the
+                // piece being dragged currently occupies. So we only return true for these squares.
+                return (selected.getMoves().contains(converToBoardCoords(row, column))
+                || new Pair(selected.getRow(), selected.getColumn()).equals(converToBoardCoords(row, column)));
             case DragEvent.ACTION_DRAG_ENTERED:
                 // Return true because we don't do anything special here but want to keep getting
                 // callbacks
@@ -252,9 +256,17 @@ public class ChessManager implements BoardDisplay.DisplayListener{
             case DragEvent.ACTION_DROP:
                 // We've already ensured in the ACTION_DRAG_STARTED case that the only squares that
                 // can receive an ACTION_DROP event are ones that the piece being dragged can move
-                // to. So all we have to do is move the piece being dragged.
+                // to, or the square that the piece being dragged current occupies. So all we have
+                // to do is either move the piece being dragged, or return it to its square.
                 Pair src = new Pair(selected.getRow(), selected.getColumn());
                 Pair dest = converToBoardCoords(row, column);
+
+                // If the user started the drag and then let go on the same square, we simply return
+                // the piece to its square on the screen.
+                if(src.equals(dest)) {
+                    display.set(src.first(), src.second(), selected, false, false);
+                    return true;
+                }
 
                 // If the move is a normal capture
                 if(presenter.getPiece(dest) != null && presenter.getPiece(dest).getColour() != selected.getColour()) {

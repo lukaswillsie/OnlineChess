@@ -144,8 +144,27 @@ public class BoardDisplay {
     }
 
     /**
+     * Selects the specified square. "Selecting" means that the user has tapped a piece, so we want
+     * to visually mark which piece has been selected.
+     *
+     * Note: The specified coordinates should be given as SCREEN coordinates, not board coordinates,
+     * which are independent of what colour is being played by the user.
+     *
+     * row and column must both be members of the set {0,...,7}, or nothing will happen
+     *
+     * @param row - the row on the screen occupied by the square to be selected
+     * @param column - the column on the screen occupied by the square to be selected
+     */
+    public void selectSquare(int row, int column) {
+        if(0 <= row && row <= 7 && 0 <= column && column <= 7) {
+            board[row][column].select();
+        }
+    }
+
+    /**
      * Reset all the squares on the board. This simply means un-highlighting any and all squares
-     * that have been highlighted.
+     * that have been highlighted or selected. Does not change what pieces any of the squares are
+     * displaying.
      */
     public void resetSquares() {
         for(int row = 0; row < 8; row++) {

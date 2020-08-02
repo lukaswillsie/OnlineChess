@@ -342,8 +342,17 @@ public class Square {
     }
 
     /**
+     * SELECTS this square. If the user taps a piece and selects it, we select the square underneath
+     * it as a visual reminder of which piece was highlighted.
+     */
+    public void select() {
+        System.out.println("Selecting a square");
+        this.layout.setBackground(new ColorDrawable(0xFFB5FF54));
+    }
+
+    /**
      * Reset the background of this Square. Does not change what piece this Square is showing, but
-     * resets the background if this square was previously highlighted.
+     * resets the background if this square was previously highlighted or selected.
      */
     public void reset() {
         if(isLightSquare()) {

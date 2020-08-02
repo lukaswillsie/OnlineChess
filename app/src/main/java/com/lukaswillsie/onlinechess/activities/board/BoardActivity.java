@@ -51,7 +51,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
     /**
      * The object managing the game being displayed by this Activity
      */
-    private GameManager manager;
+    private ChessManager manager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,7 +129,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
         // Create a GamePresenter and GameManager for this game, now that we have all the data we
         // need
         GamePresenter presenter = new GamePresenter(game, board);
-        manager = new GameManager(presenter, display);
+        manager = new ChessManager(presenter, display);
     }
 
     /**
