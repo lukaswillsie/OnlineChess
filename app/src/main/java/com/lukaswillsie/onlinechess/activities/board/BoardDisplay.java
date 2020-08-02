@@ -2,7 +2,6 @@ package com.lukaswillsie.onlinechess.activities.board;
 
 import android.content.Context;
 import android.media.MediaPlayer;
-import android.util.Log;
 import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,8 +13,6 @@ import android.widget.LinearLayout;
 import android.widget.TableLayout;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.viewpager.widget.ViewPager;
 
 import com.lukaswillsie.onlinechess.R;
 
@@ -122,6 +119,15 @@ public class BoardDisplay {
     }
 
     /**
+     * Get this object's Context.
+     *
+     * @return The Context for which this object is managing the display.
+     */
+    public Context getContext() {
+        return context;
+    }
+
+    /**
      * Highlights the squares specified in the given list. Highlighting means that a piece the user
      * has selected can move to the specified squares, so we want to make that apparent to the user.
      * Each Pair in the given list should contain a valid set of coordinates (each coordinate should
@@ -214,6 +220,18 @@ public class BoardDisplay {
     }
 
     /**
+     * Resets the board so that, on the screen, the contents of the board mirror exactly the
+     * board contained in presenter, our model.
+     */
+    public void reset() {
+        for(int row = 0; row < 8; row++) {
+            for(int column = 0; column < 8; column++) {
+                board[row][column].setPiece(presenter.getPiece(convertCoords(new Pair(row, column))));
+            }
+        }
+    }
+
+    /**
      * Sets the square specified by row and column to display the given piece. If piece is null, the
      * specified square will be emptied.
      *
@@ -286,8 +304,8 @@ public class BoardDisplay {
      *                to an empty square.
      */
     public void move(final Move move, final boolean playSoundEffect, final boolean capture) {
-        Pair src = convertToScreenCoords(move.src);
-        Pair dest = convertToScreenCoords(move.dest);
+        Pair src = convertCoords(move.src);
+        Pair dest = convertCoords(move.dest);
 
         // SCREEN COORDINATES for the source and destination square of the move
         final int src_row = src.first();
@@ -340,13 +358,17 @@ public class BoardDisplay {
     }
 
     /**
-     * Convert the given Pair of board coordinates to screen coordinates.
+     * Convert the given Pair of coordinates from board coordinates to screen coordinates OR
+     * from screen coordinates to board coordinates. We can do either one because the process is
+     * exactly the same regardless of which coordinates you start and end from. If the user is
+     * white, board coordinates and screen coordinates are equivalent. If the user is black, each
+     * needs to get reflected across the same axis to become the other.
      *
      * @param pair - the Pair of board coordinates to be converted
-     * @return A new Pair, containing the screen coordinates that correspond to the given Pair of
-     * board coordinates
+     * @return A new Pair, containing coordinates in either board or screen form, converted to the
+     * other form.
      */
-    private Pair convertToScreenCoords(Pair pair) {
+    private Pair convertCoords(Pair pair) {
         if(presenter.getUserColour() == Colour.WHITE) {
             return new Pair(pair.first(), pair.second());
         }

@@ -1,18 +1,14 @@
 package com.lukaswillsie.onlinechess.activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
-import androidx.appcompat.app.AlertDialog;
 
 import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
@@ -106,7 +102,7 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
                 application.getServerHelper().joinGame(this, gameID, application.getUsername());
             } catch (MultipleRequestException e) {
                 Log.e(tag, "MultipleRequestException thrown by JoinGameHelper");
-                super.createSystemErrorDialog();
+                super.showSystemErrorDialog();
                 return;
             }
 
@@ -233,7 +229,7 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
         if(this.state != State.WAITING) {
             resetUI();
             this.state = State.WAITING;
-            super.createConnectionLostDialog();
+            super.showConnectionLostDialog();
         }
     }
 
@@ -243,7 +239,7 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
     @Override
     public void serverError() {
         if(this.state != State.WAITING) {
-            super.createServerErrorDialog();
+            super.showServerErrorDialog();
         }
     }
 
@@ -253,7 +249,7 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
     @Override
     public void systemError() {
         if(this.state != State.WAITING) {
-            super.createSystemErrorDialog();
+            super.showSystemErrorDialog();
         }
     }
 

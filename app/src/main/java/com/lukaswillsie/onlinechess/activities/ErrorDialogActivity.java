@@ -1,5 +1,7 @@
 package com.lukaswillsie.onlinechess.activities;
 
+import androidx.annotation.StringRes;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.lukaswillsie.onlinechess.R;
@@ -19,7 +21,7 @@ import com.lukaswillsie.onlinechess.R;
  * login, the "Cancel" button might let the user access the EditTexts again so they can try logging
  * in a different account, if they want. Even though there is no guarantee that subsequent requests
  * will work, it's better to allow the user this freedom rather than only allowing them the option
- * of trying again over and over.
+ * of clicking "Try again" over and over.
  * <p>
  * Lost connection error dialogs do not have cancel buttons because the app cannot function without
  * a connection.
@@ -31,7 +33,7 @@ public abstract class ErrorDialogActivity extends AppCompatActivity {
      * by pressing the back button. Either of these actions will be communicated back to the
      * Activity exactly as if the user had pressed cancel.
      */
-    public void createSystemErrorDialog() {
+    public void showSystemErrorDialog() {
         ErrorDialogFragment fragment = new ErrorDialogFragment(new SystemErrorDialogListener(), getResources().getString(R.string.system_error_alert));
         fragment.show(getSupportFragmentManager(), "system_error_dialog");
     }
@@ -42,7 +44,7 @@ public abstract class ErrorDialogActivity extends AppCompatActivity {
      * by pressing the back button. Either of these actions will be communicated back to the
      * Activity exactly as if the user had pressed cancel.
      */
-    public void createServerErrorDialog() {
+    public void showServerErrorDialog() {
         ErrorDialogFragment fragment = new ErrorDialogFragment(new ServerErrorDialogListener(), getResources().getString(R.string.server_error_alert));
         fragment.show(getSupportFragmentManager(), "server_error_dialog");
     }
@@ -52,9 +54,19 @@ public abstract class ErrorDialogActivity extends AppCompatActivity {
      * only a "Try Again" button. This dialog cannot be closed by clicking outside of it or by
      * pressing the back button. The only option is to press "Try Again" or close the app.
      */
-    public void createConnectionLostDialog() {
+    public void showConnectionLostDialog() {
         ErrorDialogFragment fragment = new ErrorDialogFragment(new ConnectionLostDialogListener(), getResources().getString(R.string.connection_lost_alert));
         fragment.show(getSupportFragmentManager(), "system_error_dialog");
+    }
+
+    /**
+     *
+     * @param resID
+     * @param listener
+     */
+    public void showCustomDialog(@StringRes int resID, ErrorDialogFragment.ErrorDialogListener listener) {
+        ErrorDialogFragment fragment = new ErrorDialogFragment(listener, getResources().getString(resID));
+        fragment.show(getSupportFragmentManager(), "custom_error_dialog");
     }
 
     /**

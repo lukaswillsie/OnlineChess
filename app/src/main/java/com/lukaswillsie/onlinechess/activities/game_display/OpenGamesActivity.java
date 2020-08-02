@@ -49,7 +49,7 @@ public class OpenGamesActivity extends ErrorDialogActivity implements OpenGamesR
             // present the option to try again.
             catch (MultipleRequestException e) {
                 Log.e(tag, "MultipleRequestException thrown in response to getOpenGames() request");
-                createSystemErrorDialog();
+                showSystemErrorDialog();
             }
         } else {
             new Reconnector(this, this).reconnect();
@@ -89,7 +89,7 @@ public class OpenGamesActivity extends ErrorDialogActivity implements OpenGamesR
      */
     @Override
     public void connectionLost() {
-        super.createConnectionLostDialog();
+        super.showConnectionLostDialog();
     }
 
     /**
@@ -97,7 +97,7 @@ public class OpenGamesActivity extends ErrorDialogActivity implements OpenGamesR
      */
     @Override
     public void serverError() {
-        super.createServerErrorDialog();
+        super.showServerErrorDialog();
     }
 
     /**
@@ -105,7 +105,7 @@ public class OpenGamesActivity extends ErrorDialogActivity implements OpenGamesR
      */
     @Override
     public void systemError() {
-        super.createSystemErrorDialog();
+        super.showSystemErrorDialog();
     }
 
     /**
@@ -125,7 +125,7 @@ public class OpenGamesActivity extends ErrorDialogActivity implements OpenGamesR
             // present the option to try again.
             catch (MultipleRequestException e) {
                 Log.e(tag, "MultipleRequestException thrown in response to getOpenGames() request");
-                createSystemErrorDialog();
+                showSystemErrorDialog();
             }
         } else {
             new Reconnector(this, this).reconnect();
@@ -158,7 +158,7 @@ public class OpenGamesActivity extends ErrorDialogActivity implements OpenGamesR
             // present the option to try again.
             catch (MultipleRequestException e) {
                 Log.e(tag, "MultipleRequestException thrown in response to getOpenGames() request");
-                createSystemErrorDialog();
+                showSystemErrorDialog();
             }
         } else {
             new Reconnector(this, this).reconnect();
@@ -198,7 +198,7 @@ public class OpenGamesActivity extends ErrorDialogActivity implements OpenGamesR
         // present the option to try again.
         catch (MultipleRequestException e) {
             Log.e(tag, "MultipleRequestException thrown in response to getOpenGames() request");
-            createSystemErrorDialog();
+            showSystemErrorDialog();
         }
     }
 }

@@ -80,4 +80,8 @@
     <string name="create_game_button_text">CREATE</string>
     <string name="gameID_in_use_text">That gameID is already being used!</string>
     <string name="gameID_format_invalid_text">The gameID is invalid. GameIDs can\'t contain commas or spaces, and must be non-empty.</string>
+
+    <!-- Play Game Screen-->
+    <string name="move_failed_error_text">Something went wrong and we couldn\'t submit your move. Do you want us to try again?</string>
+
 </resources>

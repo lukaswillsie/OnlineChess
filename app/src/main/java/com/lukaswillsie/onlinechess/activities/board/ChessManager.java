@@ -4,6 +4,12 @@ import android.util.Log;
 import android.view.DragEvent;
 import android.view.MotionEvent;
 
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.lukaswillsie.onlinechess.R;
+import com.lukaswillsie.onlinechess.activities.ErrorDialogFragment;
+import com.lukaswillsie.onlinechess.activities.ReconnectListener;
+import com.lukaswillsie.onlinechess.activities.Reconnector;
 import com.lukaswillsie.onlinechess.data.GameData;
 
 import java.util.ArrayList;
@@ -18,11 +24,11 @@ import Chess.com.lukaswillsie.chess.Piece;
  * to actions made by the user. It interacts with the UI at a high-level by using a BoardDisplay
  * object. It accesses data about the game it is managing by using a GamePresenter object.
  */
-public class ChessManager implements BoardDisplay.DisplayListener{
+public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestListener, ReconnectListener {
     /**
      * Tag used for logging to the console
      */
-    private static final String tag = "GameManager";
+    private static final String tag = "ChessManager";
 
     /**
      * The object containing all the data about the game that this object is managing
@@ -30,9 +36,19 @@ public class ChessManager implements BoardDisplay.DisplayListener{
     private  GamePresenter presenter;
 
     /**
-     * The object managing the display for this GameManager
+     * The object managing the display for this ChessManager
      */
     private BoardDisplay display;
+
+    /**
+     * Will be used to display dialogs to the user if things go wrong
+     */
+    private GameDialogCreator dialogCreator;
+
+    /**
+     * The activity displaying the game that this ChessManager is managing
+     */
+    private AppCompatActivity activity;
 
     /**
      * If the user currently has a piece selected (meaning it's their turn and they've tapped one
@@ -52,22 +68,56 @@ public class ChessManager implements BoardDisplay.DisplayListener{
     private boolean dragEnded = false;
 
     /**
-     * Create a new GameManager that will manage the game represented by the given GamePresenter
+     * If the user has submitted a move, say by dragging a piece onto a square, but the server
+     * hasn't confirmed it for us, we keep a reference to it here until we don't need it anymore
+     */
+    private Move activeMove;
+
+    /**
+     * The ID of the game that this object is managing
+     */
+    private final String gameID;
+
+    /**
+     * The object that will process and send move requests to the server for us
+     */
+    private MoveRequestHandler moveHandler;
+
+    /**
+     * Create a new ChessManager that will manage the game represented by the given GamePresenter
      * and use the given BoardDisplay object to interact with the UI. The BoardDisplay object
      * must already have been built when it is given to this object (.build() must already have been
      * called).
      *
+     * @param gameID - the ID of the game that this object is managing
      * @param presenter - a GamePresenter representing the game that this object will manage
-     * @param display - the object that this GameManager will use to interact with the UI
+     * @param display - the object that this ChessManager will use to interact with the UI
+     * @param dialogCreator - the object that this ChessManager will use to create error dialogs,
+     *                      when necessary
+     * @param activity - the Activity displaying the game that this ChessManager is managing
      */
-    ChessManager(GamePresenter presenter, BoardDisplay display) {
+    ChessManager(String gameID, GamePresenter presenter, BoardDisplay display, GameDialogCreator dialogCreator,
+                 AppCompatActivity activity) {
         this.presenter = presenter;
         this.display = display;
+        this.dialogCreator = dialogCreator;
+        this.moveHandler = new MoveRequestHandler(this, display.getContext());
+        this.gameID = gameID;
+        this.activity = activity;
 
         this.display.activate(presenter, this);
 
         // Record whether or not it's the user's turn
-        this.userTurn = (Integer)presenter.getData(GameData.TURN) == 1;
+        this.userTurn = (Integer)presenter.getData(GameData.STATE) == 1;
+    }
+
+    /**
+     * Resets this object so that all its game fields exactly mirror the state of the game according
+     * to the model. Used if the server rejects a move that we made, forcing us to revert to our
+     * base state.
+     */
+    private void resetFromModel() {
+        this.userTurn = (Integer)presenter.getData(GameData.STATE) == 1;
     }
 
     @Override
@@ -128,7 +178,7 @@ public class ChessManager implements BoardDisplay.DisplayListener{
 
                     // The user clicked an empty square. They might be issuing a move command.
                     if(piece == null) {
-                        Pair tapped = converToBoardCoords(row, column);
+                        Pair tapped = convertCoords(row, column);
                         // If the user has a piece selected and the empty square they are clicking
                         // is a square that that piece can move to, we execute a move
                         if(this.selected != null) {
@@ -158,7 +208,8 @@ public class ChessManager implements BoardDisplay.DisplayListener{
                                     display.move(new Move(src, tapped), true, false);
                                 }
 
-
+                                activeMove = new Move(src, tapped);
+                                moveHandler.submitMove(activeMove, gameID);
                                 this.userTurn = false;
                                 this.selected = null;
 
@@ -191,6 +242,9 @@ public class ChessManager implements BoardDisplay.DisplayListener{
                                 // Move the piece to the square tapped by the user and play a
                                 // capture sound effect
                                 display.move(new Move(src, tapped), true, true);
+
+                                activeMove = new Move(src, tapped);
+                                moveHandler.submitMove(activeMove, gameID);
                                 this.userTurn = false;
                                 this.selected = null;
 
@@ -221,7 +275,7 @@ public class ChessManager implements BoardDisplay.DisplayListener{
             case MotionEvent.ACTION_MOVE:
                 Piece dragged = getPiece(row, column);
                 if(userTurn && dragged != null && dragged.getColour() == presenter.getUserColour()) {
-                    Pair src = converToBoardCoords(row, column);
+                    Pair src = convertCoords(row, column);
                     dragEnded = false;
                     display.startDrag(row, column);
                     display.set(src.first(), src.second(), null,false, false);
@@ -239,8 +293,8 @@ public class ChessManager implements BoardDisplay.DisplayListener{
                 // When a drag starts, the only squares on the board that care about the drag are
                 // the squares that the piece being dragged can move to, or the square that the
                 // piece being dragged currently occupies. So we only return true for these squares.
-                return (selected.getMoves().contains(converToBoardCoords(row, column))
-                || new Pair(selected.getRow(), selected.getColumn()).equals(converToBoardCoords(row, column)));
+                return (selected.getMoves().contains(convertCoords(row, column))
+                || new Pair(selected.getRow(), selected.getColumn()).equals(convertCoords(row, column)));
             case DragEvent.ACTION_DRAG_ENTERED:
                 // Return true because we don't do anything special here but want to keep getting
                 // callbacks
@@ -259,7 +313,7 @@ public class ChessManager implements BoardDisplay.DisplayListener{
                 // to, or the square that the piece being dragged current occupies. So all we have
                 // to do is either move the piece being dragged, or return it to its square.
                 Pair src = new Pair(selected.getRow(), selected.getColumn());
-                Pair dest = converToBoardCoords(row, column);
+                Pair dest = convertCoords(row, column);
 
                 // If the user started the drag and then let go on the same square, we simply return
                 // the piece to its square on the screen.
@@ -297,8 +351,8 @@ public class ChessManager implements BoardDisplay.DisplayListener{
                     }
                 }
 
-
-
+                activeMove = new Move(src, dest);
+                moveHandler.submitMove(activeMove, gameID);
 
                 display.resetSquares();
                 this.selected = null;
@@ -359,12 +413,85 @@ public class ChessManager implements BoardDisplay.DisplayListener{
         }
     }
 
-    private Pair converToBoardCoords(int row, int column) {
+    /**
+     * Return a Pair containing the given coordinates, converted from board to screen coordinates
+     * or vice versa. The conversion process is exactly the same regardless of which coordinates
+     * we're converting from/to, so we only need one method.
+     *
+     * @param row - the row component of the coordinates to convert
+     * @param column - the column component of the coordinates to convert
+     * @return A Pair, containing the given set of coordinates converted into its opposite type
+     */
+    private Pair convertCoords(int row, int column) {
         if(presenter.getUserColour() == Colour.WHITE) {
             return new Pair(row, column);
         }
         else {
             return new Pair(7 - row, 7 - column);
         }
+    }
+
+    /**
+     * Called if a move we submitted to the server is accepted by the server. We use this method to
+     * update our model, all the data we have for the game, now that the move has been confirmed.
+     *
+     * @param promotionNeeded - whether or not a promotion is now needed as a result of our move
+     */
+    @Override
+    public void moveSuccess(boolean promotionNeeded) {
+        /*
+         * Need to check here for:
+         * 1. Checkmate
+         * 2. Stalemate
+         * 3. Promotion
+         * 4. Maybe increment turn counter
+         */
+        activeMove = null;
+    }
+
+    /**
+     * Called if a move request we submitted fails, for any reason other than a loss of connection.
+     * We ensure that all of our moves are correct, to the best of our knowledge, so if a request
+     * fails we can't do anything about it (especially if it's a server or system error) other than
+     * tell the user and ask for guidance. So we simply notify the user that we couldn't submit
+     * their move, and ask them if they want us to try again or simply forget about it.
+     */
+    @Override
+    public void moveFailed() {
+        dialogCreator.showErrorDialog(R.string.move_failed_error_text, new ErrorDialogFragment.CancellableErrorDialogListener() {
+            @Override
+            public void cancel() {
+                display.reset();
+                activeMove = null;
+                resetFromModel();
+            }
+
+            @Override
+            public void retry() {
+                moveHandler.submitMove(activeMove, gameID);
+            }
+        });
+    }
+
+    /**
+     * Called if a move request is stymied by a loss of connection with the server
+     */
+    @Override
+    public void connectionLost() {
+        dialogCreator.showConnectionLostDialog(R.string.connection_lost_alert, new ErrorDialogFragment.ErrorDialogListener() {
+            @Override
+            public void retry() {
+                new Reconnector(ChessManager.this, activity).reconnect();
+            }
+        });
+    }
+
+    /**
+     * If a move request fails because of a connection lost error, and we submit a reconnect
+     * request, this method gets called after the reconnect request finishes successfully.
+     */
+    @Override
+    public void reconnectionComplete() {
+        moveHandler.submitMove(activeMove, gameID);
     }
 }

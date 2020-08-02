@@ -162,8 +162,11 @@ public class Square {
             this.piece = null;
         }
         else {
-            this.piece = piece;
-            this.drawPiece(piece);
+            if(piece != this.piece) {
+                this.piece = piece;
+                this.drawPiece(piece);
+            }
+            // Do nothing if the piece we're being given is the one we're already displaying
         }
     }
 

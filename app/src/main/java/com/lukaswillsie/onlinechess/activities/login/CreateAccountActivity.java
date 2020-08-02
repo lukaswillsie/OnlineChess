@@ -120,7 +120,7 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
      */
     @Override
     public void connectionLost() {
-        this.createConnectionLostDialog();
+        this.showConnectionLostDialog();
     }
 
     /**
@@ -130,7 +130,7 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
      */
     @Override
     public void serverError() {
-        this.createServerErrorDialog();
+        this.showServerErrorDialog();
     }
 
     /**
@@ -141,7 +141,7 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
      */
     @Override
     public void systemError() {
-        this.createSystemErrorDialog();
+        this.showSystemErrorDialog();
     }
 
     /**

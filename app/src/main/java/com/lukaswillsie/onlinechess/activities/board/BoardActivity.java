@@ -1,5 +1,6 @@
 package com.lukaswillsie.onlinechess.activities.board;
 
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 
 import android.content.DialogInterface;
@@ -10,6 +11,7 @@ import android.widget.TableLayout;
 import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogActivity;
+import com.lukaswillsie.onlinechess.activities.ErrorDialogFragment;
 import com.lukaswillsie.onlinechess.activities.ReconnectListener;
 import com.lukaswillsie.onlinechess.activities.Reconnector;
 import com.lukaswillsie.onlinechess.data.GameData;
@@ -26,7 +28,7 @@ import Chess.com.lukaswillsie.chess.Board;
  * BoardActivity is the most important Activity in the app; it allows users to actually view
  * their game boards and make moves.
  */
-public class BoardActivity extends ErrorDialogActivity implements ReconnectListener, LoadGameRequester {
+public class BoardActivity extends ErrorDialogActivity implements ReconnectListener, LoadGameRequester, GameDialogCreator {
     /**
      * Tag used for logging to the console
      */
@@ -92,7 +94,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
             serverHelper.loadGame(this, gameID);
         } catch (MultipleRequestException e) {
             Log.e(tag, "Tried to make multiple load game requests of serverHelper");
-            this.createSystemErrorDialog();
+            this.showSystemErrorDialog();
         }
     }
 
@@ -129,7 +131,35 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
         // Create a GamePresenter and GameManager for this game, now that we have all the data we
         // need
         GamePresenter presenter = new GamePresenter(game, board);
-        manager = new ChessManager(presenter, display);
+        manager = new ChessManager(gameID, presenter, display, this, this);
+    }
+
+    /**
+     * Displays an error dialog for the user. The error dialog will contain the specified String
+     * resource in its message. The dialog will have "Try Again" and "Cancel" buttons. These buttons
+     * will be wired to the retry() and cancel() method of the given listener, respectively. The
+     * dialog will be cancellable (the user can click outside of the dialog to make it go away), and
+     * the given listener will receive a callback to its cancel() method if the dialog is cancelled.
+     *
+     * @param messageID - the ID of the String resource that will be the dialog's message
+     * @param listener - the object that will receive the callbacks from the created dialog
+     */
+    @Override
+    public void showErrorDialog(int messageID, ErrorDialogFragment.CancellableErrorDialogListener listener) {
+        showCustomDialog(messageID, listener);
+    }
+
+    /**
+     * Displays an error dialog for the user, notifying them of a loss of connection. The dialog
+     * will contain the given String resource as its message and will have one button, which will
+     * say "Try Again", and will be connected to the retry() method of the listener.
+     *
+     * @param messageID - the ID of the String resource that will be the dialog's message
+     * @param listener - the object that will receive the callbacks from the created dialog
+     */
+    @Override
+    public void showConnectionLostDialog(int messageID, ErrorDialogFragment.ErrorDialogListener listener) {
+        showCustomDialog(messageID, listener);
     }
 
     /**
@@ -159,7 +189,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
         // Our app only allows users to view games that the server has told us they are a player
         // in. So if the server is now all of a sudden telling us those games don't exist, something
         // has gone wrong server-side.
-        this.createServerErrorDialog();
+        this.showServerErrorDialog();
     }
 
     /**
@@ -171,7 +201,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
         // Our app only allows users to view games that the server has told us they are a player
         // in. So if the server is now all of a sudden telling us the user isn't a player in a game,
         // something  has gone wrong server-side.
-        this.createServerErrorDialog();
+        this.showServerErrorDialog();
     }
 
     /**
@@ -188,7 +218,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
      */
     @Override
     public void serverError() {
-        this.createServerErrorDialog();
+        this.showServerErrorDialog();
     }
 
     /**
@@ -197,7 +227,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
      */
     @Override
     public void systemError() {
-        this.createSystemErrorDialog();
+        this.showSystemErrorDialog();
     }
 
 

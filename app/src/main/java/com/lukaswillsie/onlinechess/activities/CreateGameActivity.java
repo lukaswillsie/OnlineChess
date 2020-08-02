@@ -120,7 +120,7 @@ public class CreateGameActivity extends ErrorDialogActivity implements CreateGam
                     ((ChessApplication)getApplicationContext()).getServerHelper().createGame(this, gameID, open, username);
                 } catch (MultipleRequestException e) {
                     Log.e(tag, "Sent multiple requests to ServerHelper");
-                    createSystemErrorDialog();
+                    showSystemErrorDialog();
                     return;
                 }
 
@@ -143,7 +143,7 @@ public class CreateGameActivity extends ErrorDialogActivity implements CreateGam
     public void connectionLost() {
         if(this.state == State.PROCESSING) {
             resetButton();
-            createConnectionLostDialog();
+            showConnectionLostDialog();
         }
     }
 
@@ -154,7 +154,7 @@ public class CreateGameActivity extends ErrorDialogActivity implements CreateGam
     public void serverError() {
         if(this.state == State.PROCESSING) {
             resetButton();
-            createServerErrorDialog();
+            showServerErrorDialog();
         }
     }
 
@@ -165,7 +165,7 @@ public class CreateGameActivity extends ErrorDialogActivity implements CreateGam
     public void systemError() {
         if(this.state == State.PROCESSING) {
             resetButton();
-            createSystemErrorDialog();
+            showSystemErrorDialog();
         }
     }
 
