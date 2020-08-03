@@ -34,7 +34,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
     /**
      * The object containing all the data about the game that this object is managing
      */
-    private  GamePresenter presenter;
+    private GamePresenter presenter;
 
     /**
      * The object managing the display for this ChessManager
@@ -118,8 +118,11 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
      * base state.
      */
     private void resetFromModel() {
+        // The user can only move a piece if they have an opponent, the game isn't over, and it is
+        // their turn
         this.userCanMove = (Integer)presenter.getData(GameData.STATE) == 1
-                && ((String)presenter.getData(GameData.OPPONENT)).length() > 0;
+                && ((String)presenter.getData(GameData.OPPONENT)).length() > 0
+                && !presenter.gameIsOver();
     }
 
     @Override
@@ -488,6 +491,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
                     presenter.setData(GameData.TURN, (Integer)presenter.getData(GameData.TURN) + 1);
                 }
 
+                Log.i(tag, "Setting STATE to 0");
                 // Set GameData.STATE to 0, which means that it isn't the user's turn anymore
                 presenter.setData(GameData.STATE, 0);
             }

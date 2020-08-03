@@ -46,6 +46,20 @@ public class GamePresenter {
     }
 
     /**
+     * Checks whether or not this game is OVER, meaning that either a player has won or the game is
+     * drawn
+     *
+     * @return true if and only if one of the players in this game has won, or the game has already
+     * ended by draw
+     */
+    public boolean gameIsOver() {
+        return  (Integer) game.getData(GameData.USER_WON) == 1 ||
+                (Integer) game.getData(GameData.USER_LOST) == 1 ||
+                (Integer) game.getData(GameData.DRAWN) == 1;
+
+    }
+
+    /**
      * Returns the Piece object occupying the given spot on the board. Note: the given coordinates
      * are INDEPENDENT OF the orientation of the board being displayed on the screen. That means,
      * regardless of whether the user is playing black or white, (row, column) = (0, 0) is what
