@@ -83,5 +83,5 @@
 
     <!-- Play Game Screen-->
     <string name="move_failed_error_text">Something went wrong and we couldn\'t submit your move. Do you want us to try again?</string>
-
+    <string name="model_failure_error_text">Sorry, something went wrong and we couldn\'t submit your move.</string>
 </resources>

@@ -4,12 +4,15 @@ import android.util.Log;
 import android.view.DragEvent;
 import android.view.MotionEvent;
 
+import androidx.annotation.IdRes;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.lukaswillsie.onlinechess.R;
+import com.lukaswillsie.onlinechess.activities.Display;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogFragment;
 import com.lukaswillsie.onlinechess.activities.ReconnectListener;
 import com.lukaswillsie.onlinechess.activities.Reconnector;
+import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.GameData;
 
 import java.util.ArrayList;
@@ -446,7 +449,61 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
          * 3. Promotion
          * 4. Maybe increment turn counter
          */
-        activeMove = null;
+        int code = presenter.makeMove(activeMove);
+
+        // If our model rejects the move, we notify the user and reset the screen.
+        // Note that this should never happen for two reasons: first, we're in this method because
+        // the server accepted our move as valid; second, we only allow the user to submit moves to
+        // the server if we've cleared them with our model beforehand.
+        if(code != 0 && code != -1) {
+            display.reset();
+            this.resetFromModel();
+            Display.showSimpleDialog(R.string.model_failure_error_text, display.getContext());
+            return;
+        }
+        // If the server and our model disagree about whether or not a promotion is needed, we do
+        // the same thing as above
+        else if((promotionNeeded && code == 0) || (!promotionNeeded && code == -1)) {
+            display.reset();
+            this.resetFromModel();
+            Display.showSimpleDialog(R.string.model_failure_error_text, display.getContext());
+            return;
+        }
+
+        Colour userColour = presenter.getUserColour();
+        Colour enemyColour = (userColour == Colour.WHITE) ? Colour.BLACK : Colour.WHITE;
+
+        // If a promotion isn't needed, the user's turn is over and we can check if they've
+        // delivered checkmate or maybe a stalemate
+        if(!promotionNeeded) {
+            if(presenter.isStalemate()) {
+                presenter.setData(GameData.DRAWN, 1);
+            }
+            else if (presenter.isCheckmate()) {
+                presenter.setData(GameData.USER_WON, 1);
+            }
+            // Otherwise, the game isn't over
+            else {
+                // Increment the turn counter if the user is playing black
+                if(userColour == Colour.BLACK) {
+                    presenter.setData(GameData.TURN, (Integer)presenter.getData(GameData.TURN) + 1);
+                }
+
+                // Set GameData.STATE to 0, which means that it isn't the user's turn anymore
+                presenter.setData(GameData.STATE, 0);
+            }
+        }
+        else {
+            // Even if a promotion is needed and the user's turn isn't over, it's possible that they
+            // could have delivered checkmate with their pawn move. In this case the game is over;
+            // we don't bother with the promotion.
+            if(presenter.isCheckmate()) {
+                presenter.setData(GameData.USER_WON, 1);
+            }
+            else {
+                // TODO: Implement promotions
+            }
+        }
     }
 
     /**

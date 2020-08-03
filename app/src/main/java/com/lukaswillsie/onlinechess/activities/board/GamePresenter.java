@@ -26,6 +26,26 @@ public class GamePresenter {
     }
 
     /**
+     * Returns the specified piece of information about this game
+     *
+     * @param data - specifies the piece of information about this game that is desired
+     * @return As either an Integer or String, the piece of data requested
+     */
+    public Object getData(GameData data) {
+        return game.getData(data);
+    }
+
+    /**
+     * Assign the given value to the specified field in this game.
+     *
+     * @param data - specifies which field to overwrite
+     * @param val - the value to be assigned to the specified field
+     */
+    public void setData(GameData data, Object val) {
+        game.setData(data, val);
+    }
+
+    /**
      * Returns the Piece object occupying the given spot on the board. Note: the given coordinates
      * are INDEPENDENT OF the orientation of the board being displayed on the screen. That means,
      * regardless of whether the user is playing black or white, (row, column) = (0, 0) is what
@@ -60,6 +80,25 @@ public class GamePresenter {
      */
     public Piece getPiece(Pair pair) {
         return getPiece(pair.first(), pair.second());
+    }
+
+    /**
+     * Check if the user has checkmated their opponent in this game.
+     *
+     * @return - true if and only if the colour being played by the user has checkmated the other
+     * colour in the game represented by this object
+     */
+    public boolean isCheckmate() {
+        return board.isCheckmate(getUserColour() == Colour.WHITE ? Colour.BLACK : Colour.WHITE);
+    }
+
+    /**
+     * Check if the game is currently in stalemate.
+     *
+     * @return true if and only if this game is in stalemate
+     */
+    public boolean isStalemate() {
+        return board.isStalemate();
     }
 
     /**
@@ -178,13 +217,18 @@ public class GamePresenter {
     }
 
     /**
-     * Returns the specified piece of information about this game
+     * Attempts to make the given Move. Returns a variety of potential error codes if the move
+     * cannot be made. Note below that there are TWO possible success codes, -1 and 0.
      *
-     * @param data - specifies the piece of information about this game that is desired
-     * @return As either an Integer or String, the piece of data requested
+     * @return -1 if the move is successfully made, and a promotion is now required <br>
+     * 			0 if the move is successfully made <br>
+     * 		   	1 if the move is invalid (source square is empty, move is not valid for
+     * 		   	the piece at srcSquare, etc.) <br>
+     * 		   	2 if the move is being made out of turn <br>
+     * 		   	3 if a promotion needs to be handled before any moves can be made
      */
-    public Object getData(GameData data) {
-        return game.getData(data);
+    public int makeMove(Move move) {
+        return board.move(move.src, move.dest);
     }
 
     /**

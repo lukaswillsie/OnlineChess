@@ -164,6 +164,16 @@ public class UserGame {
     }
 
     /**
+     * Assign the specified piece of data the given value in this UserGame.
+     *
+     * @param data - specifies which piece of data to assign the given value
+     * @param val - the data value to put in this UserGame
+     */
+    public void setData(GameData data, Object val) {
+        this.data.put(data, val);
+    }
+
+    /**
      * Returns the colour being played by the user in this game
      *
      * @return The colour being played by the user in this game
