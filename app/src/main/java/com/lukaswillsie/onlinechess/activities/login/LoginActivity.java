@@ -58,6 +58,9 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
         Log.i(tag, "serverHelper is " + serverHelper);
     }
 
+    @Override
+    public void onBackPressed() {}
+
     /**
      * Called when the user presses the login button.
      *

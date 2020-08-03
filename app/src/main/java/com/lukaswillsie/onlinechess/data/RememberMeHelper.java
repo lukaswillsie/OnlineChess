@@ -201,4 +201,18 @@ public class RememberMeHelper {
         Log.i(tag, "User data: (" + username + "," + password + ") successfully saved");
         return 0;
     }
+
+    /**
+     * Erase any saved user login data as part of a logout attempt by the user.
+     */
+    public void logout() {
+        try {
+            // By opening a FileOutputStream on the savedUserFile, we erase it
+            new FileOutputStream(savedUserFile);
+        } catch (FileNotFoundException e) {
+            // If the savedUserFile can't be found, that's not a problem for our method because
+            // it means that no user data was saved in the first place, so we had nobody to log out.
+            Log.i(tag, "Could not erase saved user file for logout because file doesn't exist.");
+        }
+    }
 }
