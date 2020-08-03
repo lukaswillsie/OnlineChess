@@ -11,7 +11,6 @@ import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogActivity;
 import com.lukaswillsie.onlinechess.activities.JoinGameActivity;
-import com.lukaswillsie.onlinechess.activities.OpenGamesAdapter;
 import com.lukaswillsie.onlinechess.activities.ReconnectListener;
 import com.lukaswillsie.onlinechess.activities.Reconnector;
 import com.lukaswillsie.onlinechess.data.Game;

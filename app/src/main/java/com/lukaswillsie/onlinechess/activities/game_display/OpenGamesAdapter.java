@@ -1,4 +1,4 @@
-package com.lukaswillsie.onlinechess.activities;
+package com.lukaswillsie.onlinechess.activities.game_display;
 
 import android.content.Context;
 import android.util.Log;
@@ -13,6 +13,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
+import com.lukaswillsie.onlinechess.activities.Display;
+import com.lukaswillsie.onlinechess.activities.ReconnectListener;
+import com.lukaswillsie.onlinechess.activities.Reconnector;
 import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.GameData;
 import com.lukaswillsie.onlinechess.data.ServerData;

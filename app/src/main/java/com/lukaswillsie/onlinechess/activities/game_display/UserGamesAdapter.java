@@ -1,6 +1,7 @@
 package com.lukaswillsie.onlinechess.activities.game_display;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.lukaswillsie.onlinechess.R;
+import com.lukaswillsie.onlinechess.activities.board.BoardActivity;
+import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.GameData;
 import com.lukaswillsie.onlinechess.data.UserGame;
 
@@ -70,7 +73,15 @@ public class UserGamesAdapter extends RecyclerView.Adapter<UserGamesAdapter.Game
     }
 
     /**
-     * Called when the RecyclerView wants to bind a new Game object to a View for being displayed.
+     * Called when the RecyclerView wants to bind a new UserGame object to a View for being
+     * displayed. Fills in and styles all the fields in the given GameViewHolder according to the
+     * state of the game at position.
+     *
+     * Also applies an OnClickListener to the whole card being wrapped by the given GameViewHolder.
+     * The OnClickListener makes it so that when the user clicks the card associated with a
+     * particular game, that game is launched in BoardActivity so that the user can view the board.
+     * Subclasses that want different onClick behaviour should override setCardListener(), since
+     * this method calls that method during execution.
      *
      * @param holder   - the GameViewHolder wrapping the View that we will place the Game's data into
      * @param position - tells us which Game object to fetch from our and bind to the given View
@@ -79,6 +90,8 @@ public class UserGamesAdapter extends RecyclerView.Adapter<UserGamesAdapter.Game
     public void onBindViewHolder(@NonNull GameViewHolder holder, int position) {
         UserGame game = games.get(position);
         Resources resources = context.getResources();
+
+        setCardListener(holder, position);
 
         // Fetch data about the game
         String gameID = (String) game.getData(GameData.GAMEID);
@@ -159,13 +172,16 @@ public class UserGamesAdapter extends RecyclerView.Adapter<UserGamesAdapter.Game
     }
 
     /**
-     * Applies an OnClickListener to the whole card being wrapped by the given GameViewHolder
+     * Applies an OnClickListener to the whole card being wrapped by the given GameViewHolder.
+     * Subclasses can override this method to apply their own OnClickListeners to game cards. The
+     * OnClickListener applied by this method will start BoardActivity and allow the user to view
+     * the state of the board in the game at position.
      *
      * @param holder - the GameViewHolder wrapping the card that we'll apply the listener to
-     * @param listener - the listener to be applied
+     * @param position - specifies which game's data is bound to the specified holder
      */
-    protected void setCardListener(GameViewHolder holder, View.OnClickListener listener) {
-        holder.card.setOnClickListener(listener);
+    protected void setCardListener(GameViewHolder holder, int position) {
+        holder.card.setOnClickListener(new GameCardListener((String) games.get(position).getData(GameData.GAMEID)));
     }
 
     /**
@@ -217,6 +233,21 @@ public class UserGamesAdapter extends RecyclerView.Adapter<UserGamesAdapter.Game
             this.turn = itemView.findViewById(R.id.turn);
             this.archive = itemView.findViewById(R.id.archive);
             this.card = itemView;
+        }
+    }
+
+    private class GameCardListener implements View.OnClickListener {
+        private final String gameID;
+
+        private GameCardListener(String gameID) {
+            this.gameID = gameID;
+        }
+
+        @Override
+        public void onClick(View view) {
+            Intent intent = new Intent(context, BoardActivity.class);
+            intent.putExtra(BoardActivity.GAMEID_TAG, gameID);
+            context.startActivity(intent);
         }
     }
 }
