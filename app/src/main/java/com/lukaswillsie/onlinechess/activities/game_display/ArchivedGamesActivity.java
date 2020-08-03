@@ -44,6 +44,23 @@ public class ArchivedGamesActivity extends AppCompatActivity implements Reconnec
     }
 
     /**
+     * We ensure that if any of the user's games have changed in any way since this activity was
+     * paused, this activity displays the update. For example, suppose the user clicks on one of
+     * their games, goes into BoardActivity, and makes a move. Without this method, when they get
+     * back to this activity the UI state will be unchanged. So we'll still be telling them that
+     * it's their turn in the game they just made a move in, even though it's not. Thus, we need to
+     * refresh the UI to reflect the reality of the model.
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Set up our RecyclerView to display a list of the user's archived games
+        RecyclerView recyclerView = findViewById(R.id.games_recycler);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(new ActiveUserGamesAdapter(this, getGames(), this));
+    }
+
+    /**
      * Checks if the given Game is over
      *
      * @param game - the Game to analyze
