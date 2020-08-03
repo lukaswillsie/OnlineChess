@@ -105,16 +105,22 @@ public class UserGamesAdapter extends RecyclerView.Adapter<UserGamesAdapter.Game
         int drawn = (Integer) game.getData(GameData.DRAWN);
         int drawOffered = (Integer) game.getData(GameData.DRAW_OFFERED);
 
+        holder.turn.setText(holder.turn.getContext().getString(R.string.turn_number_label, turn));
+
         holder.gameID.setText(gameID.toUpperCase());
+
         if (opponent.length() > 0) {
             holder.opponent.setText(resources.getString(R.string.opponent_label, opponent));
         } else if (open == 1) {
             holder.opponent.setText(R.string.no_opponent_open);
         } else {
             holder.opponent.setText(R.string.no_opponent_closed);
-        }
+            holder.status.setText("Waiting for opponent");
+            holder.status.setTextColor(resources.getColor(R.color.opponent_turn));
 
-        holder.turn.setText(holder.turn.getContext().getString(R.string.turn_number_label, turn));
+            holder.card.setBackground(resources.getDrawable(R.drawable.opponent_turn_background));
+            return;
+        }
 
         if (userWon == 1) {
             holder.status.setText(R.string.user_win);
@@ -237,8 +243,15 @@ public class UserGamesAdapter extends RecyclerView.Adapter<UserGamesAdapter.Game
     }
 
     private class GameCardListener implements View.OnClickListener {
+        /**
+         * The ID of the game that this Listener is listening to
+         */
         private final String gameID;
 
+        /**
+         * Create a new GameCardListener that, when fired, will launch BoardActivity
+         * @param gameID
+         */
         private GameCardListener(String gameID) {
             this.gameID = gameID;
         }

@@ -80,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements ReconnectListener
         intent.putExtra(BoardActivity.GAMEID_TAG, "third");
         startActivity(intent);
     }
+    
     /**
      * Called by Reconnector when a reconnection process is complete. We don't do anything special
      * when this happens.

@@ -4,7 +4,6 @@ import android.util.Log;
 import android.view.DragEvent;
 import android.view.MotionEvent;
 
-import androidx.annotation.IdRes;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.lukaswillsie.onlinechess.R;
@@ -12,7 +11,6 @@ import com.lukaswillsie.onlinechess.activities.Display;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogFragment;
 import com.lukaswillsie.onlinechess.activities.ReconnectListener;
 import com.lukaswillsie.onlinechess.activities.Reconnector;
-import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.GameData;
 
 import java.util.ArrayList;
@@ -60,10 +58,10 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
     private Piece selected;
 
     /**
-     * Keeps track of whether or not it is currently the user's turn in the game being managed by
-     * this object.
+     * Keeps track of whether or not the user is currently able to move. In particular, it has to
+     * be the user's turn and the user has to have an opponent in their game.
      */
-    private boolean userTurn;
+    private boolean userCanMove;
 
     /**
      * Keeps track of whether or not an active drag event has ended
@@ -110,8 +108,8 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
 
         this.display.activate(presenter, this);
 
-        // Record whether or not it's the user's turn
-        this.userTurn = (Integer)presenter.getData(GameData.STATE) == 1;
+        // Initialize our game fields to match the model
+        resetFromModel();
     }
 
     /**
@@ -120,7 +118,8 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
      * base state.
      */
     private void resetFromModel() {
-        this.userTurn = (Integer)presenter.getData(GameData.STATE) == 1;
+        this.userCanMove = (Integer)presenter.getData(GameData.STATE) == 1
+                && ((String)presenter.getData(GameData.OPPONENT)).length() > 0;
     }
 
     @Override
@@ -134,7 +133,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
                 // squares it can move to immediately. We don't want to wait until after ACTION_UP.
                 // This way, if the user clicks a piece and then drags it to move it, the squares
                 // that piece can move to will already be highlighted.
-                if(userTurn) {
+                if(userCanMove) {
                     piece = getPiece(row, column);
 
                     // If the user is clicking an ally piece different from the currently selected
@@ -176,7 +175,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
                     return false;
                 }
             case MotionEvent.ACTION_UP:
-                if(userTurn) {
+                if(userCanMove) {
                     piece = getPiece(row, column);
 
                     // The user clicked an empty square. They might be issuing a move command.
@@ -213,7 +212,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
 
                                 activeMove = new Move(src, tapped);
                                 moveHandler.submitMove(activeMove, gameID);
-                                this.userTurn = false;
+                                this.userCanMove = false;
                                 this.selected = null;
 
                                 // Now that the user has moved, we can un-highlight all the move
@@ -248,7 +247,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
 
                                 activeMove = new Move(src, tapped);
                                 moveHandler.submitMove(activeMove, gameID);
-                                this.userTurn = false;
+                                this.userCanMove = false;
                                 this.selected = null;
 
                                 // Now that the user has moved, we can un-highlight all the move
@@ -277,7 +276,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
                 }
             case MotionEvent.ACTION_MOVE:
                 Piece dragged = getPiece(row, column);
-                if(userTurn && dragged != null && dragged.getColour() == presenter.getUserColour()) {
+                if(userCanMove && dragged != null && dragged.getColour() == presenter.getUserColour()) {
                     Pair src = convertCoords(row, column);
                     dragEnded = false;
                     display.startDrag(row, column);
@@ -359,7 +358,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
 
                 display.resetSquares();
                 this.selected = null;
-                this.userTurn = false;
+                this.userCanMove = false;
                 return true;
             case DragEvent.ACTION_DRAG_ENDED:
                 // Once our drag event ends, all the squares that could have been moved to get this
