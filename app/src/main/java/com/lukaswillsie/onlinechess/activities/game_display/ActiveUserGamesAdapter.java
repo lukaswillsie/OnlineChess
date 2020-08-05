@@ -6,13 +6,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.Display;
 import com.lukaswillsie.onlinechess.activities.ReconnectListener;
 import com.lukaswillsie.onlinechess.activities.Reconnector;
 import com.lukaswillsie.onlinechess.data.GameData;
 import com.lukaswillsie.onlinechess.data.UserGame;
+import com.lukaswillsie.onlinechess.network.Server;
 import com.lukaswillsie.onlinechess.network.helper.requesters.ArchiveRequester;
 
 import java.util.List;
@@ -117,7 +117,7 @@ public class ActiveUserGamesAdapter extends UserGamesAdapter {
         @Override
         public void onClick(View view) {
             // Send the server an archive request
-            ((ChessApplication) context.getApplicationContext()).getServerHelper().archive((String) game.getData(GameData.GAMEID), this);
+            Server.getServerHelper().archive((String) game.getData(GameData.GAMEID), this);
         }
 
         /**

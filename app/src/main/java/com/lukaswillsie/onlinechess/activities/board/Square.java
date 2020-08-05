@@ -42,44 +42,38 @@ public class Square {
      * This column this square occupies on the board. column 0 is the leftmost column on the board
      */
     private final int column;
-
+    /**
+     *
+     */
+    private final Drawable lightBackground;
+    private final Drawable darkBackground;
     /**
      * The ConstraintLayout corresponding to this square on the screen
      */
     private ConstraintLayout layout;
-
     /**
      * The Context containing the ConstraintLayout that this object is managing
      */
     private Context context;
-
     /**
      * Contains a reference to the ImageView currently being displayed in this Square.
      */
     private ImageView image;
-
     /**
      * The Piece that this Square is currently displaying. null if this Square is empty.
      */
     private Piece piece;
-
     /**
      * This object will be notified when this square is clicked.
      */
     private SquareOnTouchListener listener;
 
     /**
-     *
-     */
-    private final Drawable lightBackground;
-    private final Drawable darkBackground;
-
-    /**
      * Create a new Square with the given position, corresponding to the given layout on the screen.
      * The given layout should not have any children, and should at this point have no attributes
      * applied to it other than its layout parameters
      *
-     * @param row - this Square's row, with row=0 representing the bottom of the board
+     * @param row    - this Square's row, with row=0 representing the bottom of the board
      * @param column - the square's column, with column=0 representing the left side of the board
      * @param layout - the ConstraintLayout corresponding to this square on the screen
      */
@@ -91,10 +85,9 @@ public class Square {
         this.lightBackground = new ColorDrawable(context.getResources().getColor(R.color.white));
         this.darkBackground = new ColorDrawable(0xFF4BA2E3);
 
-        if(isLightSquare()) {
+        if (isLightSquare()) {
             layout.setBackground(lightBackground);
-        }
-        else {
+        } else {
             layout.setBackground(darkBackground);
         }
 
@@ -113,60 +106,12 @@ public class Square {
      * this Square.
      */
     public void startDrag() {
-        if(piece != null) {
+        if (piece != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 layout.startDragAndDrop(null, new PieceDragShadowBuilder(), null, View.DRAG_FLAG_OPAQUE);
-            }
-            else {
+            } else {
                 layout.startDrag(null, new PieceDragShadowBuilder(), null, 0);
             }
-        }
-    }
-
-    /**
-     * This class is responsible for building drag shadows originating from this square
-     */
-    private class PieceDragShadowBuilder extends View.DragShadowBuilder {
-        Drawable shadow;
-
-        private PieceDragShadowBuilder() {
-            this.shadow = context.getResources().getDrawable(getDrawableID(piece));
-        }
-
-        @Override
-        public void onProvideShadowMetrics(Point outShadowSize, Point outShadowTouchPoint) {
-            int width = image.getWidth();
-            int height = image.getHeight();
-
-            shadow.setBounds(0, 0, width, height);
-
-            outShadowSize.set(width, height);
-            outShadowTouchPoint.set(width/2, height/2);
-        }
-
-        @Override
-        public void onDrawShadow(Canvas canvas) {
-            shadow.draw(canvas);
-        }
-    }
-
-    /**
-     * Set this Square to display a picture of the given Piece. If piece is null, this Square will
-     * be emptied of whatever it is displaying now and will remain empty.
-     *
-     * @param piece - the piece to be displayed in this square
-     */
-    public void setPiece(Piece piece) {
-        if(piece == null) {
-            image.setImageResource(android.R.color.transparent);
-            this.piece = null;
-        }
-        else {
-            if(piece != this.piece) {
-                this.piece = piece;
-                this.drawPiece(piece);
-            }
-            // Do nothing if the piece we're being given is the one we're already displaying
         }
     }
 
@@ -180,13 +125,32 @@ public class Square {
     }
 
     /**
+     * Set this Square to display a picture of the given Piece. If piece is null, this Square will
+     * be emptied of whatever it is displaying now and will remain empty.
+     *
+     * @param piece - the piece to be displayed in this square
+     */
+    public void setPiece(Piece piece) {
+        if (piece == null) {
+            image.setImageResource(android.R.color.transparent);
+            this.piece = null;
+        } else {
+            if (piece != this.piece) {
+                this.piece = piece;
+                this.drawPiece(piece);
+            }
+            // Do nothing if the piece we're being given is the one we're already displaying
+        }
+    }
+
+    /**
      * Creates and returns an ImageView, placed directly on top of this Square, but as a child of
      * the root layout of the current activity, not this Square's ConstraintLayout. The ImageView
      * contains an image of the piece being displayed in this Square. The ImageView is placed and
      * sized so perfectly that when it is created the appearance of this Square does not change at
      * all. However, because the created ImageView is a child of the root layout of the activity, it
      * can be animated as part of a move animation.
-     *
+     * <p>
      * Does nothing and returns null if this Square is empty when this method is called.
      *
      * @return A newly-created ImageView containing an image of the Piece on this Square. On the
@@ -199,7 +163,7 @@ public class Square {
             ImageView im = new ImageView(context);
             // Our Square's ConstraintLayout is inside a LinearLayout which is inside a TableLayout
             // which is inside the root ConstraintLayout.
-            ConstraintLayout root = (ConstraintLayout)layout.getParent().getParent().getParent();
+            ConstraintLayout root = (ConstraintLayout) layout.getParent().getParent().getParent();
 
             // Set the ImageView to be precisely as large as our square.
             im.setLayoutParams(new ConstraintLayout.LayoutParams(layout.getWidth(), layout.getWidth()));
@@ -223,8 +187,7 @@ public class Square {
 
             root.addView(im);
             return im;
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -243,7 +206,7 @@ public class Square {
         // we need to get the x-coordinate of our ConstraintLayout within the LinearLayout. Then
         // we need to add the x-coordinate of that LinearLayout within the TableLayout. Then we need
         // to add the x-coordinate of the TableLayout within the root ConstraintLayout.
-        return layout.getX() + ((View)layout.getParent()).getX() + ((View)layout.getParent().getParent()).getX();
+        return layout.getX() + ((View) layout.getParent()).getX() + ((View) layout.getParent().getParent()).getX();
     }
 
     /**
@@ -260,7 +223,7 @@ public class Square {
         // we need to get the y-coordinate of our ConstraintLayout within the LinearLayout. Then
         // we need to add the y-coordinate of that LinearLayout within the TableLayout. Then we need
         // to add the y-coordinate of the TableLayout within the root ConstraintLayout.
-        return layout.getY() + ((View)layout.getParent()).getY() + ((View)layout.getParent().getParent()).getY();
+        return layout.getY() + ((View) layout.getParent()).getY() + ((View) layout.getParent().getParent()).getY();
     }
 
     /**
@@ -279,42 +242,34 @@ public class Square {
      * @param piece - the Piece to convert into a drawable
      * @return A drawable resource ID for a drawable that can represent the given piece
      */
-    private @DrawableRes int getDrawableID(Piece piece) {
-        if(piece.getColour() == Colour.WHITE) {
-            if(piece instanceof Pawn) {
+    private @DrawableRes
+    int getDrawableID(Piece piece) {
+        if (piece.getColour() == Colour.WHITE) {
+            if (piece instanceof Pawn) {
                 return R.drawable.white_pawn;
-            }
-            else if(piece instanceof Rook) {
+            } else if (piece instanceof Rook) {
                 return R.drawable.white_rook;
-            }
-            else if(piece instanceof Knight) {
+            } else if (piece instanceof Knight) {
                 return R.drawable.white_knight;
-            }
-            else if(piece instanceof Bishop) {
+            } else if (piece instanceof Bishop) {
                 return R.drawable.white_bishop;
-            }
-            else if(piece instanceof Queen) {
+            } else if (piece instanceof Queen) {
                 return R.drawable.white_queen;
             }
             // Otherwise, piece is a King
             else {
                 return R.drawable.white_king;
             }
-        }
-        else {
-            if(piece instanceof Pawn) {
+        } else {
+            if (piece instanceof Pawn) {
                 return R.drawable.black_pawn;
-            }
-            else if(piece instanceof Rook) {
+            } else if (piece instanceof Rook) {
                 return R.drawable.black_rook;
-            }
-            else if(piece instanceof Knight) {
+            } else if (piece instanceof Knight) {
                 return R.drawable.black_knight;
-            }
-            else if(piece instanceof Bishop) {
+            } else if (piece instanceof Bishop) {
                 return R.drawable.black_bishop;
-            }
-            else if(piece instanceof Queen) {
+            } else if (piece instanceof Queen) {
                 return R.drawable.black_queen;
             }
             // Otherwise, piece is a King
@@ -333,13 +288,11 @@ public class Square {
      *                squares will be highlighted a turquoise-ish colour
      */
     public void highlight(boolean capture) {
-        if(capture) {
+        if (capture) {
             this.layout.setBackground(new ColorDrawable(0xFFFA1D1D));
-        }
-        else if(isLightSquare()) {
+        } else if (isLightSquare()) {
             this.layout.setBackground(new ColorDrawable(0xFF62E69E));
-        }
-        else {
+        } else {
             this.layout.setBackground(new ColorDrawable(0xFF4DB37B));
         }
     }
@@ -358,16 +311,16 @@ public class Square {
      * resets the background if this square was previously highlighted or selected.
      */
     public void reset() {
-        if(isLightSquare()) {
+        if (isLightSquare()) {
             layout.setBackground(lightBackground);
-        }
-        else {
+        } else {
             layout.setBackground(darkBackground);
         }
     }
 
     /**
      * Determine whether or not this square is a light square on the chessboard.
+     *
      * @return true if this square is a light square, false if it is a dark square
      */
     private boolean isLightSquare() {
@@ -399,10 +352,9 @@ public class Square {
                 // square before sending off a touch event to the listener.
                 float x = event.getX();
                 float y = event.getY();
-                if(0 <= x  && x <= layout.getWidth() && 0 <= y && y <= layout.getHeight()) {
+                if (0 <= x && x <= layout.getWidth() && 0 <= y && y <= layout.getHeight()) {
                     return listener.onTouch(row, column, event);
-                }
-                else {
+                } else {
                     return false;
                 }
             }
@@ -433,9 +385,9 @@ public class Square {
          * This method will be called whenever a touch event is received by a Square, passing on the
          * relevant information to the SquareOnTouchListener.
          *
-         * @param row - the row that the Square that received the event occupies on the screen
+         * @param row    - the row that the Square that received the event occupies on the screen
          * @param column - the column that the Square that received the event occupies on the screen
-         * @param event - contains information about the type of touch event that was received
+         * @param event  - contains information about the type of touch event that was received
          * @return true if the SquareOnTouchListener wants to receive any subsequent touch events
          * relating to the current action, false otherwise. For example, if a click is made (meaning
          * an ACTION_ DOWN event followed by an ACTION_UP event), and the SquareOnTouchListener
@@ -455,12 +407,39 @@ public class Square {
          * Whenever a DragEvent is received by this Square, the following method will be called,
          * notifying the Listener of the even, as well as this Square's position on the screen.
          *
-         * @param row - the row that the Square that received the event occupies on the screen
+         * @param row    - the row that the Square that received the event occupies on the screen
          * @param column - the column that the Square that received the event occupies on the screen
-         * @param event - the DragEvent that was received by this Square
+         * @param event  - the DragEvent that was received by this Square
          * @return true if the SquareDragListener wants to continue to receive drag events relating
          * to the current drag from this Square, false otherwise.
          */
         boolean onDrag(int row, int column, DragEvent event);
+    }
+
+    /**
+     * This class is responsible for building drag shadows originating from this square
+     */
+    private class PieceDragShadowBuilder extends View.DragShadowBuilder {
+        Drawable shadow;
+
+        private PieceDragShadowBuilder() {
+            this.shadow = context.getResources().getDrawable(getDrawableID(piece));
+        }
+
+        @Override
+        public void onProvideShadowMetrics(Point outShadowSize, Point outShadowTouchPoint) {
+            int width = image.getWidth();
+            int height = image.getHeight();
+
+            shadow.setBounds(0, 0, width, height);
+
+            outShadowSize.set(width, height);
+            outShadowTouchPoint.set(width / 2, height / 2);
+        }
+
+        @Override
+        public void onDrawShadow(Canvas canvas) {
+            shadow.draw(canvas);
+        }
     }
 }

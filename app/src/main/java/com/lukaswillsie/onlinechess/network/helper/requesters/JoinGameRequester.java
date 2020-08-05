@@ -5,7 +5,7 @@ import com.lukaswillsie.onlinechess.data.UserGame;
 /**
  * This interface defines the callback methods that objects need to implement before they can make
  * a joinGame() request of a ServerHelper object.
- *
+ * <p>
  * There are potentially multiple stages to a join game request. First, the Thread requests that the
  * user join the given game. Next, if that was successful, the Thread asks the server for the data
  * associated with the given game, that way we can add it to the collection of the user's games
@@ -14,7 +14,7 @@ import com.lukaswillsie.onlinechess.data.UserGame;
 public interface JoinGameRequester extends Requester {
     /**
      * Called if the server says we successfully joined the specified game
-     *
+     * <p>
      * NOTE: This does NOT indicate the end of the request; the data associated with the game that
      * was joined still needs to be received from the server. This is just a stop on the way.
      */
@@ -41,7 +41,7 @@ public interface JoinGameRequester extends Requester {
      * the game that was joined is given as an argument for later usage, if needed.
      *
      * @param game - an object containing all the necessary information about the game that was
-     * joined
+     *             joined
      */
     void joinGameComplete(UserGame game);
 }

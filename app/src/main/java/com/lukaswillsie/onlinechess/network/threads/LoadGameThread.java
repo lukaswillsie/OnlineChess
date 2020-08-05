@@ -7,12 +7,9 @@ import com.lukaswillsie.onlinechess.network.threads.callers.LoadGameCaller;
 
 import java.io.DataInputStream;
 import java.io.EOFException;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 import Chess.com.lukaswillsie.chess.Board;
@@ -53,18 +50,15 @@ public class LoadGameThread extends NetworkThread {
         int result;
         try {
             result = this.readInt();
-        }
-        catch(EOFException e) {
+        } catch (EOFException e) {
             Log.e(tag, "Server closed the connection");
             caller.connectionLost();
             return;
-        }
-        catch(SocketException e) {
+        } catch (SocketException e) {
             Log.e(tag, "Connection to server has been lost; server may have crashed");
             caller.connectionLost();
             return;
-        }
-        catch(IOException e) {
+        } catch (IOException e) {
             Log.e(tag, "IOException while reading from server");
             e.printStackTrace();
             caller.systemError();
@@ -73,7 +67,7 @@ public class LoadGameThread extends NetworkThread {
 
         switch (result) {
             case ReturnCodes.NO_USER:
-                Log.e(tag,"Server says we have no user logged in. Can't join game \"" + gameID + "\"");
+                Log.e(tag, "Server says we have no user logged in. Can't join game \"" + gameID + "\"");
 
                 // We never allow our app to make request of this sort without logging in a user, so
                 // we have no way of dealing with this at runtime other than by calling it a server
@@ -126,18 +120,15 @@ public class LoadGameThread extends NetworkThread {
             }
 
             data.append(this.readInt()).append("\n");
-        }
-        catch(EOFException e) {
+        } catch (EOFException e) {
             Log.e(tag, "Server closed the connection.");
             caller.connectionLost();
             return;
-        }
-        catch(SocketException e) {
+        } catch (SocketException e) {
             Log.e(tag, "Connection with server has been lost. Server may have crashed.");
             caller.connectionLost();
             return;
-        }
-        catch(IOException e) {
+        } catch (IOException e) {
             Log.e(tag, "IOException while reading from server.");
             e.printStackTrace();
             caller.systemError();
@@ -151,11 +142,10 @@ public class LoadGameThread extends NetworkThread {
 
         // Attempt to initialize board with the data given us by the server
         int boardBuilt = board.initialize(scanner);
-        if(boardBuilt == 1) {
+        if (boardBuilt == 1) {
             Log.e(tag, "Couldn't create a Board object from data sent over by server");
             caller.serverError();
-        }
-        else {
+        } else {
             Log.i(tag, "Successfully created a Board object from data sent by server");
             caller.success(board);
         }

@@ -1,6 +1,5 @@
 package com.lukaswillsie.onlinechess.activities.board;
 
-import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.GameData;
 import com.lukaswillsie.onlinechess.data.UserGame;
 
@@ -39,7 +38,7 @@ public class GamePresenter {
      * Assign the given value to the specified field in this game.
      *
      * @param data - specifies which field to overwrite
-     * @param val - the value to be assigned to the specified field
+     * @param val  - the value to be assigned to the specified field
      */
     public void setData(GameData data, Object val) {
         game.setData(data, val);
@@ -53,7 +52,7 @@ public class GamePresenter {
      * ended by draw
      */
     public boolean gameIsOver() {
-        return  (Integer) game.getData(GameData.USER_WON) == 1 ||
+        return (Integer) game.getData(GameData.USER_WON) == 1 ||
                 (Integer) game.getData(GameData.USER_LOST) == 1 ||
                 (Integer) game.getData(GameData.DRAWN) == 1;
 
@@ -65,20 +64,19 @@ public class GamePresenter {
      * regardless of whether the user is playing black or white, (row, column) = (0, 0) is what
      * white would call the bottom left corner. If the user is black, (row, column) = (0, 0) is the
      * top-right square on the screen.
-     *
+     * <p>
      * Precondition: Row and column must satisfy 0 <= row <=  7 and 0 <= column <= 7. Returns null
      * if this is not the case.
      *
-     * @param row - the row of the board to access
+     * @param row    - the row of the board to access
      * @param column - the column of the board to access
      * @return The Piece representing the specified spot on the board, or null if the specified
      * square is empty. Also returns null if row and column don't satisfy the precondition.
      */
     public Piece getPiece(int row, int column) {
-        if(board.validSquare(row, column)) {
+        if (board.validSquare(row, column)) {
             return board.getPiece(row, column);
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -118,7 +116,7 @@ public class GamePresenter {
     /**
      * Check if the user can castle, and, if they can, whether the given Move represents the user
      * trying to castle.
-     *
+     * <p>
      * In our implementation of chess, as in most, the user indicates that they want to castle by
      * moving their king two squares to the left or right. The rook corresponding to the direction
      * of movement (the one that the King is moving towards) then jumps to the opposite side of the
@@ -127,29 +125,29 @@ public class GamePresenter {
      * of the castling operation. That is, the Move object contains the movement from the square
      * the Rook currently occupies to the square that it would end up on after the castle operation
      * is complete.
-     *
+     * <p>
      * This method returns null if the user cannot castle, or if the given Move does not represent
      * an attempted castle by the user.
      *
      * @param move - the Move to evaluate as a potential castle
-     * @return  A Move object representing the motion of the Rook concerned in the castle operation,
+     * @return A Move object representing the motion of the Rook concerned in the castle operation,
      * if the given move is a valid castle move; null otherwise.
      */
     public Move isCastle(Move move) {
         Pair src = move.src;
         Pair dest = move.dest;
 
-        if(board.validSquare(src.first(), src.second()) && board.validSquare(dest.first(), dest.second())) {
+        if (board.validSquare(src.first(), src.second()) && board.validSquare(dest.first(), dest.second())) {
             Piece moved = board.getPiece(src.first(), src.second());
 
             // Here we check if the given move is a castle by checking if: the piece being moved is
             // the player's king, the given move is a valid move for the king, and that the move
             // represents a horizontal displacement of exactly two squares (distinguishes a castle
             // move from a normal king move).
-            if(moved instanceof King
-            && moved.getMoves().contains(dest)
-            && moved.getColour() == getUserColour()
-            && (moved.getColumn() - dest.second() == 2 || moved.getColumn() - dest.second() == -2)) {
+            if (moved instanceof King
+                    && moved.getMoves().contains(dest)
+                    && moved.getColour() == getUserColour()
+                    && (moved.getColumn() - dest.second() == 2 || moved.getColumn() - dest.second() == -2)) {
                 // Get the sign of the king's movement (+1 for right, -1 for left)
                 int direction = (dest.second() - moved.getColumn() > 0) ? 1 : -1;
 
@@ -159,10 +157,9 @@ public class GamePresenter {
                 // its column (it could be either to the left of the King or the right), determined
                 // by which direction the King is moving in
                 int column;
-                if(direction > 0) {
+                if (direction > 0) {
                     column = 7;
-                }
-                else {
+                } else {
                     column = 0;
                 }
 
@@ -172,12 +169,10 @@ public class GamePresenter {
                 Pair rookDest = new Pair(moved.getRow(), dest.second() - direction);
 
                 return new Move(rookSrc, rookDest);
-            }
-            else {
+            } else {
                 return null;
             }
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -197,10 +192,10 @@ public class GamePresenter {
         Pair src = move.src;
         Pair dest = move.dest;
 
-        if(board.validSquare(src.first(), src.second()) && board.validSquare(dest.first(), dest.second())) {
+        if (board.validSquare(src.first(), src.second()) && board.validSquare(dest.first(), dest.second())) {
             Piece moved = board.getPiece(src.first(), src.second());
 
-            if(moved instanceof Pawn && moved.getColour() == getUserColour() && board.isEnPassant(dest, (Pawn) moved)) {
+            if (moved instanceof Pawn && moved.getColour() == getUserColour() && board.isEnPassant(dest, (Pawn) moved)) {
                 // If we're returning the square occupied by the pawn being captured, we know from
                 // the definition of en passant that the pawn being captured is, prior to capture,
                 // in the same row as the pawn which is capturing it. We also know that the pawn
@@ -220,12 +215,10 @@ public class GamePresenter {
                 // As you can see, the pawn capturing and the pawn getting captured share the same
                 // row initially, and the same column after the capture.
                 return new Pair(src.first(), dest.second());
-            }
-            else {
+            } else {
                 return null;
             }
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -235,11 +228,11 @@ public class GamePresenter {
      * cannot be made. Note below that there are TWO possible success codes, -1 and 0.
      *
      * @return -1 if the move is successfully made, and a promotion is now required <br>
-     * 			0 if the move is successfully made <br>
-     * 		   	1 if the move is invalid (source square is empty, move is not valid for
-     * 		   	the piece at srcSquare, etc.) <br>
-     * 		   	2 if the move is being made out of turn <br>
-     * 		   	3 if a promotion needs to be handled before any moves can be made
+     * 0 if the move is successfully made <br>
+     * 1 if the move is invalid (source square is empty, move is not valid for
+     * the piece at srcSquare, etc.) <br>
+     * 2 if the move is being made out of turn <br>
+     * 3 if a promotion needs to be handled before any moves can be made
      */
     public int makeMove(Move move) {
         return board.move(move.src, move.dest);
@@ -247,6 +240,7 @@ public class GamePresenter {
 
     /**
      * Query the colour (black or white) being played by the user
+     *
      * @return - The Colour being played by the user in the game being presented by this object
      */
     public Colour getUserColour() {

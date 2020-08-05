@@ -30,55 +30,45 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
      * Tag used for logging to the console
      */
     private static final String tag = "ChessManager";
-
+    /**
+     * The ID of the game that this object is managing
+     */
+    private final String gameID;
     /**
      * The object containing all the data about the game that this object is managing
      */
     private GamePresenter presenter;
-
     /**
      * The object managing the display for this ChessManager
      */
     private BoardDisplay display;
-
     /**
      * Will be used to display dialogs to the user if things go wrong
      */
     private GameDialogCreator dialogCreator;
-
     /**
      * The activity displaying the game that this ChessManager is managing
      */
     private AppCompatActivity activity;
-
     /**
      * If the user currently has a piece selected (meaning it's their turn and they've tapped one
      * of their pieces), we have a reference to it here. null otherwise.
      */
     private Piece selected;
-
     /**
      * Keeps track of whether or not the user is currently able to move. In particular, it has to
      * be the user's turn and the user has to have an opponent in their game.
      */
     private boolean userCanMove;
-
     /**
      * Keeps track of whether or not an active drag event has ended
      */
     private boolean dragEnded = false;
-
     /**
      * If the user has submitted a move, say by dragging a piece onto a square, but the server
      * hasn't confirmed it for us, we keep a reference to it here until we don't need it anymore
      */
     private Move activeMove;
-
-    /**
-     * The ID of the game that this object is managing
-     */
-    private final String gameID;
-
     /**
      * The object that will process and send move requests to the server for us
      */
@@ -90,12 +80,12 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
      * must already have been built when it is given to this object (.build() must already have been
      * called).
      *
-     * @param gameID - the ID of the game that this object is managing
-     * @param presenter - a GamePresenter representing the game that this object will manage
-     * @param display - the object that this ChessManager will use to interact with the UI
+     * @param gameID        - the ID of the game that this object is managing
+     * @param presenter     - a GamePresenter representing the game that this object will manage
+     * @param display       - the object that this ChessManager will use to interact with the UI
      * @param dialogCreator - the object that this ChessManager will use to create error dialogs,
      *                      when necessary
-     * @param activity - the Activity displaying the game that this ChessManager is managing
+     * @param activity      - the Activity displaying the game that this ChessManager is managing
      */
     ChessManager(String gameID, GamePresenter presenter, BoardDisplay display, GameDialogCreator dialogCreator,
                  AppCompatActivity activity) {
@@ -120,8 +110,8 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
     private void resetFromModel() {
         // The user can only move a piece if they have an opponent, the game isn't over, and it is
         // their turn
-        this.userCanMove = (Integer)presenter.getData(GameData.STATE) == 1
-                && ((String)presenter.getData(GameData.OPPONENT)).length() > 0
+        this.userCanMove = (Integer) presenter.getData(GameData.STATE) == 1
+                && ((String) presenter.getData(GameData.OPPONENT)).length() > 0
                 && !presenter.gameIsOver();
     }
 
@@ -136,12 +126,12 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
                 // squares it can move to immediately. We don't want to wait until after ACTION_UP.
                 // This way, if the user clicks a piece and then drags it to move it, the squares
                 // that piece can move to will already be highlighted.
-                if(userCanMove) {
+                if (userCanMove) {
                     piece = getPiece(row, column);
 
                     // If the user is clicking an ally piece different from the currently selected
                     // piece, they select the new piece
-                    if(piece != null && piece.getColour() == presenter.getUserColour()
+                    if (piece != null && piece.getColour() == presenter.getUserColour()
                             && piece != selected) {
                         this.selected = piece;
                         display.resetSquares();
@@ -153,18 +143,16 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
                         // We parse the list of moves into capture moves and normal moves
                         List<Pair> normalMoves = new ArrayList<>();
                         List<Pair> captureMoves = new ArrayList<>();
-                        for(Pair move : moves) {
-                            if(presenter.getPiece(move.first(), move.second()) == null) {
+                        for (Pair move : moves) {
+                            if (presenter.getPiece(move.first(), move.second()) == null) {
                                 // If the move ends on an empty square, it can still be a capture
                                 // move if it's an en passant capture
-                                if(presenter.isEnPassant(new Move(new Pair(selected.getRow(), selected.getColumn()), move)) != null) {
+                                if (presenter.isEnPassant(new Move(new Pair(selected.getRow(), selected.getColumn()), move)) != null) {
                                     captureMoves.add(move);
-                                }
-                                else {
+                                } else {
                                     normalMoves.add(move);
                                 }
-                            }
-                            else {
+                            } else {
                                 captureMoves.add(move);
                             }
                         }
@@ -173,21 +161,20 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
                         display.highlightSquares(convertToScreenCoords(normalMoves), false);
                     }
                     return true;
-                }
-                else {
+                } else {
                     return false;
                 }
             case MotionEvent.ACTION_UP:
-                if(userCanMove) {
+                if (userCanMove) {
                     piece = getPiece(row, column);
 
                     // The user clicked an empty square. They might be issuing a move command.
-                    if(piece == null) {
+                    if (piece == null) {
                         Pair tapped = convertCoords(row, column);
                         // If the user has a piece selected and the empty square they are clicking
                         // is a square that that piece can move to, we execute a move
-                        if(this.selected != null) {
-                            if(selected.getMoves().contains(tapped)) {
+                        if (this.selected != null) {
+                            if (selected.getMoves().contains(tapped)) {
                                 Pair src = new Pair(selected.getRow(), selected.getColumn());
                                 Move move = new Move(src, tapped);
 
@@ -196,7 +183,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
                                 // with
                                 Move rookMove = presenter.isCastle(move);
                                 Pair enPassantCapture = presenter.isEnPassant(move);
-                                if(rookMove != null) {
+                                if (rookMove != null) {
                                     // Move the King and Rook, only playing a sound effect for one
                                     // of their moves
                                     display.move(move, false, false);
@@ -204,7 +191,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
                                 }
                                 // If the user is doing an en passant capture, we need to remove the
                                 // pawn that they are capturing from the board
-                                else if(enPassantCapture != null) {
+                                else if (enPassantCapture != null) {
                                     display.move(move, true, true);
                                     display.set(enPassantCapture.first(), enPassantCapture.second(), null, false, false);
                                 }
@@ -231,8 +218,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
                                 this.selected = null;
                                 return false;
                             }
-                        }
-                        else {
+                        } else {
                             return false;
                         }
                     }
@@ -241,8 +227,8 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
                         // If the user has a piece selected and they are tapping an opponent piece
                         // that they can capture
                         Pair tapped = new Pair(piece.getRow(), piece.getColumn());
-                        if(this.selected != null) {
-                            if(selected.getMoves().contains(tapped)) {
+                        if (this.selected != null) {
+                            if (selected.getMoves().contains(tapped)) {
                                 Pair src = new Pair(selected.getRow(), selected.getColumn());
                                 // Move the piece to the square tapped by the user and play a
                                 // capture sound effect
@@ -257,14 +243,12 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
                                 // squares we previously had highlighted
                                 display.resetSquares();
                                 return false;
-                            }
-                            else {
+                            } else {
                                 this.selected = null;
                                 display.resetSquares();
                                 return false;
                             }
-                        }
-                        else {
+                        } else {
                             return false;
                         }
                     }
@@ -273,17 +257,16 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
                     else {
                         return false;
                     }
-                }
-                else {
+                } else {
                     return false;
                 }
             case MotionEvent.ACTION_MOVE:
                 Piece dragged = getPiece(row, column);
-                if(userCanMove && dragged != null && dragged.getColour() == presenter.getUserColour()) {
+                if (userCanMove && dragged != null && dragged.getColour() == presenter.getUserColour()) {
                     Pair src = convertCoords(row, column);
                     dragEnded = false;
                     display.startDrag(row, column);
-                    display.set(src.first(), src.second(), null,false, false);
+                    display.set(src.first(), src.second(), null, false, false);
                 }
                 return false;
             default:
@@ -299,7 +282,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
                 // the squares that the piece being dragged can move to, or the square that the
                 // piece being dragged currently occupies. So we only return true for these squares.
                 return (selected.getMoves().contains(convertCoords(row, column))
-                || new Pair(selected.getRow(), selected.getColumn()).equals(convertCoords(row, column)));
+                        || new Pair(selected.getRow(), selected.getColumn()).equals(convertCoords(row, column)));
             case DragEvent.ACTION_DRAG_ENTERED:
                 // Return true because we don't do anything special here but want to keep getting
                 // callbacks
@@ -322,13 +305,13 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
 
                 // If the user started the drag and then let go on the same square, we simply return
                 // the piece to its square on the screen.
-                if(src.equals(dest)) {
+                if (src.equals(dest)) {
                     display.set(src.first(), src.second(), selected, false, false);
                     return true;
                 }
 
                 // If the move is a normal capture
-                if(presenter.getPiece(dest) != null && presenter.getPiece(dest).getColour() != selected.getColour()) {
+                if (presenter.getPiece(dest) != null && presenter.getPiece(dest).getColour() != selected.getColour()) {
                     display.set(dest.first(), dest.second(), selected, true, true);
                 }
                 // If the move is onto an empty square
@@ -338,20 +321,19 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
 
                     // If the user is castling, we need to move the Rook being castled with, as well
                     // as place the King being moved on the destination square
-                    if(rookMove != null) {
+                    if (rookMove != null) {
                         // Set the King and move the Rook, playing a sound effect for each
                         display.set(dest.first(), dest.second(), selected, true, false);
                         display.move(rookMove, true, false);
                     }
                     // If the user is doing an en passant capture, we need to remove the pawn that they
                     // are capturing from the board
-                    else if(enPassantCapture != null) {
+                    else if (enPassantCapture != null) {
                         // Set the pawn performing the capture and erase the pawn being captured,
                         // playing a single capture sound effect
                         display.set(dest.first(), dest.second(), selected, true, true);
                         display.set(enPassantCapture.first(), enPassantCapture.second(), null, false, false);
-                    }
-                    else {
+                    } else {
                         display.set(dest.first(), dest.second(), selected, true, false);
                     }
                 }
@@ -367,7 +349,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
                 // Once our drag event ends, all the squares that could have been moved to get this
                 // method call. We only care about the first one, so we use boolean dragEnded to
                 // ensure we only run the below code the first time.
-                if(!dragEnded && !event.getResult()) {
+                if (!dragEnded && !event.getResult()) {
                     display.set(selected.getRow(), selected.getColumn(), selected, false, false);
                     dragEnded = true;
                 }
@@ -382,15 +364,14 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
      * to reflect the coordinates across the diagonal before accessing the board). Returns null
      * if the specified square is empty.
      *
-     * @param row - the row on the screen occupied by the piece we seek
+     * @param row    - the row on the screen occupied by the piece we seek
      * @param column - the column on the screen occupied by the piece we seek
      * @return The piece occupying the specified square on the screen
      */
     private Piece getPiece(int row, int column) {
-        if(presenter.getUserColour() == Colour.WHITE) {
+        if (presenter.getUserColour() == Colour.WHITE) {
             return presenter.getPiece(row, column);
-        }
-        else {
+        } else {
             return presenter.getPiece(7 - row, 7 - column);
         }
     }
@@ -405,12 +386,11 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
      * @return The given list of board squares converted into screen squares
      */
     private List<Pair> convertToScreenCoords(List<Pair> squares) {
-        if(presenter.getUserColour() == Colour.WHITE) {
+        if (presenter.getUserColour() == Colour.WHITE) {
             return squares;
-        }
-        else {
+        } else {
             List<Pair> converted = new ArrayList<>();
-            for(Pair pair : squares) {
+            for (Pair pair : squares) {
                 converted.add(new Pair(7 - pair.first(), 7 - pair.second()));
             }
 
@@ -423,15 +403,14 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
      * or vice versa. The conversion process is exactly the same regardless of which coordinates
      * we're converting from/to, so we only need one method.
      *
-     * @param row - the row component of the coordinates to convert
+     * @param row    - the row component of the coordinates to convert
      * @param column - the column component of the coordinates to convert
      * @return A Pair, containing the given set of coordinates converted into its opposite type
      */
     private Pair convertCoords(int row, int column) {
-        if(presenter.getUserColour() == Colour.WHITE) {
+        if (presenter.getUserColour() == Colour.WHITE) {
             return new Pair(row, column);
-        }
-        else {
+        } else {
             return new Pair(7 - row, 7 - column);
         }
     }
@@ -457,7 +436,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
         // Note that this should never happen for two reasons: first, we're in this method because
         // the server accepted our move as valid; second, we only allow the user to submit moves to
         // the server if we've cleared them with our model beforehand.
-        if(code != 0 && code != -1) {
+        if (code != 0 && code != -1) {
             display.reset();
             this.resetFromModel();
             Display.showSimpleDialog(R.string.model_failure_error_text, display.getContext());
@@ -465,7 +444,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
         }
         // If the server and our model disagree about whether or not a promotion is needed, we do
         // the same thing as above
-        else if((promotionNeeded && code == 0) || (!promotionNeeded && code == -1)) {
+        else if ((promotionNeeded && code == 0) || (!promotionNeeded && code == -1)) {
             display.reset();
             this.resetFromModel();
             Display.showSimpleDialog(R.string.model_failure_error_text, display.getContext());
@@ -477,33 +456,30 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
 
         // If a promotion isn't needed, the user's turn is over and we can check if they've
         // delivered checkmate or maybe a stalemate
-        if(!promotionNeeded) {
-            if(presenter.isStalemate()) {
+        if (!promotionNeeded) {
+            if (presenter.isStalemate()) {
                 presenter.setData(GameData.DRAWN, 1);
-            }
-            else if (presenter.isCheckmate()) {
+            } else if (presenter.isCheckmate()) {
                 presenter.setData(GameData.USER_WON, 1);
             }
             // Otherwise, the game isn't over
             else {
                 // Increment the turn counter if the user is playing black
-                if(userColour == Colour.BLACK) {
-                    presenter.setData(GameData.TURN, (Integer)presenter.getData(GameData.TURN) + 1);
+                if (userColour == Colour.BLACK) {
+                    presenter.setData(GameData.TURN, (Integer) presenter.getData(GameData.TURN) + 1);
                 }
 
                 Log.i(tag, "Setting STATE to 0");
                 // Set GameData.STATE to 0, which means that it isn't the user's turn anymore
                 presenter.setData(GameData.STATE, 0);
             }
-        }
-        else {
+        } else {
             // Even if a promotion is needed and the user's turn isn't over, it's possible that they
             // could have delivered checkmate with their pawn move. In this case the game is over;
             // we don't bother with the promotion.
-            if(presenter.isCheckmate()) {
+            if (presenter.isCheckmate()) {
                 presenter.setData(GameData.USER_WON, 1);
-            }
-            else {
+            } else {
                 // TODO: Implement promotions
             }
         }

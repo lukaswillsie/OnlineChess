@@ -7,13 +7,13 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.lukaswillsie.onlinechess.activities.board.BoardActivity;
-import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
+import com.lukaswillsie.onlinechess.activities.board.BoardActivity;
 import com.lukaswillsie.onlinechess.activities.game_display.ActiveGamesActivity;
 import com.lukaswillsie.onlinechess.activities.game_display.ArchivedGamesActivity;
 import com.lukaswillsie.onlinechess.activities.login.LoginActivity;
 import com.lukaswillsie.onlinechess.data.RememberMeHelper;
+import com.lukaswillsie.onlinechess.network.Server;
 
 import java.io.IOException;
 
@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity implements ReconnectListener
 
         // This is how we detect that the system destroyed our app while it was running in the
         // background and is now restarting it.
-        if (((ChessApplication) getApplicationContext()).getGames() == null) {
+        if (Server.getGames() == null) {
             // Re-establish a connection with the server and re-login the user
             new Reconnector(this, this).reconnect();
         }
@@ -99,6 +99,7 @@ public class MainActivity extends AppCompatActivity implements ReconnectListener
             Log.e(tag, "Couldn't create RememberMeHelper to log out the user");
         }
 
+        Server.logout();
         startActivity(new Intent(this, LoginActivity.class));
     }
 

@@ -3,7 +3,7 @@ package com.lukaswillsie.onlinechess.activities.board;
 import android.content.Context;
 import android.util.Log;
 
-import com.lukaswillsie.onlinechess.ChessApplication;
+import com.lukaswillsie.onlinechess.network.Server;
 import com.lukaswillsie.onlinechess.network.helper.requesters.MoveRequester;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 
@@ -29,8 +29,9 @@ public class MoveRequestHandler implements MoveRequester {
     /**
      * Create a new MoveRequestHandler who will give callbacks to the given listener, operating in
      * the given Context
+     *
      * @param listener - will receive callbacks whenever a move request is submitted
-     * @param context - the Context in which this object is operating
+     * @param context  - the Context in which this object is operating
      */
     MoveRequestHandler(MoveRequestListener listener, Context context) {
         this.listener = listener;
@@ -40,12 +41,12 @@ public class MoveRequestHandler implements MoveRequester {
     /**
      * Submit a move request.
      *
-     * @param move - the move to be made
+     * @param move   - the move to be made
      * @param gameID - the game to try and make the given move in
      */
     void submitMove(Move move, String gameID) {
         try {
-            ((ChessApplication)context.getApplicationContext()).getServerHelper().move(this, gameID, move);
+            Server.getServerHelper().move(this, gameID, move);
         } catch (MultipleRequestException e) {
             Log.i(tag, "Submitted multiple move requests to ServerHelper");
             listener.moveFailed();

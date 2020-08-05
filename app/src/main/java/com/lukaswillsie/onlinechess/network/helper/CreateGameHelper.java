@@ -2,7 +2,6 @@ package com.lukaswillsie.onlinechess.network.helper;
 
 import android.os.Message;
 import android.util.Log;
-import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 
@@ -25,19 +24,25 @@ public class CreateGameHelper extends SubHelper implements ReturnCodeCaller {
      * Tag used for logging to the console
      */
     private static final String tag = "CreateGameHelper";
-
+    /**
+     * Constants this object uses to communicate with the UI thread through Messages
+     */
+    private static final int SERVER_ERROR = -3;
+    private static final int SYSTEM_ERROR = -2;
+    private static final int CONNECTION_LOST = -1;
+    private static final int SUCCESS = 0;
+    private static final int GAMEID_IN_USE = 1;
+    private static final int FORMAT_INVALID = 2;
     /**
      * Keeps a reference to the object that will receive callbacks about the currently active
      * request. null if there is no active request.
      */
     private CreateGameRequester requester;
-
     /**
      * The ID of the game that we are attempting to join in the currently active request. null
      * if there is no active request.
      */
     private String gameID;
-
     /**
      * The username of the user responsible for the currently active request (trying to create the
      * game). null if there is no active request.
@@ -57,15 +62,15 @@ public class CreateGameHelper extends SubHelper implements ReturnCodeCaller {
      * Will send a request to the server to try and create a game with the given ID and open status
      *
      * @param requester - the object that will receive callbacks relevant to the request
-     * @param gameID - the ID of the game to be created
-     * @param open - a boolean representing whether or not the game to be created should be "open",
-     *             meaning that anybody can view and join it
-     * @param username - the username of the user trying to create the game
+     * @param gameID    - the ID of the game to be created
+     * @param open      - a boolean representing whether or not the game to be created should be "open",
+     *                  meaning that anybody can view and join it
+     * @param username  - the username of the user trying to create the game
      * @throws MultipleRequestException - if this object is already handling another createGame
-     * request when this method is called
+     *                                  request when this method is called
      */
     void createGame(CreateGameRequester requester, String gameID, boolean open, String username) throws MultipleRequestException {
-        if(this.requester != null) {
+        if (this.requester != null) {
             throw new MultipleRequestException("Tried to make multiple requests of CreateGameHelper");
         }
         this.requester = requester;
@@ -81,13 +86,13 @@ public class CreateGameHelper extends SubHelper implements ReturnCodeCaller {
      * given gameID and open status.
      *
      * @param gameID - the ID of the game to be created
-     * @param open - whether or not the game to be created is "open", meaning anyone can view and
-     *             join the game
+     * @param open   - whether or not the game to be created is "open", meaning anyone can view and
+     *               join the game
      * @return A String that can be sent to the server as part of an attempt to create a game with
      * the specified ID and open status
      */
     private String getRequest(String gameID, boolean open) {
-        return "creategame " + gameID + " " + ((open) ? "1" :"0");
+        return "creategame " + gameID + " " + ((open) ? "1" : "0");
     }
 
     /**
@@ -125,24 +130,21 @@ public class CreateGameHelper extends SubHelper implements ReturnCodeCaller {
 
                 UserGame game = new UserGame(username);
                 List<Object> initialData = new ArrayList<>();
-                for(ServerData data : ServerData.order) {
-                    if(data == ServerData.WHITE) {
+                for (ServerData data : ServerData.order) {
+                    if (data == ServerData.WHITE) {
                         initialData.add(username);
-                    }
-                    else if (data == ServerData.GAMEID) {
+                    } else if (data == ServerData.GAMEID) {
                         initialData.add(gameID);
-                    }
-                    else {
+                    } else {
                         initialData.add(data.initial);
                     }
                 }
 
                 int result = game.initialize(initialData);
-                if(result == 1) {
+                if (result == 1) {
                     Log.e(tag, "Error initializing a UserGame with the data sent by server");
                     msg = this.obtainMessage(SERVER_ERROR);
-                }
-                else {
+                } else {
                     msg = this.obtainMessage(SUCCESS, game);
                 }
                 break;
@@ -190,16 +192,6 @@ public class CreateGameHelper extends SubHelper implements ReturnCodeCaller {
     }
 
     /**
-     * Constants this object uses to communicate with the UI thread through Messages
-     */
-    private static final int SERVER_ERROR = -3;
-    private static final int SYSTEM_ERROR = -2;
-    private static final int CONNECTION_LOST = -1;
-    private static final int SUCCESS = 0;
-    private static final int GAMEID_IN_USE = 1;
-    private static final int FORMAT_INVALID = 2;
-
-    /**
      * We use this method to give callbacks back to requester. This ensures that any UI operations
      * performed by requester take place on the UI thread, rather than on the worker thread we've
      * spawned, preventing an exception from being thrown.
@@ -229,7 +221,7 @@ public class CreateGameHelper extends SubHelper implements ReturnCodeCaller {
                 this.requester = null;
                 break;
             case SUCCESS:
-                requester.gameCreated((UserGame)msg.obj);
+                requester.gameCreated((UserGame) msg.obj);
 
                 // Allows us to accept another request
                 this.requester = null;

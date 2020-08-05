@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.board.BoardActivity;
-import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.GameData;
 import com.lukaswillsie.onlinechess.data.UserGame;
 
@@ -76,7 +75,7 @@ public class UserGamesAdapter extends RecyclerView.Adapter<UserGamesAdapter.Game
      * Called when the RecyclerView wants to bind a new UserGame object to a View for being
      * displayed. Fills in and styles all the fields in the given GameViewHolder according to the
      * state of the game at position.
-     *
+     * <p>
      * Also applies an OnClickListener to the whole card being wrapped by the given GameViewHolder.
      * The OnClickListener makes it so that when the user clicks the card associated with a
      * particular game, that game is launched in BoardActivity so that the user can view the board.
@@ -183,7 +182,7 @@ public class UserGamesAdapter extends RecyclerView.Adapter<UserGamesAdapter.Game
      * OnClickListener applied by this method will start BoardActivity and allow the user to view
      * the state of the board in the game at position.
      *
-     * @param holder - the GameViewHolder wrapping the card that we'll apply the listener to
+     * @param holder   - the GameViewHolder wrapping the card that we'll apply the listener to
      * @param position - specifies which game's data is bound to the specified holder
      */
     protected void setCardListener(GameViewHolder holder, int position) {
@@ -250,6 +249,7 @@ public class UserGamesAdapter extends RecyclerView.Adapter<UserGamesAdapter.Game
 
         /**
          * Create a new GameCardListener that, when fired, will launch BoardActivity
+         *
          * @param gameID
          */
         private GameCardListener(String gameID) {

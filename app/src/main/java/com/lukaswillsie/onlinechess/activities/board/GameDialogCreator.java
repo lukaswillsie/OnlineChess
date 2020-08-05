@@ -1,7 +1,5 @@
 package com.lukaswillsie.onlinechess.activities.board;
 
-import android.app.AlertDialog;
-
 import androidx.annotation.StringRes;
 
 import com.lukaswillsie.onlinechess.activities.ErrorDialogFragment;
@@ -19,7 +17,7 @@ public interface GameDialogCreator {
      * the given listener will receive a callback to its cancel() method if the dialog is cancelled.
      *
      * @param messageID - the ID of the String resource that will be the dialog's message
-     * @param listener - the object that will receive the callbacks from the created dialog
+     * @param listener  - the object that will receive the callbacks from the created dialog
      */
     void showErrorDialog(@StringRes int messageID, ErrorDialogFragment.CancellableErrorDialogListener listener);
 
@@ -29,7 +27,7 @@ public interface GameDialogCreator {
      * say "Try Again", and will be connected to the retry() method of the listener.
      *
      * @param messageID - the ID of the String resource that will be the dialog's message
-     * @param listener - the object that will receive the callbacks from the created dialog
+     * @param listener  - the object that will receive the callbacks from the created dialog
      */
     void showConnectionLostDialog(@StringRes int messageID, ErrorDialogFragment.ErrorDialogListener listener);
 }

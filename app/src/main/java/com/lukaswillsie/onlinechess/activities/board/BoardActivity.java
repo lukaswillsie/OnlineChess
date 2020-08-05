@@ -1,16 +1,12 @@
 package com.lukaswillsie.onlinechess.activities.board;
 
-import androidx.appcompat.app.AlertDialog;
-
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
-import android.view.View;
-import android.widget.PopupMenu;
 import android.widget.TableLayout;
 
-import com.lukaswillsie.onlinechess.ChessApplication;
+import androidx.appcompat.app.AlertDialog;
+
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogActivity;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogFragment;
@@ -18,6 +14,7 @@ import com.lukaswillsie.onlinechess.activities.ReconnectListener;
 import com.lukaswillsie.onlinechess.activities.Reconnector;
 import com.lukaswillsie.onlinechess.data.GameData;
 import com.lukaswillsie.onlinechess.data.UserGame;
+import com.lukaswillsie.onlinechess.network.Server;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoadGameRequester;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
@@ -32,16 +29,14 @@ import Chess.com.lukaswillsie.chess.Board;
  */
 public class BoardActivity extends ErrorDialogActivity implements ReconnectListener, LoadGameRequester, GameDialogCreator {
     /**
-     * Tag used for logging to the console
-     */
-    private static final String tag = "BoardActivity";
-
-    /**
      * Activities that start this Activity MUST use this tag to pass, as an extra in the intent,
      * the ID of the game that this Activity is supposed to load.
      */
     public static final String GAMEID_TAG = "gameID";
-
+    /**
+     * Tag used for logging to the console
+     */
+    private static final String tag = "BoardActivity";
     /**
      * The ID of the game being displayed by this Activity
      */
@@ -70,11 +65,10 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
 
         // Reconnect if necessary. Otherwise, try and fetch the data for the game we're supposed to
         // be loading
-        ServerHelper serverHelper = ((ChessApplication)getApplicationContext()).getServerHelper();
-        if(serverHelper == null) {
+        ServerHelper serverHelper = Server.getServerHelper();
+        if (serverHelper == null) {
             new Reconnector(this, this).reconnect();
-        }
-        else {
+        } else {
             start();
         }
     }
@@ -91,7 +85,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
      * Send a request to the server, trying to load the game this Activity has been told to load
      */
     private void start() {
-        ServerHelper serverHelper = ((ChessApplication)getApplicationContext()).getServerHelper();
+        ServerHelper serverHelper = Server.getServerHelper();
         try {
             serverHelper.loadGame(this, gameID);
         } catch (MultipleRequestException e) {
@@ -111,10 +105,10 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
     @Override
     public void success(Board board) {
         // Find the UserGame object corresponding to the game we're supposed to be displaying
-        List<UserGame> userGames = ((ChessApplication)getApplicationContext()).getGames();
+        List<UserGame> userGames = Server.getGames();
         UserGame game = null;
-        for(UserGame userGame : userGames) {
-            if(userGame.getData(GameData.GAMEID).equals(gameID)) {
+        for (UserGame userGame : userGames) {
+            if (userGame.getData(GameData.GAMEID).equals(gameID)) {
                 game = userGame;
             }
         }
@@ -122,7 +116,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
         // If we didn't find a UserGame object, something has gone wrong that we can't remedy, so we
         // display a dialog for the user that will finish the Activity and send them back to the
         // previous screen
-        if(game == null) {
+        if (game == null) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage("Oops! Something went wrong and we couldn't show you your game.");
             builder.setPositiveButton(R.string.ok_dialog_button, new CriticalErrorListener());
@@ -144,7 +138,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
      * the given listener will receive a callback to its cancel() method if the dialog is cancelled.
      *
      * @param messageID - the ID of the String resource that will be the dialog's message
-     * @param listener - the object that will receive the callbacks from the created dialog
+     * @param listener  - the object that will receive the callbacks from the created dialog
      */
     @Override
     public void showErrorDialog(int messageID, ErrorDialogFragment.CancellableErrorDialogListener listener) {
@@ -157,29 +151,11 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
      * say "Try Again", and will be connected to the retry() method of the listener.
      *
      * @param messageID - the ID of the String resource that will be the dialog's message
-     * @param listener - the object that will receive the callbacks from the created dialog
+     * @param listener  - the object that will receive the callbacks from the created dialog
      */
     @Override
     public void showConnectionLostDialog(int messageID, ErrorDialogFragment.ErrorDialogListener listener) {
         showCustomDialog(messageID, listener);
-    }
-
-    /**
-     * A very simple listener class that listens to a dialog that we put up to notify the user of
-     * a critical error. In the context of this Activity, this means an error we can't remedy. So
-     * the listener just finishes this activity after the user cancels the dialog or clicks any
-     * button.
-     */
-    private class CriticalErrorListener implements DialogInterface.OnClickListener, DialogInterface.OnCancelListener {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-            BoardActivity.this.finish();
-        }
-
-        @Override
-        public void onCancel(DialogInterface dialog) {
-            BoardActivity.this.finish();
-        }
     }
 
     /**
@@ -214,6 +190,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
     public void connectionLost() {
         new Reconnector(this, this).reconnect();
     }
+
     /**
      * Called by worker Threads that try and submit a request to the server and are met with an
      * error on the server's part
@@ -232,11 +209,6 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
         this.showSystemErrorDialog();
     }
 
-
-
-    /* METHODS FOR INTERACTING WITH DIALOGS CREATED BY ErrorDialogActivity */
-
-
     /**
      * Provides behaviour in the event that the user presses "Try Again" on a system error dialog
      */
@@ -245,6 +217,10 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
         // Attempt to load the data we need again
         start();
     }
+
+
+
+    /* METHODS FOR INTERACTING WITH DIALOGS CREATED BY ErrorDialogActivity */
 
     /**
      * Provides behaviour in the event that the user presses "Cancel" on a system error dialog
@@ -278,5 +254,23 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
     @Override
     public void retryConnection() {
         new Reconnector(this, this).reconnect();
+    }
+
+    /**
+     * A very simple listener class that listens to a dialog that we put up to notify the user of
+     * a critical error. In the context of this Activity, this means an error we can't remedy. So
+     * the listener just finishes this activity after the user cancels the dialog or clicks any
+     * button.
+     */
+    private class CriticalErrorListener implements DialogInterface.OnClickListener, DialogInterface.OnCancelListener {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            BoardActivity.this.finish();
+        }
+
+        @Override
+        public void onCancel(DialogInterface dialog) {
+            BoardActivity.this.finish();
+        }
     }
 }

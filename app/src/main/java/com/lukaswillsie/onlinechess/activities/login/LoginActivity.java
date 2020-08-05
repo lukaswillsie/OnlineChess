@@ -13,15 +13,15 @@ import android.widget.Toast;
 
 import androidx.cardview.widget.CardView;
 
-import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.Display;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogActivity;
-import com.lukaswillsie.onlinechess.data.Format;
 import com.lukaswillsie.onlinechess.activities.MainActivity;
 import com.lukaswillsie.onlinechess.activities.load.LoadActivity;
+import com.lukaswillsie.onlinechess.data.Format;
 import com.lukaswillsie.onlinechess.data.RememberMeHelper;
 import com.lukaswillsie.onlinechess.data.UserGame;
+import com.lukaswillsie.onlinechess.network.Server;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
@@ -54,12 +54,13 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
         Formatter.styleEditText((EditText) findViewById(R.id.username));
         Formatter.styleEditText((EditText) findViewById(R.id.password));
 
-        serverHelper = ((ChessApplication) getApplicationContext()).getServerHelper();
+        serverHelper = Server.getServerHelper();
         Log.i(tag, "serverHelper is " + serverHelper);
     }
 
     @Override
-    public void onBackPressed() {}
+    public void onBackPressed() {
+    }
 
     /**
      * Called when the user presses the login button.
@@ -242,10 +243,8 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
         // This callback should only be used when the activity is in the below state
         if (this.state == State.LOADING) {
             // Save the list of games, as well as the user's username and password, globally in
-            // ChessApplication
-            ChessApplication application = (ChessApplication) getApplicationContext();
-            application.setGames(games);
-            application.login(((EditText)findViewById(R.id.username)).getText().toString());
+            // Server
+            Server.loggedIn(((EditText) findViewById(R.id.username)).getText().toString(), games);
 
 
             // Move to the next Activity

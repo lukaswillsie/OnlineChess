@@ -21,7 +21,6 @@ public class ReturnCodes {
      * logging in existing users
      *
      * @author Lukas Willsie
-     *
      */
     public static class Login {
         // Return code on successful login
@@ -39,7 +38,6 @@ public class ReturnCodes {
      * for creating new user accounts
      *
      * @author Lukas Willsie Willsie
-     *
      */
     public static class Create {
         // Return code on successful creation of new account
@@ -58,7 +56,6 @@ public class ReturnCodes {
      * new games
      *
      * @author Lukas Willsie
-     *
      */
     public static class CreateGame {
         // Return code on successful game creation
@@ -76,7 +73,6 @@ public class ReturnCodes {
      * games
      *
      * @author Lukas Willsie
-     *
      */
     public static class JoinGame {
         // Return code if the user was able to successfully join the given games
@@ -98,7 +94,6 @@ public class ReturnCodes {
      * data of a given game.
      *
      * @author Lukas Willsie
-     *
      */
     public static class LoadGame {
         // Return code on success
@@ -132,7 +127,6 @@ public class ReturnCodes {
      * command, for making moves in a game.
      *
      * @author Lukas Willsie
-     *
      */
     public static class Move {
         // Return code if the move is successfully made and the game is updated
@@ -177,7 +171,6 @@ public class ReturnCodes {
      * to a Rook, Knight, Bishop, or Queen respectively.
      *
      * @author Lukas Willsie
-     *
      */
     public static class Promote {
         // Return code if promotion is successful
@@ -209,7 +202,6 @@ public class ReturnCodes {
      * Defines return codes specific to the "draw gameID" command.
      *
      * @author Lukas Willsie
-     *
      */
     public static class Draw {
         // Return code if draw offer/accept is successful
@@ -235,7 +227,6 @@ public class ReturnCodes {
      * Defines return codes specific to the "reject gameID" command.
      *
      * @author Lukas Willsie
-     *
      */
     public static class Reject {
         // Return code if draw rejection is successful
@@ -264,7 +255,6 @@ public class ReturnCodes {
      * Defines return codes specific to the "forfeit gameID" command.
      *
      * @author Lukas Willsie
-     *
      */
     public static class Forfeit {
         // Return code if the forfeit is successful
@@ -290,7 +280,6 @@ public class ReturnCodes {
      * Defines return codes specific to the "archive gameID" command.
      *
      * @author Lukas Willsie
-     *
      */
     public static class Archive {
         // Return code if the archive is successful
@@ -307,7 +296,6 @@ public class ReturnCodes {
      * Defines return codes specific to the "restore gameID" command.
      *
      * @author Lukas Willsie
-     *
      */
     public static class Restore {
         // Return code if the restoration is successful

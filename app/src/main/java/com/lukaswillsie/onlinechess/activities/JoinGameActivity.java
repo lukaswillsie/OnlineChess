@@ -10,11 +10,11 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
-import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.game_display.OpenGamesActivity;
 import com.lukaswillsie.onlinechess.data.Format;
 import com.lukaswillsie.onlinechess.data.UserGame;
+import com.lukaswillsie.onlinechess.network.Server;
 import com.lukaswillsie.onlinechess.network.helper.requesters.JoinGameRequester;
 import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 
@@ -28,19 +28,6 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
      * Tag used for logging to the console
      */
     private static final String tag = "JoinGameActivity";
-
-    /**
-     * We use this enum to keep track of what state the Activity is currently in, with respect to
-     * a join game request.
-     */
-    private enum State {
-        WAITING,    // We're waiting for the user to click the "join" button
-        JOINING,    // The user has clicked the "join" button and we're waiting for the server
-                    // to tell us whether or not the join was successful
-        LOADING;    // The join was successful and we're waiting for the server to send us the
-                    // game data
-    }
-
     /**
      * Keeps track of the Activity's current state
      */
@@ -62,7 +49,7 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
                 getResources().getColor(R.color.white),
                 android.graphics.PorterDuff.Mode.SRC_IN);
 
-        if(((ChessApplication)getApplicationContext()).getServerHelper() == null) {
+        if (Server.getServerHelper() == null) {
             new Reconnector(this, this).reconnect();
         }
     }
@@ -73,14 +60,16 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
      * so we leave this method blank.
      */
     @Override
-    public void reconnectionComplete() {}
+    public void reconnectionComplete() {
+    }
 
     /**
      * An onclick, called when the user clicks the "Join" button.
+     *
      * @param view - the View that was clicked
      */
     public void joinGame(View view) {
-        if(this.state == State.WAITING) {
+        if (this.state == State.WAITING) {
             handleRequest();
         }
     }
@@ -90,16 +79,15 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
      * server. If the gameID is invalidly formatted, displays a dialog instead
      */
     private void handleRequest() {
-        String gameID = ((EditText)findViewById(R.id.join_game_input)).getText().toString();
+        String gameID = ((EditText) findViewById(R.id.join_game_input)).getText().toString();
 
-        if(Format.validGameID(gameID)) {
+        if (Format.validGameID(gameID)) {
             // Hide the ProgressBar in the button and make the text re-appear
             findViewById(R.id.join_game_progress).setVisibility(View.VISIBLE);
             findViewById(R.id.join_button_text).setVisibility(View.INVISIBLE);
 
-            ChessApplication application = ((ChessApplication)getApplicationContext());
             try {
-                application.getServerHelper().joinGame(this, gameID, application.getUsername());
+                Server.getServerHelper().joinGame(this, gameID, Server.getUsername());
             } catch (MultipleRequestException e) {
                 Log.e(tag, "MultipleRequestException thrown by JoinGameHelper");
                 super.showSystemErrorDialog();
@@ -111,8 +99,7 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
             // clean UI while we process the request
             Display.hideKeyboard(this);
             findViewById(R.id.join_game_input).setFocusable(false);
-        }
-        else {
+        } else {
             Display.showSimpleDialog(R.string.invalid_gameID_format, this);
         }
 
@@ -135,28 +122,26 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
         findViewById(R.id.join_layout).setBackground(getResources().getDrawable(R.drawable.join_game_button_selector));
     }
 
-
-
     /**
      * An onclick method; is called when the user wants to look at a list of open games
      *
      * @param view - the view that was clicked
      */
     public void openGames(View view) {
-        if(this.state == State.WAITING) {
+        if (this.state == State.WAITING) {
             startActivity(new Intent(this, OpenGamesActivity.class));
         }
     }
 
     /**
      * Called if the server says we successfully joined the specified game
-     *
+     * <p>
      * NOTE: This does NOT indicate the end of the request; the data associated with the game that
      * was joined still needs to be received from the server. This is just a stop on the way.
      */
     @Override
     public void gameJoined() {
-        if(this.state == State.JOINING) {
+        if (this.state == State.JOINING) {
             findViewById(R.id.join_layout).setBackgroundColor(getResources().getColor(R.color.join_game_successful));
             this.state = State.LOADING;
         }
@@ -167,7 +152,7 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
      */
     @Override
     public void gameDoesNotExist() {
-        if(this.state == State.JOINING) {
+        if (this.state == State.JOINING) {
             resetUI();
             this.state = State.WAITING;
 
@@ -181,7 +166,7 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
      */
     @Override
     public void gameFull() {
-        if(this.state == State.JOINING) {
+        if (this.state == State.JOINING) {
             resetUI();
             this.state = State.WAITING;
 
@@ -194,7 +179,7 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
      */
     @Override
     public void userAlreadyInGame() {
-        if(this.state == State.JOINING) {
+        if (this.state == State.JOINING) {
             resetUI();
             this.state = State.WAITING;
 
@@ -210,13 +195,13 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
      */
     @Override
     public void joinGameComplete(UserGame game) {
-        if(this.state == State.LOADING) {
+        if (this.state == State.LOADING) {
             this.state = State.WAITING;
-            Display.makeToast(this, getString(R.string.game_joined_text, ((EditText)findViewById(R.id.join_game_input)).getText().toString()), Toast.LENGTH_LONG);
+            Display.makeToast(this, getString(R.string.game_joined_text, ((EditText) findViewById(R.id.join_game_input)).getText().toString()), Toast.LENGTH_LONG);
             resetUI();
 
             // Add the received game to our list of the user's games
-            ((ChessApplication)getApplicationContext()).getGames().add(game);
+            Server.getGames().add(game);
         }
     }
 
@@ -226,7 +211,7 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
      */
     @Override
     public void connectionLost() {
-        if(this.state != State.WAITING) {
+        if (this.state != State.WAITING) {
             resetUI();
             this.state = State.WAITING;
             super.showConnectionLostDialog();
@@ -238,7 +223,7 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
      */
     @Override
     public void serverError() {
-        if(this.state != State.WAITING) {
+        if (this.state != State.WAITING) {
             super.showServerErrorDialog();
         }
     }
@@ -248,12 +233,10 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
      */
     @Override
     public void systemError() {
-        if(this.state != State.WAITING) {
+        if (this.state != State.WAITING) {
             super.showSystemErrorDialog();
         }
     }
-
-    /* CODE FOR INTERACTING WITH ERROR DIALOGS*/
 
     /**
      * Provides behaviour in the event that the user presses "Try Again" on a system error dialog
@@ -262,6 +245,8 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
     public void retrySystemError() {
         handleRequest();
     }
+
+    /* CODE FOR INTERACTING WITH ERROR DIALOGS*/
 
     /**
      * Provides behaviour in the event that the user presses "Cancel" on a system error dialog
@@ -296,5 +281,17 @@ public class JoinGameActivity extends ErrorDialogActivity implements JoinGameReq
     @Override
     public void retryConnection() {
         new Reconnector(this, this).reconnect();
+    }
+
+    /**
+     * We use this enum to keep track of what state the Activity is currently in, with respect to
+     * a join game request.
+     */
+    private enum State {
+        WAITING,    // We're waiting for the user to click the "join" button
+        JOINING,    // The user has clicked the "join" button and we're waiting for the server
+        // to tell us whether or not the join was successful
+        LOADING    // The join was successful and we're waiting for the server to send us the
+        // game data
     }
 }

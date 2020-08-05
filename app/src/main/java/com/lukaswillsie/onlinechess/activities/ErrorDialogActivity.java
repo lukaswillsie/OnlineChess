@@ -1,7 +1,6 @@
 package com.lukaswillsie.onlinechess.activities;
 
 import androidx.annotation.StringRes;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.lukaswillsie.onlinechess.R;
@@ -60,7 +59,6 @@ public abstract class ErrorDialogActivity extends AppCompatActivity {
     }
 
     /**
-     *
      * @param resID
      * @param listener
      */

@@ -20,16 +20,30 @@ import Chess.com.lukaswillsie.chess.Pair;
  */
 public class MoveHelper extends SubHelper implements ReturnCodeCaller {
     /**
+     * Constants that this object uses to send Messages to itself
+     */
+    public static final int CONNECTION_LOST = -3;
+    public static final int SYSTEM_ERROR = -2;
+    public static final int SERVER_ERROR = -1;
+    public static final int SUCCESS = 0;
+    public static final int SUCCESS_PROMOTION_NEEDED = 1;
+    public static final int GAME_DOES_NOT_EXIST = 2;
+    public static final int USER_NOT_IN_GAME = 3;
+    public static final int NO_OPPONENT = 4;
+    public static final int GAME_IS_OVER = 5;
+    public static final int NOT_USER_TURN = 6;
+    public static final int HAS_TO_PROMOTE = 7;
+    public static final int RESPOND_TO_DRAW = 8;
+    public static final int MOVE_INVALID = 9;
+    /**
      * Tag for logging to the console
      */
     private static final String tag = "MoveHelper";
-
     /**
      * The object that will receive callbacks relevant to the currently active request; null if
      * there is no currently active request
      */
     private MoveRequester requester;
-
     /**
      * Create a new SubHelper as part of the given ServerHelper
      *
@@ -43,13 +57,13 @@ public class MoveHelper extends SubHelper implements ReturnCodeCaller {
      * Sends a move request to the server, trying to make the given move in the given game
      *
      * @param requester - will receive callbacks once the request has been handled
-     * @param gameID - the game to try and make the move in
-     * @param move - represents the move that this object will try and make with its request
+     * @param gameID    - the game to try and make the move in
+     * @param move      - represents the move that this object will try and make with its request
      * @throws MultipleRequestException - if this object is already handling a request when this
-     * method is called
+     *                                  method is called
      */
     void move(MoveRequester requester, String gameID, Move move) throws MultipleRequestException {
-        if(this.requester != null) {
+        if (this.requester != null) {
             throw new MultipleRequestException("Tried to make multiple move requests of MoveRequester");
         }
         this.requester = requester;
@@ -63,7 +77,7 @@ public class MoveHelper extends SubHelper implements ReturnCodeCaller {
      * a request to make the specified move in the specified game
      *
      * @param gameID - the game to make the move in
-     * @param move - the Move to be made
+     * @param move   - the Move to be made
      * @return A String that can be sent to the server as part of a move request
      */
     @SuppressLint("DefaultLocale")
@@ -164,23 +178,6 @@ public class MoveHelper extends SubHelper implements ReturnCodeCaller {
     public void connectionLost() {
         this.obtainMessage(CONNECTION_LOST).sendToTarget();
     }
-
-    /**
-     * Constants that this object uses to send Messages to itself
-     */
-    public static final int CONNECTION_LOST = -3;
-    public static final int SYSTEM_ERROR = -2;
-    public static final int SERVER_ERROR = -1;
-    public static final int SUCCESS = 0;
-    public static final int SUCCESS_PROMOTION_NEEDED = 1;
-    public static final int GAME_DOES_NOT_EXIST = 2;
-    public static final int USER_NOT_IN_GAME = 3;
-    public static final int NO_OPPONENT = 4;
-    public static final int GAME_IS_OVER = 5;
-    public static final int NOT_USER_TURN = 6;
-    public static final int HAS_TO_PROMOTE = 7;
-    public static final int RESPOND_TO_DRAW = 8;
-    public static final int MOVE_INVALID = 9;
 
     /**
      * We use this method to give callbacks to our requester. We use Messages instead of calling

@@ -7,12 +7,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.ReconnectListener;
 import com.lukaswillsie.onlinechess.activities.Reconnector;
 import com.lukaswillsie.onlinechess.data.GameData;
 import com.lukaswillsie.onlinechess.data.UserGame;
+import com.lukaswillsie.onlinechess.network.Server;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +33,7 @@ public class ActiveGamesActivity extends AppCompatActivity implements ReconnectL
 
         setContentView(R.layout.activity_active_games);
 
-        if (((ChessApplication) getApplicationContext()).getServerHelper() == null) {
+        if (Server.getServerHelper() == null) {
             new Reconnector(this, this).reconnect();
         } else {
             // Set up our RecyclerView to display a list of the user's archived games
@@ -108,7 +108,7 @@ public class ActiveGamesActivity extends AppCompatActivity implements ReconnectL
         int opponentTurnPos = 0;
         int gameOverPos = 0;
         List<UserGame> activeGames = new ArrayList<>();
-        List<UserGame> games = ((ChessApplication) getApplicationContext()).getGames();
+        List<UserGame> games = Server.getGames();
         for (UserGame game : games) {
             if (!((int) game.getData(GameData.ARCHIVED) == 1)) {
                 if (isOver(game)) {

@@ -7,12 +7,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.ReconnectListener;
 import com.lukaswillsie.onlinechess.activities.Reconnector;
 import com.lukaswillsie.onlinechess.data.GameData;
 import com.lukaswillsie.onlinechess.data.UserGame;
+import com.lukaswillsie.onlinechess.network.Server;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +33,7 @@ public class ArchivedGamesActivity extends AppCompatActivity implements Reconnec
 
         // If our app was terminated by the operating system and is now being resumed, we'll have to
         // re-establish a connection with the server
-        if (((ChessApplication) getApplicationContext()).getServerHelper() == null) {
+        if (Server.getServerHelper() == null) {
             new Reconnector(this, this).reconnect();
         } else {
             // Set up our RecyclerView to display a list of the user's archived games
@@ -84,7 +84,7 @@ public class ArchivedGamesActivity extends AppCompatActivity implements Reconnec
     }
 
     /**
-     * Process the list of the user's games stored in ChessApplication to extract only those we
+     * Process the list of the user's games stored in Server to extract only those we
      * want displayed; the archived ones. Also sorts them in the following order:
      * 1. Games in which it is the user's turn
      * 2. Games in which it is the opponent's turn
@@ -97,7 +97,7 @@ public class ArchivedGamesActivity extends AppCompatActivity implements Reconnec
         int opponentTurnPos = 0;
         int gameOverPos = 0;
         List<UserGame> archivedGames = new ArrayList<>();
-        List<UserGame> games = ((ChessApplication) getApplicationContext()).getGames();
+        List<UserGame> games = Server.getGames();
         for (UserGame game : games) {
             if ((int) game.getData(GameData.ARCHIVED) == 1) {
                 if (isOver(game)) {

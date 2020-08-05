@@ -3,7 +3,6 @@ package com.lukaswillsie.onlinechess.activities;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.PorterDuff;
-import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
@@ -23,12 +22,12 @@ public class Display {
      * Creates and shows a Toast using the given Context, displaying the given message for the given
      * duration. Applies a custom style by changing the Toast's background colour and the colour of
      * its text. This method then calls .show() on the created Toast.
-     *
+     * <p>
      * Calling this method is equivalent to calling Toast.makeText(context, msg, duration).show()
      * but with altered style.
      *
-     * @param context - the Context in which to create the Toast
-     * @param msg - the message to display in the Toast
+     * @param context  - the Context in which to create the Toast
+     * @param msg      - the message to display in the Toast
      * @param duration - how long to display the Toast for. Should be either Toast.LENGTH_LONG or
      *                 Toast.LENGTH_SHORT
      */
@@ -46,12 +45,12 @@ public class Display {
      * Creates and shows a Toast using the given Context, displaying the given message for the given
      * duration. Applies a custom style by changing the Toast's background colour and the colour of
      * its text. This method then calls .show() on the created Toast.
-     *
+     * <p>
      * Calling this method is equivalent to calling Toast.makeText(context, msg, duration).show()
      * but with altered style.
      *
-     * @param context - the Context in which to create the Toast
-     * @param resId - the id of the message to display in the Toast
+     * @param context  - the Context in which to create the Toast
+     * @param resId    - the id of the message to display in the Toast
      * @param duration - how long to display the Toast for. Should be either Toast.LENGTH_LONG or
      *                 Toast.LENGTH_SHORT
      */
@@ -69,7 +68,7 @@ public class Display {
      * Creates a simple AlertDialog that just displays the given message, along with an OK button
      * that does nothing but disperse the dialog when clicked
      *
-     * @param resId - the ID of the string resource to display as a message in the dialog
+     * @param resId   - the ID of the string resource to display as a message in the dialog
      * @param context - the Context to create the dialog in
      */
     public static void showSimpleDialog(@StringRes int resId, Context context) {
