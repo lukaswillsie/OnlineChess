@@ -48,10 +48,6 @@ public class Square {
     private final Drawable lightBackground;
     private final Drawable darkBackground;
     /**
-     * The ConstraintLayout corresponding to this square on the screen
-     */
-    private ConstraintLayout layout;
-    /**
      * The Context containing the ConstraintLayout that this object is managing
      */
     private Context context;
@@ -69,35 +65,36 @@ public class Square {
     private SquareOnTouchListener listener;
 
     /**
-     * Create a new Square with the given position, corresponding to the given layout on the screen.
-     * The given layout should not have any children, and should at this point have no attributes
-     * applied to it other than its layout parameters
+     * Creates a new Square object. The Square object will assume that it occupies the given row
+     * and column on the screen, and will use the given ImageView to display its contents on the
+     * screen. The given ImageView should already have been given layout parameters and added to its
+     * parent layout. This object will simply manage the colour of its background and the image
+     * resource it is displaying.
+     *
+     * The given ImageView will be given a background according to whether or not this Square is
+     * a light or dark square on the board, but won't display any piece until told to do so through
+     * the setPiece() method.
      *
      * @param row    - this Square's row, with row=0 representing the bottom of the board
      * @param column - the square's column, with column=0 representing the left side of the board
-     * @param layout - the ConstraintLayout corresponding to this square on the screen
+     * @param imageView - the ImageView that this object will use to display its piece on the screen
      */
-    public Square(int row, int column, ConstraintLayout layout) {
+    public Square(int row, int column, ImageView imageView) {
         this.row = row;
         this.column = column;
-        this.layout = layout;
-        this.context = layout.getContext();
+        this.image = imageView;
+        this.context = image.getContext();
         this.lightBackground = new ColorDrawable(context.getResources().getColor(R.color.white));
         this.darkBackground = new ColorDrawable(0xFF4BA2E3);
 
         if (isLightSquare()) {
-            layout.setBackground(lightBackground);
+            image.setBackground(lightBackground);
         } else {
-            layout.setBackground(darkBackground);
+            image.setBackground(darkBackground);
         }
 
-        image = new ImageView(context);
-        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        image.setLayoutParams(params);
         int padding = 5;
         image.setPadding(padding, padding, padding, padding);
-
-        layout.addView(image);
     }
 
     /**
@@ -108,9 +105,9 @@ public class Square {
     public void startDrag() {
         if (piece != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                layout.startDragAndDrop(null, new PieceDragShadowBuilder(), null, View.DRAG_FLAG_OPAQUE);
+                image.startDragAndDrop(null, new PieceDragShadowBuilder(), null, View.DRAG_FLAG_OPAQUE);
             } else {
-                layout.startDrag(null, new PieceDragShadowBuilder(), null, 0);
+                image.startDrag(null, new PieceDragShadowBuilder(), null, 0);
             }
         }
     }
@@ -161,12 +158,12 @@ public class Square {
     public ImageView getAnimatableView() {
         if (piece != null) {
             ImageView im = new ImageView(context);
-            // Our Square's ConstraintLayout is inside a LinearLayout which is inside a TableLayout
+            // Our Square is inside a LinearLayout which is inside a TableLayout
             // which is inside the root ConstraintLayout.
-            ConstraintLayout root = (ConstraintLayout) layout.getParent().getParent().getParent();
+            ConstraintLayout root = (ConstraintLayout) image.getParent().getParent().getParent();
 
             // Set the ImageView to be precisely as large as our square.
-            im.setLayoutParams(new ConstraintLayout.LayoutParams(layout.getWidth(), layout.getWidth()));
+            im.setLayoutParams(new ConstraintLayout.LayoutParams(image.getWidth(), image.getWidth()));
 
             // Constrain the ImageView within the root layout
             int id = ViewCompat.generateViewId();
@@ -206,7 +203,7 @@ public class Square {
         // we need to get the x-coordinate of our ConstraintLayout within the LinearLayout. Then
         // we need to add the x-coordinate of that LinearLayout within the TableLayout. Then we need
         // to add the x-coordinate of the TableLayout within the root ConstraintLayout.
-        return layout.getX() + ((View) layout.getParent()).getX() + ((View) layout.getParent().getParent()).getX();
+        return image.getX() + ((View) image.getParent()).getX() + ((View) image.getParent().getParent()).getX();
     }
 
     /**
@@ -223,7 +220,7 @@ public class Square {
         // we need to get the y-coordinate of our ConstraintLayout within the LinearLayout. Then
         // we need to add the y-coordinate of that LinearLayout within the TableLayout. Then we need
         // to add the y-coordinate of the TableLayout within the root ConstraintLayout.
-        return layout.getY() + ((View) layout.getParent()).getY() + ((View) layout.getParent().getParent()).getY();
+        return image.getY() + ((View) image.getParent()).getY() + ((View) image.getParent().getParent()).getY();
     }
 
     /**
@@ -289,21 +286,20 @@ public class Square {
      */
     public void highlight(boolean capture) {
         if (capture) {
-            this.layout.setBackground(new ColorDrawable(0xFFFA1D1D));
+            this.image.setBackground(new ColorDrawable(0xFFFA1D1D));
         } else if (isLightSquare()) {
-            this.layout.setBackground(new ColorDrawable(0xFF62E69E));
+            this.image.setBackground(new ColorDrawable(0xFF62E69E));
         } else {
-            this.layout.setBackground(new ColorDrawable(0xFF4DB37B));
+            this.image.setBackground(new ColorDrawable(0xFF4DB37B));
         }
     }
 
     /**
-     * SELECTS this square. If the user taps a piece and selects it, we select the square underneath
-     * it as a visual reminder of which piece was highlighted.
+     * SELECTS this square. If the user taps a piece and selects it, we change the colour of the
+     * square underneath it as a visual reminder of which piece was highlighted.
      */
     public void select() {
-        System.out.println("Selecting a square");
-        this.layout.setBackground(new ColorDrawable(0xFFB5FF54));
+        this.image.setBackground(new ColorDrawable(0xFFB5FF54));
     }
 
     /**
@@ -312,9 +308,9 @@ public class Square {
      */
     public void reset() {
         if (isLightSquare()) {
-            layout.setBackground(lightBackground);
+            image.setBackground(lightBackground);
         } else {
-            layout.setBackground(darkBackground);
+            image.setBackground(darkBackground);
         }
     }
 
@@ -337,7 +333,7 @@ public class Square {
      */
     @SuppressLint("ClickableViewAccessibility")
     public void setSquareOnTouchListener(final SquareOnTouchListener listener) {
-        this.layout.setOnTouchListener(new View.OnTouchListener() {
+        this.image.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 // I discovered that if the user clicks a square, holds the click, and then drags
@@ -352,7 +348,7 @@ public class Square {
                 // square before sending off a touch event to the listener.
                 float x = event.getX();
                 float y = event.getY();
-                if (0 <= x && x <= layout.getWidth() && 0 <= y && y <= layout.getHeight()) {
+                if (0 <= x && x <= image.getWidth() && 0 <= y && y <= image.getHeight()) {
                     return listener.onTouch(row, column, event);
                 } else {
                     return false;
@@ -368,7 +364,7 @@ public class Square {
      *                 square
      */
     public void setSquareDragListener(final SquareDragListener listener) {
-        this.layout.setOnDragListener(new View.OnDragListener() {
+        this.image.setOnDragListener(new View.OnDragListener() {
             @Override
             public boolean onDrag(View v, DragEvent event) {
                 return listener.onDrag(row, column, event);

@@ -75,13 +75,13 @@ public class BoardDisplay {
             if (child instanceof LinearLayout) {
                 LinearLayout row = (LinearLayout) child;
                 for (int j = 0; j < 8; j++) {
-                    ConstraintLayout square_layout = new ConstraintLayout(context);
-                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1);
-                    square_layout.setLayoutParams(params);
+                    ImageView squareIm = new ImageView(context);
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f);
+                    squareIm.setLayoutParams(params);
 
-                    Square square = new Square(7 - i, j, square_layout);
+                    Square square = new Square(7 - i, j, squareIm);
                     board[7 - i][j] = square;
-                    row.addView(square_layout);
+                    row.addView(squareIm);
                 }
             }
         }

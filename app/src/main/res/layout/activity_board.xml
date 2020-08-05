@@ -26,6 +26,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:clickable="true"
+            android:focusable="true"
             android:background="@drawable/board_button_background">
 
             <ImageView
@@ -58,6 +59,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:clickable="true"
+            android:focusable="true"
             android:background="@drawable/board_button_background">
 
             <ImageView
@@ -91,6 +93,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:clickable="true"
+            android:focusable="true"
             android:background="@drawable/board_button_background">
 
             <ImageView
@@ -124,6 +127,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:clickable="true"
+            android:focusable="true"
             android:background="@drawable/board_button_background">
 
             <ImageView
