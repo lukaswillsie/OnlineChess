@@ -9,7 +9,6 @@ import com.lukaswillsie.onlinechess.data.ServerData;
 import com.lukaswillsie.onlinechess.data.UserGame;
 import com.lukaswillsie.onlinechess.network.ReturnCodes;
 import com.lukaswillsie.onlinechess.network.helper.requesters.CreateGameRequester;
-import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 import com.lukaswillsie.onlinechess.network.threads.ReturnCodeThread;
 import com.lukaswillsie.onlinechess.network.threads.callers.ReturnCodeCaller;
 

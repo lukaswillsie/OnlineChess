@@ -18,14 +18,16 @@ import java.util.List;
 
 import Chess.com.lukaswillsie.chess.Colour;
 import Chess.com.lukaswillsie.chess.Pair;
+import Chess.com.lukaswillsie.chess.Pawn;
 import Chess.com.lukaswillsie.chess.Piece;
+import Chess.com.lukaswillsie.chess.Queen;
 
 /**
  * This class is responsible for managing the state of a game of chess, by processing and responding
  * to actions made by the user. It interacts with the UI at a high-level by using a BoardDisplay
  * object. It accesses data about the game it is managing by using a GamePresenter object.
  */
-public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestListener, ReconnectListener {
+public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestListener, ReconnectListener, Square.BannerListener {
     /**
      * Tag used for logging to the console
      */
@@ -55,6 +57,11 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
      * of their pieces), we have a reference to it here. null otherwise.
      */
     private Piece selected;
+    /**
+     * If the user needs to promote a pawn, this Pair specifies where on the board that pawn
+     * resides. Is null otherwise.
+     */
+    private Pair toPromote;
     /**
      * Keeps track of whether or not the user is currently able to move. In particular, it has to
      * be the user's turn and the user has to have an opponent in their game.
@@ -100,6 +107,11 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
 
         // Initialize our game fields to match the model
         resetFromModel();
+
+        if(toPromote != null) {
+            display.attachPromotionBanner(toPromote.first(), toPromote.second(), this);
+            display.selectSquare(toPromote.first(), toPromote.second());
+        }
     }
 
     /**
@@ -108,16 +120,37 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
      * base state.
      */
     private void resetFromModel() {
-        // The user can only move a piece if they have an opponent, the game isn't over, and it is
-        // their turn
+        // The user can only move a piece if they have an opponent, the game isn't over, it is their
+        // turn, and a promotion isn't needed.
         this.userCanMove = (Integer) presenter.getData(GameData.STATE) == 1
                 && ((String) presenter.getData(GameData.OPPONENT)).length() > 0
-                && !presenter.gameIsOver();
+                && !presenter.gameIsOver()
+                && ((Integer) presenter.getData(GameData.PROMOTION_NEEDED) == 0);
+
+        if((Integer) presenter.getData(GameData.PROMOTION_NEEDED) == 1) {
+            int row;
+            if(presenter.getUserColour() == Colour.WHITE) {
+                row = 7;
+            }
+            else {
+                row = 0;
+            }
+
+            // Search the user's opponent's back row for a pawn
+            for(int column = 0; column < 8; column++) {
+                Piece piece = presenter.getPiece(row, column);
+                if(piece instanceof Pawn
+                && piece.getColour() == presenter.getUserColour()) {
+                    toPromote = new Pair(row, column);
+                    break;
+                }
+            }
+        }
     }
 
     @Override
     public boolean onTouch(int row, int column, MotionEvent event) {
-        Log.i(tag, "(" + event.getRawX() + ", " + event.getRawY() + ")\n" + event.toString());
+        Log.i(tag, "(" + row + ", " + column + ")\n" + event.toString());
         int action = event.getAction();
         Piece piece;
         switch (action) {
@@ -193,7 +226,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
                                 // pawn that they are capturing from the board
                                 else if (enPassantCapture != null) {
                                     display.move(move, true, true);
-                                    display.set(enPassantCapture.first(), enPassantCapture.second(), null, false, false);
+                                    display.set(enPassantCapture.first(), enPassantCapture.second(), (Piece) null, false, false);
                                 }
                                 // Otherwise, just move the piece to the empty square
                                 else {
@@ -266,7 +299,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
                     Pair src = convertCoords(row, column);
                     dragEnded = false;
                     display.startDrag(row, column);
-                    display.set(src.first(), src.second(), null, false, false);
+                    display.set(src.first(), src.second(), (Piece) null, false, false);
                 }
                 return false;
             default:
@@ -332,7 +365,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
                         // Set the pawn performing the capture and erase the pawn being captured,
                         // playing a single capture sound effect
                         display.set(dest.first(), dest.second(), selected, true, true);
-                        display.set(enPassantCapture.first(), enPassantCapture.second(), null, false, false);
+                        display.set(enPassantCapture.first(), enPassantCapture.second(), (Piece) null, false, false);
                     } else {
                         display.set(dest.first(), dest.second(), selected, true, false);
                     }
@@ -480,7 +513,25 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
             if (presenter.isCheckmate()) {
                 presenter.setData(GameData.USER_WON, 1);
             } else {
-                // TODO: Implement promotions
+                int row;
+                if(presenter.getUserColour() == Colour.WHITE) {
+                    row = 7;
+                }
+                else {
+                    row = 0;
+                }
+
+                // Search the user's opponent's back row for a pawn
+                for(int column = 0; column < 8; column++) {
+                    Piece piece = presenter.getPiece(row, column);
+                    if(piece instanceof Pawn
+                            && piece.getColour() == presenter.getUserColour()) {
+                        toPromote = new Pair(row, column);
+                        break;
+                    }
+                }
+
+                display.attachPromotionBanner(toPromote.first(), toPromote.second(), this);
             }
         }
     }
@@ -529,5 +580,69 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
     @Override
     public void reconnectionComplete() {
         moveHandler.submitMove(activeMove, gameID);
+    }
+
+    /**
+     * If we attached a promotion banner to a square and the user clicked the Queen, this method is
+     * called.
+     */
+    @Override
+    public void queenPromotion() {
+        if(toPromote != null) {
+            display.resetSquares();
+            display.detachPromotionBanner(toPromote.first(), toPromote.second());
+            display.set(toPromote.first(), toPromote.second(), presenter.createDummyPiece('q', presenter.getUserColour()), false, false);
+        }
+        else {
+            Log.e(tag, "queenPromotion() called but no active promotion (toPromote is null)");
+        }
+    }
+
+    /**
+     * If we attached a promotion banner to a square and the user clicked the Rook, this method is
+     * called.
+     */
+    @Override
+    public void rookPromotion() {
+        if(toPromote != null) {
+            display.resetSquares();
+            display.detachPromotionBanner(toPromote.first(), toPromote.second());
+            display.set(toPromote.first(), toPromote.second(), presenter.createDummyPiece('r', presenter.getUserColour()), false, false);
+        }
+        else {
+            Log.e(tag, "rookPromotion() called but no active promotion (toPromote is null)");
+        }
+    }
+
+    /**
+     * If we attached a promotion banner to a square and the user clicked the Bishop, this method is
+     * called.
+     */
+    @Override
+    public void bishopPromotion() {
+        if(toPromote != null) {
+            display.resetSquares();
+            display.detachPromotionBanner(toPromote.first(), toPromote.second());
+            display.set(toPromote.first(), toPromote.second(), presenter.createDummyPiece('b', presenter.getUserColour()), false, false);
+        }
+        else {
+            Log.e(tag, "bishopPromotion() called but no active promotion (toPromote is null)");
+        }
+    }
+
+    /**
+     * If we attached a promotion banner to a square and the user clicked the Knight, this method is
+     * called.
+     */
+    @Override
+    public void knightPromotion() {
+        if(toPromote != null) {
+            display.resetSquares();
+            display.detachPromotionBanner(toPromote.first(), toPromote.second());
+            display.set(toPromote.first(), toPromote.second(), presenter.createDummyPiece('n', presenter.getUserColour()), false, false);
+        }
+        else {
+            Log.e(tag, "knightPromotion() called but no active promotion (toPromote is null)");
+        }
     }
 }

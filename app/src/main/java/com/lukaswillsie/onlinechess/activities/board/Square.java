@@ -8,6 +8,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.DragEvent;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,6 +64,11 @@ public class Square {
      * This object will be notified when this square is clicked.
      */
     private SquareOnTouchListener listener;
+    /**
+     * A reference to the promotion banner currently attached to this Square, if there is one. null
+     * otherwise.
+     */
+    private ConstraintLayout promotionBanner;
 
     /**
      * Creates a new Square object. The Square object will assume that it occupies the given row
@@ -186,6 +192,94 @@ public class Square {
             return im;
         } else {
             return null;
+        }
+    }
+
+    /**
+     * Attach a promotion banner, displaying pieces of the given colour, to this Square. If this
+     * Square already has a promotion banner attached to it when this method is called, that
+     * promotion banner is removed.
+     *
+     * @param colour - the colour of the pieces to be displayed in the promotion banner
+     * @param listener - will receive a callback when the user selects a piece
+     */
+    public void attachPromotionBanner(Colour colour, final BannerListener listener) {
+        ConstraintLayout root = (ConstraintLayout) image.getParent().getParent();
+
+        // If this square already has a promotion banner attached to it, we remove it from the
+        // screen
+        if(promotionBanner != null) {
+            ((ViewGroup)promotionBanner.getParent()).removeView(promotionBanner);
+        }
+
+        // Inflate our banner from an XML file
+        if(colour == Colour.WHITE) {
+            promotionBanner = (ConstraintLayout) LayoutInflater.from(context).inflate(R.layout.white_promote_menu_layout, root, false);
+        }
+        else {
+            promotionBanner = (ConstraintLayout) LayoutInflater.from(context).inflate(R.layout.black_promote_menu_layout, root, false);
+        }
+
+        // Wire onClicks from the Views in the banner to the appropriate methods in BannerListener
+        promotionBanner.findViewById(R.id.queen).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                listener.queenPromotion();
+            }
+        });
+
+        promotionBanner.findViewById(R.id.rook).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                listener.rookPromotion();
+            }
+        });
+
+        promotionBanner.findViewById(R.id.bishop).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                listener.bishopPromotion();
+            }
+        });
+
+        promotionBanner.findViewById(R.id.knight).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                listener.knightPromotion();
+            }
+        });
+
+        root.addView(promotionBanner);
+        ConstraintSet constraints = new ConstraintSet();
+        constraints.clone(root);
+
+        // The banner is already constrained laterally to the sides of the board, in XML. Here we
+        // constrain the banner so that it is directly below the row occupied by this Square
+        constraints.connect(promotionBanner.getId(), ConstraintSet.TOP, ((View)image.getParent()).getId(), ConstraintSet.BOTTOM);
+        constraints.applyTo(root);
+
+        // The banner contains icons for four pieces: a queen, rook, bishop, and knight. Given a
+        // height, the banner and its contents automatically size themselves so that the banner
+        // contains a vertical column of 4 squares, each containing a different piece. We set the
+        // height so that each square in the banner is exactly the size of a Square on the board,
+        // and give the banner a horizontal bias that lines it up perfectly directly beneath this
+        // square.
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) promotionBanner.getLayoutParams();
+        params.height = image.getHeight() * 4;
+        params.horizontalBias = column * (1f/7);
+        promotionBanner.setLayoutParams(params);
+    }
+
+    /**
+     * If there is a promotion banner currently attached to this square, remove it. Does nothing
+     * otherwise.
+     */
+    public void detachPromotionBanner() {
+        if(promotionBanner != null) {
+            // Remove the promotionBanner form the screen and nullify our reference to it so that it
+            // can be garbage-collected
+            ((ViewGroup)promotionBanner.getParent()).removeView(promotionBanner);
+            promotionBanner = null;
         }
     }
 
@@ -437,5 +531,31 @@ public class Square {
         public void onDrawShadow(Canvas canvas) {
             shadow.draw(canvas);
         }
+    }
+
+    /**
+     * A BannerListener is an object that can be attached to a promotion banner. When the user
+     * selects the piece they want to promote their pawn into, the listener will receive a callback.
+     */
+    public interface BannerListener {
+        /**
+         * Called if the user selects the Queen
+         */
+        void queenPromotion();
+
+        /**
+         * Called if the user selects the Rook
+         */
+        void rookPromotion();
+
+        /**
+         * Called if the user selects the Bishop
+         */
+        void bishopPromotion();
+
+        /**
+         * Called if the user selects the Knight
+         */
+        void knightPromotion();
     }
 }

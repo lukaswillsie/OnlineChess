@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import com.lukaswillsie.onlinechess.data.UserGame;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
 import com.lukaswillsie.onlinechess.network.threads.LoginThread;
-import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 import com.lukaswillsie.onlinechess.network.threads.callers.LoginCaller;
 
 import java.util.List;

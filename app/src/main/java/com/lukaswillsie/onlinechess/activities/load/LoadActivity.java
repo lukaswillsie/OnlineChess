@@ -19,7 +19,7 @@ import com.lukaswillsie.onlinechess.network.Server;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 import com.lukaswillsie.onlinechess.network.helper.requesters.Connector;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
-import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
+import com.lukaswillsie.onlinechess.network.helper.MultipleRequestException;
 
 import java.io.IOException;
 import java.util.HashMap;

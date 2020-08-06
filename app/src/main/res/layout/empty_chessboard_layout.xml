@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="0dp"
     android:layout_height="0dp"
@@ -9,69 +9,117 @@
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintWidth_percent="1"
     app:layout_constraintDimensionRatio="1"
-    app:layout_constraintVertical_bias="0.4"
-    android:weightSum="8">
+    app:layout_constraintVertical_bias="0.4">
 
     <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:id="@+id/row8"
+        app:layout_constraintVertical_weight="1"
         android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/row7"
         android:weightSum="8">
 
     </LinearLayout>
 
     <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:id="@+id/row7"
+        app:layout_constraintVertical_weight="1"
         android:orientation="horizontal"
-        android:weightSum="8">
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal"
-        android:weightSum="8">
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/row8"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/row6"
         android:weightSum="8">
 
     </LinearLayout>
 
     <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:id="@+id/row6"
+        app:layout_constraintVertical_weight="1"
         android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/row7"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/row5"
         android:weightSum="8">
 
     </LinearLayout>
 
     <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:id="@+id/row5"
+        app:layout_constraintVertical_weight="1"
         android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/row6"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/row4"
         android:weightSum="8">
 
     </LinearLayout>
 
     <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:id="@+id/row4"
+        app:layout_constraintVertical_weight="1"
         android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/row5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/row3"
         android:weightSum="8">
 
     </LinearLayout>
 
     <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:id="@+id/row3"
+        app:layout_constraintVertical_weight="1"
         android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/row4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/row2"
         android:weightSum="8">
 
     </LinearLayout>
-</TableLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/row2"
+        app:layout_constraintVertical_weight="1"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/row3"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/row1"
+        android:weightSum="8">
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/row1"
+        app:layout_constraintVertical_weight="1"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/row2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:weightSum="8">
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

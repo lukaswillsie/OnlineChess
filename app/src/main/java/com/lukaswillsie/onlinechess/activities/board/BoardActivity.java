@@ -3,9 +3,10 @@ package com.lukaswillsie.onlinechess.activities.board;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.TableLayout;
+import android.view.View;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogActivity;
@@ -17,7 +18,7 @@ import com.lukaswillsie.onlinechess.data.UserGame;
 import com.lukaswillsie.onlinechess.network.Server;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoadGameRequester;
-import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
+import com.lukaswillsie.onlinechess.network.helper.MultipleRequestException;
 
 import java.util.List;
 
@@ -61,7 +62,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
 
         // Will create an empty chessboard on the screen
         display = new BoardDisplay();
-        display.build((TableLayout) findViewById(R.id.board_layout));
+        display.build((ConstraintLayout) findViewById(R.id.board_layout));
 
         // Reconnect if necessary. Otherwise, try and fetch the data for the game we're supposed to
         // be loading
@@ -92,6 +93,10 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
             Log.e(tag, "Tried to make multiple load game requests of serverHelper");
             this.showSystemErrorDialog();
         }
+    }
+
+    public void bannerOnClickTest(View v) {
+        System.out.println("CLICKED");
     }
 
     /**

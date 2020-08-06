@@ -59,7 +59,7 @@ public class BoardDisplay {
      *
      * @param layout - the TableLayout that will be turned into a chessboard
      */
-    public void build(TableLayout layout) {
+    public void build(ConstraintLayout layout) {
         context = layout.getContext();
 
         if (movePlayer == null) {
@@ -190,6 +190,51 @@ public class BoardDisplay {
     public void startDrag(int row, int column) {
         if (0 <= row && row <= 7 && 0 <= column && column <= 7) {
             board[row][column].startDrag();
+        }
+    }
+
+    /**
+     * Attach a promotion banner to the given square on the board, allowing the user to select the
+     * piece that they want to promote a pawn into.
+     *
+     * IMPORTANT NOTE: Row and column should be given as BOARD COORDINATES, independent of what
+     * colour the user is playing. Does nothing if row and column are not both between 0 and 7,
+     * inclusive.
+     *
+     * @param row - the row on the board occupied by the square to attach the banner to
+     * @param column - the column on the board occupied by the square to attach the banner to
+     * @param listener - will receive a callback when the user selects a piece from the banner
+     */
+    public void attachPromotionBanner(int row, int column, Square.BannerListener listener) {
+        if (0 <= row && row <= 7 && 0 <= column && column <= 7) {
+            if(presenter.getUserColour() == Colour.WHITE) {
+                board[row][column].attachPromotionBanner(presenter.getUserColour(), listener);
+            }
+            else {
+                board[7 - row][7 - column].attachPromotionBanner(presenter.getUserColour(), listener);
+            }
+        }
+    }
+
+    /**
+     * Detach a promotion banner from the given square on the board. If no promotion banner is
+     * attached to the specified square, nothing happens.
+     *
+     * IMPORTANT NOTE: Row and column should be given as BOARD COORDINATES, independent of what
+     * colour the user is playing. Does nothing if row and column are not both between 0 and 7,
+     * inclusive.
+     *
+     * @param row - the row on the board occupied by the square to attach the banner to
+     * @param column - the column on the board occupied by the square to attach the banner to
+     */
+    public void detachPromotionBanner(int row, int column) {
+        if (0 <= row && row <= 7 && 0 <= column && column <= 7) {
+            if(presenter.getUserColour() == Colour.WHITE) {
+                board[row][column].detachPromotionBanner();
+            }
+            else {
+                board[7 - row][7 - column].detachPromotionBanner();
+            }
         }
     }
 

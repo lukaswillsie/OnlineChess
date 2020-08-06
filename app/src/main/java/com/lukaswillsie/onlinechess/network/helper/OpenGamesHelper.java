@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 
 import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.network.helper.requesters.OpenGamesRequester;
-import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 import com.lukaswillsie.onlinechess.network.threads.OpenGamesThread;
 import com.lukaswillsie.onlinechess.network.threads.callers.OpenGamesCaller;
 

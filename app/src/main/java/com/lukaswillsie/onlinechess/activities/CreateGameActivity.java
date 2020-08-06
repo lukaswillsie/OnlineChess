@@ -12,7 +12,7 @@ import com.lukaswillsie.onlinechess.data.Format;
 import com.lukaswillsie.onlinechess.data.UserGame;
 import com.lukaswillsie.onlinechess.network.Server;
 import com.lukaswillsie.onlinechess.network.helper.requesters.CreateGameRequester;
-import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
+import com.lukaswillsie.onlinechess.network.helper.MultipleRequestException;
 
 import static android.widget.Toast.LENGTH_LONG;
 

@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import com.lukaswillsie.onlinechess.activities.board.Move;
 import com.lukaswillsie.onlinechess.network.ReturnCodes;
 import com.lukaswillsie.onlinechess.network.helper.requesters.MoveRequester;
-import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 import com.lukaswillsie.onlinechess.network.threads.ReturnCodeThread;
 import com.lukaswillsie.onlinechess.network.threads.callers.ReturnCodeCaller;
 

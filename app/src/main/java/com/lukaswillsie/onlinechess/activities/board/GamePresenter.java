@@ -3,12 +3,16 @@ package com.lukaswillsie.onlinechess.activities.board;
 import com.lukaswillsie.onlinechess.data.GameData;
 import com.lukaswillsie.onlinechess.data.UserGame;
 
+import Chess.com.lukaswillsie.chess.Bishop;
 import Chess.com.lukaswillsie.chess.Board;
 import Chess.com.lukaswillsie.chess.Colour;
 import Chess.com.lukaswillsie.chess.King;
+import Chess.com.lukaswillsie.chess.Knight;
 import Chess.com.lukaswillsie.chess.Pair;
 import Chess.com.lukaswillsie.chess.Pawn;
 import Chess.com.lukaswillsie.chess.Piece;
+import Chess.com.lukaswillsie.chess.Queen;
+import Chess.com.lukaswillsie.chess.Rook;
 
 /**
  * This class acts essentially just as a wrapper for a UserGame object and a Board object, together
@@ -78,6 +82,36 @@ public class GamePresenter {
             return board.getPiece(row, column);
         } else {
             return null;
+        }
+    }
+
+    /**
+     * Create a dummy piece with the given colour. A dummy piece is a piece that is not actually on
+     * the board but thinks it is. We only need this method for one reason: so that we can display
+     * pieces on the screen that aren't on the board yet. For example, we use this when handling
+     * promotions.
+     *
+     * @param charRep - specifies what type of dummy piece to create. This character should adhere
+     *                to standard chess notation, but be lower case.
+     * @param colour - the Colour of the dummy piece to be created
+     * @return A dummy piece of the given type and Colour
+     */
+    public Piece createDummyPiece(char charRep, Colour colour) {
+        switch (charRep) {
+            case Pawn.charRep:
+                return new Pawn(0,0, colour, board);
+            case Rook.charRep:
+                return new Rook(0,0, colour, board);
+            case Knight.charRep:
+                return new Knight(0,0, colour, board);
+            case Bishop.charRep:
+                return new Bishop(0,0, colour, board);
+            case Queen.charRep:
+                return new Queen(0,0, colour, board);
+            case King.charRep:
+                return new King(0,0, colour, board);
+            default:
+                return null;
         }
     }
 

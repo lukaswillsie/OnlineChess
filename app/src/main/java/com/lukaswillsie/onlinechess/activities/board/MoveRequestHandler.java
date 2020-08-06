@@ -5,7 +5,7 @@ import android.util.Log;
 
 import com.lukaswillsie.onlinechess.network.Server;
 import com.lukaswillsie.onlinechess.network.helper.requesters.MoveRequester;
-import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
+import com.lukaswillsie.onlinechess.network.helper.MultipleRequestException;
 
 /**
  * Submits move requests to the server and handles the result for a MoveRequestListener object.

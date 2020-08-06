@@ -16,7 +16,7 @@ import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.ServerData;
 import com.lukaswillsie.onlinechess.network.Server;
 import com.lukaswillsie.onlinechess.network.helper.requesters.OpenGamesRequester;
-import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
+import com.lukaswillsie.onlinechess.network.helper.MultipleRequestException;
 
 import java.util.List;
 

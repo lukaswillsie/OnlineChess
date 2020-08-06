@@ -18,7 +18,6 @@ import com.lukaswillsie.onlinechess.network.helper.requesters.MoveRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.OpenGamesRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.RestoreRequester;
 import com.lukaswillsie.onlinechess.network.threads.ConnectThread;
-import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 import com.lukaswillsie.onlinechess.network.threads.callers.ConnectCaller;
 
 import java.io.DataInputStream;
