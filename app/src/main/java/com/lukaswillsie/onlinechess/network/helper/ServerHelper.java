@@ -7,6 +7,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.lukaswillsie.onlinechess.activities.board.Move;
+import com.lukaswillsie.onlinechess.activities.board.PieceType;
 import com.lukaswillsie.onlinechess.network.helper.requesters.ArchiveRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.Connector;
 import com.lukaswillsie.onlinechess.network.helper.requesters.CreateAccountRequester;
@@ -302,14 +303,12 @@ public class ServerHelper extends Handler implements ConnectCaller {
      *
      * @param requester - will receive callback once the server has responded to the request
      * @param gameID - the game to issue the promotion in
-     * @param charRep - indicates which piece the pawn should be promoted into. This should have
-     *                been accessed via the charRep field of one of the Piece classes in the
-     *                Chess.com.lukaswillie.chess package.
+     * @param piece - the type of piece to promote the pawn into
      * @throws MultipleRequestException - if this object is already handling a promotion request
      * when this method is called.
      */
-    public void promote(PromotionRequester requester, String gameID, char charRep) throws MultipleRequestException {
-        promotionHelper.promote(requester, gameID, charRep);
+    public void promote(PromotionRequester requester, String gameID, PieceType.PromotePiece piece) throws MultipleRequestException {
+        promotionHelper.promote(requester, gameID, piece);
     }
 
     /**

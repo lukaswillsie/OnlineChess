@@ -5,5 +5,5 @@ public interface MoveRequestListener {
 
     void moveFailed();
 
-    void connectionLost();
+    void moveFailedConnectionLost();
 }

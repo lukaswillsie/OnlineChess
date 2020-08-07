@@ -4,6 +4,7 @@ import android.util.Log;
 import android.view.DragEvent;
 import android.view.MotionEvent;
 
+import androidx.annotation.IdRes;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.lukaswillsie.onlinechess.R;
@@ -27,7 +28,7 @@ import Chess.com.lukaswillsie.chess.Queen;
  * to actions made by the user. It interacts with the UI at a high-level by using a BoardDisplay
  * object. It accesses data about the game it is managing by using a GamePresenter object.
  */
-public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestListener, ReconnectListener, Square.BannerListener {
+public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestListener, ReconnectListener, Square.BannerListener, PromoteRequestListener {
     /**
      * Tag used for logging to the console
      */
@@ -63,6 +64,12 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
      */
     private Pair toPromote;
     /**
+     * If the user has submitted a promotion request but we HAVEN'T YET had that request confirmed
+     * by the server, we save the user's wish here so that we can resubmit their request, if
+     * necessary.
+     */
+    private PieceType.PromotePiece activePromotion;
+    /**
      * Keeps track of whether or not the user is currently able to move. In particular, it has to
      * be the user's turn and the user has to have an opponent in their game.
      */
@@ -80,6 +87,10 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
      * The object that will process and send move requests to the server for us
      */
     private MoveRequestHandler moveHandler;
+    /**
+     * The object that will process and send promote requests to the server for us
+     */
+    private PromoteRequestHandler promoteHandler;
 
     /**
      * Create a new ChessManager that will manage the game represented by the given GamePresenter
@@ -99,7 +110,8 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
         this.presenter = presenter;
         this.display = display;
         this.dialogCreator = dialogCreator;
-        this.moveHandler = new MoveRequestHandler(this, display.getContext());
+        this.moveHandler = new MoveRequestHandler(this);
+        this.promoteHandler = new PromoteRequestHandler(this);
         this.gameID = gameID;
         this.activity = activity;
 
@@ -107,11 +119,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
 
         // Initialize our game fields to match the model
         resetFromModel();
-
-        if(toPromote != null) {
-            display.attachPromotionBanner(toPromote.first(), toPromote.second(), this);
-            display.selectSquare(toPromote.first(), toPromote.second());
-        }
+        createPromotionBannerIfNeeded();
     }
 
     /**
@@ -145,6 +153,19 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
                     break;
                 }
             }
+        }
+    }
+
+    /**
+     * Checks if, according to the current state of this object, namely whether or not toPromote is
+     * null, a promotion banner should be being displayed to the user. Note that this method does
+     * not automatically call resetFromModel() before executing; it simply queries the state of this
+     * object as it is when this method is called.
+     */
+    private void createPromotionBannerIfNeeded() {
+        if(toPromote != null) {
+            display.attachPromotionBanner(toPromote.first(), toPromote.second(), this);
+            display.selectSquare(toPromote.first(), toPromote.second());
         }
     }
 
@@ -226,7 +247,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
                                 // pawn that they are capturing from the board
                                 else if (enPassantCapture != null) {
                                     display.move(move, true, true);
-                                    display.set(enPassantCapture.first(), enPassantCapture.second(), (Piece) null, false, false);
+                                    display.set(enPassantCapture.first(), enPassantCapture.second(), null, false, false);
                                 }
                                 // Otherwise, just move the piece to the empty square
                                 else {
@@ -299,7 +320,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
                     Pair src = convertCoords(row, column);
                     dragEnded = false;
                     display.startDrag(row, column);
-                    display.set(src.first(), src.second(), (Piece) null, false, false);
+                    display.set(src.first(), src.second(), null, false, false);
                 }
                 return false;
             default:
@@ -365,7 +386,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
                         // Set the pawn performing the capture and erase the pawn being captured,
                         // playing a single capture sound effect
                         display.set(dest.first(), dest.second(), selected, true, true);
-                        display.set(enPassantCapture.first(), enPassantCapture.second(), (Piece) null, false, false);
+                        display.set(enPassantCapture.first(), enPassantCapture.second(), null, false, false);
                     } else {
                         display.set(dest.first(), dest.second(), selected, true, false);
                     }
@@ -485,7 +506,6 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
         }
 
         Colour userColour = presenter.getUserColour();
-        Colour enemyColour = (userColour == Colour.WHITE) ? Colour.BLACK : Colour.WHITE;
 
         // If a promotion isn't needed, the user's turn is over and we can check if they've
         // delivered checkmate or maybe a stalemate
@@ -564,7 +584,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
      * Called if a move request is stymied by a loss of connection with the server
      */
     @Override
-    public void connectionLost() {
+    public void moveFailedConnectionLost() {
         dialogCreator.showConnectionLostDialog(R.string.connection_lost_alert, new ErrorDialogFragment.ErrorDialogListener() {
             @Override
             public void retry() {
@@ -574,12 +594,15 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
     }
 
     /**
-     * If a move request fails because of a connection lost error, and we submit a reconnect
-     * request, this method gets called after the reconnect request finishes successfully.
+     * If a move or promote request fails because of a connection lost error, and we submit a
+     * reconnect request, this method gets called after the reconnect request finishes successfully.
      */
     @Override
     public void reconnectionComplete() {
-        moveHandler.submitMove(activeMove, gameID);
+        // Reset the UI and the state of this object
+        display.reset();
+        resetFromModel();
+        createPromotionBannerIfNeeded();
     }
 
     /**
@@ -591,7 +614,9 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
         if(toPromote != null) {
             display.resetSquares();
             display.detachPromotionBanner(toPromote.first(), toPromote.second());
-            display.set(toPromote.first(), toPromote.second(), presenter.createDummyPiece('q', presenter.getUserColour()), false, false);
+            display.set(toPromote.first(), toPromote.second(), presenter.createDummyPiece(PieceType.QUEEN, presenter.getUserColour()), false, false);
+            activePromotion = PieceType.PromotePiece.QUEEN;
+            promoteHandler.promote(activePromotion, gameID);
         }
         else {
             Log.e(tag, "queenPromotion() called but no active promotion (toPromote is null)");
@@ -607,7 +632,9 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
         if(toPromote != null) {
             display.resetSquares();
             display.detachPromotionBanner(toPromote.first(), toPromote.second());
-            display.set(toPromote.first(), toPromote.second(), presenter.createDummyPiece('r', presenter.getUserColour()), false, false);
+            display.set(toPromote.first(), toPromote.second(), presenter.createDummyPiece(PieceType.ROOK, presenter.getUserColour()), false, false);
+            activePromotion = PieceType.PromotePiece.ROOK;
+            promoteHandler.promote(activePromotion, gameID);
         }
         else {
             Log.e(tag, "rookPromotion() called but no active promotion (toPromote is null)");
@@ -623,7 +650,9 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
         if(toPromote != null) {
             display.resetSquares();
             display.detachPromotionBanner(toPromote.first(), toPromote.second());
-            display.set(toPromote.first(), toPromote.second(), presenter.createDummyPiece('b', presenter.getUserColour()), false, false);
+            display.set(toPromote.first(), toPromote.second(), presenter.createDummyPiece(PieceType.BISHOP, presenter.getUserColour()), false, false);
+            activePromotion = PieceType.PromotePiece.BISHOP;
+            promoteHandler.promote(activePromotion, gameID);
         }
         else {
             Log.e(tag, "bishopPromotion() called but no active promotion (toPromote is null)");
@@ -639,10 +668,79 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
         if(toPromote != null) {
             display.resetSquares();
             display.detachPromotionBanner(toPromote.first(), toPromote.second());
-            display.set(toPromote.first(), toPromote.second(), presenter.createDummyPiece('n', presenter.getUserColour()), false, false);
+            display.set(toPromote.first(), toPromote.second(), presenter.createDummyPiece(PieceType.KNIGHT, presenter.getUserColour()), false, false);
+            activePromotion = PieceType.PromotePiece.KNIGHT;
+            promoteHandler.promote(activePromotion, gameID);
         }
         else {
             Log.e(tag, "knightPromotion() called but no active promotion (toPromote is null)");
         }
+    }
+
+    @Override
+    public void promotionSuccess() {
+        int code = presenter.promote(activePromotion);
+
+        if(code == 1) {
+            display.reset();
+            this.resetFromModel();
+            createPromotionBannerIfNeeded();
+            Display.showSimpleDialog(R.string.model_failure_error_text, display.getContext());
+            return;
+        }
+
+        /*
+         * To update the model we:
+         * 1. Check if the promotion caused a checkmate
+         * 2. Check if the promotion caused a stalemate
+         * 3. Otherwise, simply record that the user's turn has ended, and update the turn counter
+         * if necessary
+         */
+        if(presenter.isCheckmate()) {
+            presenter.setData(GameData.USER_WON, 1);
+        }
+        else if(presenter.isStalemate()) {
+            presenter.setData(GameData.DRAWN, 1);
+        }
+        else {
+            if(presenter.getUserColour() == Colour.BLACK) {
+                presenter.setData(GameData.TURN, (Integer) presenter.getData(GameData.TURN) + 1);
+            }
+
+            presenter.setData(GameData.STATE, 0);
+        }
+    }
+
+    @Override
+    public void promotionFailed() {
+        dialogCreator.showErrorDialog(R.string.move_failed_error_text, new ErrorDialogFragment.CancellableErrorDialogListener() {
+            @Override
+            public void cancel() {
+                // If the user says cancel, we effectively forget about the promotion they submitted
+                // to us. We reset the display, reset the state of this object to mirror that of the
+                // model, which we haven't altered, and re-create a promotion banner if one is
+                // needed (which one will be, since we're here because we tried to promote a piece)
+                display.reset();
+                resetFromModel();
+                createPromotionBannerIfNeeded();
+            }
+
+            @Override
+            public void retry() {
+                // If the user says retry, we don't touch the UI, but instead re-submit our request,
+                // hoping that this time it goes through
+                promoteHandler.promote(activePromotion, gameID);
+            }
+        });
+    }
+
+    @Override
+    public void promotionFailedConnectionLost() {
+        dialogCreator.showConnectionLostDialog(R.string.connection_lost_alert, new ErrorDialogFragment.ErrorDialogListener() {
+            @Override
+            public void retry() {
+                new Reconnector(ChessManager.this, activity).reconnect();
+            }
+        });
     }
 }

@@ -5,6 +5,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.lukaswillsie.onlinechess.activities.board.PieceType;
 import com.lukaswillsie.onlinechess.network.ReturnCodes;
 import com.lukaswillsie.onlinechess.network.helper.requesters.PromotionRequester;
 import com.lukaswillsie.onlinechess.network.threads.ReturnCodeThread;
@@ -39,19 +40,17 @@ public class PromotionHelper extends SubHelper implements ReturnCodeCaller {
      *
      * @param requester - will receive callback once the server has responded to the request
      * @param gameID - the game to issue the promotion in
-     * @param charRep - indicates which piece the pawn should be promoted into. This should have
-     *                been accessed via the charRep field of one of the Piece classes in the
-     *                Chess.com.lukaswillie.chess package.
+     * @param piece - the type of piece that the pawn should be promoted into
      * @throws MultipleRequestException - if this object is already handling a promotion request
      * when this method is called.
      */
-    void promote(PromotionRequester requester, String gameID, char charRep) throws MultipleRequestException {
+    void promote(PromotionRequester requester, String gameID, PieceType.PromotePiece piece) throws MultipleRequestException {
         if(this.requester != null) {
             throw new MultipleRequestException("Submitted multiple promote requests to PromotionHelper");
         }
         this.requester = requester;
 
-        ReturnCodeThread thread = new ReturnCodeThread(getRequest(gameID, charRep), this, getOut(), getIn());
+        ReturnCodeThread thread = new ReturnCodeThread(getRequest(gameID, piece), this, getOut(), getIn());
         thread.start();
     }
 
@@ -59,11 +58,11 @@ public class PromotionHelper extends SubHelper implements ReturnCodeCaller {
      * Convert the given gameID and charRep into a promote request.
      *
      * @param gameID - the gameID to attempt to promote in
-     * @param charRep - specifies the piece to be promoted into
+     * @param piece - specifies the piece to be promoted into
      * @return A String, a valid promotion request that can be sent to the server
      */
-    private String getRequest(String gameID, char charRep) {
-        return "promote " + gameID + " " + charRep;
+    private String getRequest(String gameID, PieceType.PromotePiece piece) {
+        return "promote " + gameID + " " + piece.charRep;
     }
 
     /**
