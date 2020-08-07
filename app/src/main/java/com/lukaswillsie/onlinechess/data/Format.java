@@ -10,7 +10,7 @@ public class Format {
     }
 
     public static boolean validGameID(String gameID) {
-        // gameID's are valid as long as they are non-empty and don't contain commas
-        return gameID.indexOf(',') == -1 && gameID.length() != 0;
+        // gameID's are valid as long as they are non-empty, don't contain commas or spaces
+        return gameID.indexOf(',') == -1 && gameID.length() != 0 && gameID.indexOf(' ') == -1;
     }
 }
