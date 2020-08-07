@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -128,6 +129,20 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
             builder.setOnCancelListener(new CriticalErrorListener());
             return;
         }
+
+        // Populate the screen with
+        String gameID = (String) game.getData(GameData.GAMEID);
+        int turn = (Integer) game.getData(GameData.TURN);
+        String opponent = (String) game.getData(GameData.OPPONENT);
+        if(opponent.length() == 0) {
+            ((TextView) findViewById(R.id.opponent)).setText(R.string.game_no_opponent_text);
+        }
+        else {
+            ((TextView) findViewById(R.id.opponent)).setText(getString(R.string.game_opponent_label, opponent));
+        }
+
+        ((TextView) findViewById(R.id.title)).setText(gameID);
+        ((TextView) findViewById(R.id.turn_counter)).setText(getString(R.string.game_turn_number_label, "" + turn));
 
         // Create a GamePresenter and GameManager for this game, now that we have all the data we
         // need

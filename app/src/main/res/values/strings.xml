@@ -85,4 +85,7 @@
     <string name="move_failed_error_text">Something went wrong and we couldn\'t submit your move. Do you want us to try again?</string>
     <string name="model_failure_error_text">Sorry, something went wrong and we couldn\'t submit your move.</string>
     <string name="load_error_text">Sorry, something went wrong and we couldn\'t load your game.</string>
+    <string name="game_no_opponent_text">No opponent</string>
+    <string name="game_opponent_label">Opponent: %1$s</string>
+    <string name="game_turn_number_label">Turn %1$s</string>
 </resources>
