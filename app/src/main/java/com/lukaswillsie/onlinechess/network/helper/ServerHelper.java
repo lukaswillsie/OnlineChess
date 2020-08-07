@@ -16,6 +16,7 @@ import com.lukaswillsie.onlinechess.network.helper.requesters.LoadGameRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.MoveRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.OpenGamesRequester;
+import com.lukaswillsie.onlinechess.network.helper.requesters.PromotionRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.RestoreRequester;
 import com.lukaswillsie.onlinechess.network.threads.ConnectThread;
 import com.lukaswillsie.onlinechess.network.threads.callers.ConnectCaller;
@@ -108,6 +109,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
     private CreateGameHelper createGameHelper;
     private LoadGameHelper loadGameHelper;
     private MoveHelper moveHelper;
+    private PromotionHelper promotionHelper;
 
     /*
      * A list of all helpers delegated to by this object, so that they can all be notified at once
@@ -132,6 +134,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
         this.createGameHelper = new CreateGameHelper(this);
         this.loadGameHelper = new LoadGameHelper(this);
         this.moveHelper = new MoveHelper(this);
+        this.promotionHelper = new PromotionHelper(this);
 
         this.helpers = new ArrayList<>();
         this.helpers.add(loginHelper);
@@ -143,6 +146,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
         this.helpers.add(createGameHelper);
         this.helpers.add(loadGameHelper);
         this.helpers.add(moveHelper);
+        this.helpers.add(promotionHelper);
 
         this.requester = requester;
         ConnectThread thread = new ConnectThread(HOSTNAME, PORT, this);
@@ -291,6 +295,21 @@ public class ServerHelper extends Handler implements ConnectCaller {
      */
     public void move(MoveRequester requester, String gameID, Move move) throws MultipleRequestException {
         moveHelper.move(requester, gameID, move);
+    }
+
+    /**
+     * Send a promote request to the server.
+     *
+     * @param requester - will receive callback once the server has responded to the request
+     * @param gameID - the game to issue the promotion in
+     * @param charRep - indicates which piece the pawn should be promoted into. This should have
+     *                been accessed via the charRep field of one of the Piece classes in the
+     *                Chess.com.lukaswillie.chess package.
+     * @throws MultipleRequestException - if this object is already handling a promotion request
+     * when this method is called.
+     */
+    public void promote(PromotionRequester requester, String gameID, char charRep) throws MultipleRequestException {
+        promotionHelper.promote(requester, gameID, charRep);
     }
 
     /**
