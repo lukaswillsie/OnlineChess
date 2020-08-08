@@ -6,7 +6,7 @@ import com.lukaswillsie.onlinechess.activities.ErrorDialogFragment;
 
 /**
  * Defines what functionality a ChessManager needs to have access to so that it can notify the user
- * of errors and receive the user's response.
+ * of events like errors, or the termination of a game, and receive the user's response.
  */
 public interface GameDialogCreator {
     /**
@@ -30,4 +30,23 @@ public interface GameDialogCreator {
      * @param listener  - the object that will receive the callbacks from the created dialog
      */
     void showConnectionLostDialog(@StringRes int messageID, ErrorDialogFragment.ErrorDialogListener listener);
+
+    /**
+     * Show a dialog to the user notifying them that they won the game! The dialog doesn't have to
+     * have any buttons, and can be closed or cancelled so the user can view the state of the board
+     */
+    void showUserWinDialog();
+
+    /**
+     * Show a dialog to the user notifying them that they lost the game. The dialog doesn't have to
+     * have any buttons, and can be closed or cancelled so the user can view the state of the board
+     */
+    void showUserLoseDialog();
+
+    /**
+     * Show a dialog to the user notifying them that the game ended in a draw! The dialog doesn't
+     * have to have any buttons, and can be closed or cancelled so the user can view the state of
+     * the board
+     */
+    void showUserDrawDialog();
 }

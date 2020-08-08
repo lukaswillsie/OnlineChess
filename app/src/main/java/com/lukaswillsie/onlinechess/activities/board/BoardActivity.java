@@ -179,6 +179,64 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
     }
 
     /**
+     * Notifies the user that they won the game. The dialog can be dismissed if the player wants to
+     * inspect the board.
+     */
+    @Override
+    public void showUserWinDialog() {
+        this.showUserOutcomeDialog(Outcome.WIN);
+    }
+
+    /**
+     * Notifies the user that they lost the game. The dialog can be dismissed if the player wants to
+     * inspect the board.
+     */
+    @Override
+    public void showUserLoseDialog() {
+        this.showUserOutcomeDialog(Outcome.LOSE);
+    }
+
+    /**
+     * Notifies the user that they drew the game. The dialog can be dismissed if the player wants to
+     * inspect the board.
+     */
+    @Override
+    public void showUserDrawDialog() {
+        this.showUserOutcomeDialog(Outcome.DRAW);
+    }
+
+    /**
+     * Describes the possible outcomes of a game of chess.
+     */
+    private enum Outcome {
+        WIN,
+        LOSE,
+        DRAW;
+    }
+    /**
+     * Display a dialog to the user notifying them of the specified outcome. We use this method
+     * to avoid copying code above
+     * @param outcome - the outcome of which we are notifying the user
+     */
+    private void showUserOutcomeDialog(Outcome outcome) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        switch (outcome) {
+            case WIN:
+                builder.setView(getLayoutInflater().inflate(R.layout.win_game_dialog, null));
+                break;
+            case LOSE:
+                builder.setView(getLayoutInflater().inflate(R.layout.lose_game_dialog, null));
+                break;
+            case DRAW:
+                builder.setView(getLayoutInflater().inflate(R.layout.draw_game_dialog, null));
+                break;
+        }
+
+        builder.setPositiveButton("See the board", null);
+        builder.show();
+    }
+
+    /**
      * Called if the server responds to the request by saying the supplied gameID is not associated
      * with a game in its system
      */

@@ -120,6 +120,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
         // Initialize our game fields to match the model
         resetFromModel();
         createPromotionBannerIfNeeded();
+        showDialogIfNecessary();
     }
 
     /**
@@ -166,6 +167,18 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
         if(toPromote != null) {
             display.attachPromotionBanner(toPromote.first(), toPromote.second(), this);
             display.selectSquare(toPromote.first(), toPromote.second());
+        }
+    }
+
+    private void showDialogIfNecessary() {
+        if((Integer) presenter.getData(GameData.USER_WON) == 1) {
+            dialogCreator.showUserWinDialog();
+        }
+        else if((Integer) presenter.getData(GameData.USER_LOST) == 1) {
+            dialogCreator.showUserLoseDialog();
+        }
+        else if((Integer) presenter.getData(GameData.DRAWN) == 1) {
+            dialogCreator.showUserDrawDialog();
         }
     }
 
@@ -529,7 +542,8 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
         } else {
             // Even if a promotion is needed and the user's turn isn't over, it's possible that they
             // could have delivered checkmate with their pawn move. In this case the game is over;
-            // we don't bother with the promotion.
+            // we don't bother with the promotion. Note that we don't check for stalemate yet,
+            // because the user's turn isn't over.
             if (presenter.isCheckmate()) {
                 presenter.setData(GameData.USER_WON, 1);
             } else {
@@ -554,6 +568,10 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
                 display.attachPromotionBanner(toPromote.first(), toPromote.second(), this);
             }
         }
+
+        // If the move caused a checkmate or stalemate, we want to show the user a dialog to notify
+        // them of this fact
+        showDialogIfNecessary();
     }
 
     /**
@@ -709,6 +727,9 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
 
             presenter.setData(GameData.STATE, 0);
         }
+
+        // If a checkmate or stalemate was delivered, we want to notify the user of this
+        showDialogIfNecessary();
     }
 
     @Override
