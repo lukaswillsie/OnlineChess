@@ -55,14 +55,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:id="@+id/action_bar"
-        android:weightSum="4">
+        android:id="@+id/action_bar">
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:id="@+id/previous_game_button"
             android:clickable="true"
             android:focusable="true"
+            android:onClick="previousGame"
             android:background="@drawable/board_button_background">
 
             <ImageView
@@ -81,6 +82,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:id="@+id/previous_game_label"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/previous_game_icon"
@@ -94,6 +96,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:id="@+id/offer_draw_button"
             android:clickable="true"
             android:focusable="true"
             android:background="@drawable/board_button_background">
@@ -128,6 +131,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:id="@+id/resign_button"
             android:clickable="true"
             android:focusable="true"
             android:background="@drawable/board_button_background">
@@ -162,8 +166,10 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:id="@+id/next_game_button"
             android:clickable="true"
             android:focusable="true"
+            android:onClick="nextGame"
             android:background="@drawable/board_button_background">
 
             <ImageView
@@ -182,6 +188,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:id="@+id/next_game_label"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/next_game_icon"

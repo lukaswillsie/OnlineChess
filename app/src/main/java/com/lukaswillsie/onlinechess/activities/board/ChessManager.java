@@ -5,6 +5,7 @@ import android.view.DragEvent;
 import android.view.MotionEvent;
 
 import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.lukaswillsie.onlinechess.R;
@@ -36,7 +37,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
     /**
      * The ID of the game that this object is managing
      */
-    private final String gameID;
+    private String gameID;
     /**
      * The object containing all the data about the game that this object is managing
      */
@@ -124,6 +125,32 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
     }
 
     /**
+     * Assigns this ChessManager object to the game specified by the given gameID and GamePresenter.
+     * This object will immediately begin managing that game. Whatever game was previously being
+     * displayed will be wiped from the screen and the new game will be displayed. If this object
+     * is currently waiting for a response from the server on a move or promotion request, this
+     * method does nothing.
+     *
+     * This object will continue to use the same BoardDisplay, GameDialogCreator, and
+     * AppCompatActivity given to it at creation.
+     */
+    public void setGame(String gameID, @NonNull GamePresenter presenter) {
+        if(activeMove == null && activePromotion == null) {
+            this.gameID = gameID;
+            this.presenter = presenter;
+            display.activate(presenter, this);
+
+            // Reset the state of this object
+            resetFromModel();
+            createPromotionBannerIfNeeded();
+            showDialogIfNecessary();
+
+            selected = null;
+            dragEnded = false;
+        }
+    }
+
+    /**
      * Resets this object so that all its game fields exactly mirror the state of the game according
      * to the model. Used if the server rejects a move that we made, forcing us to revert to our
      * base state.
@@ -170,8 +197,13 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
         }
     }
 
+    /**
+     * If the game being managed by this object is over, we show a dialog to notify the user of this
+     * fact. We do this when the user first launches a game, in case their opponent just checkmated
+     * them or something; and after they make a move, in case they stalemated or checkmated their
+     * opponent.
+     */
     private void showDialogIfNecessary() {
-        System.out.println("FORFEIT: " + presenter.getData(GameData.FORFEIT));
         if((Integer) presenter.getData(GameData.USER_WON) == 1) {
             if((Integer) presenter.getData(GameData.FORFEIT) == 1) {
                 dialogCreator.showUserWinDialog(true);
@@ -578,6 +610,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
         // If the move caused a checkmate or stalemate, we want to show the user a dialog to notify
         // them of this fact
         showDialogIfNecessary();
+        activeMove = null;
     }
 
     /**
@@ -736,6 +769,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
 
         // If a checkmate or stalemate was delivered, we want to notify the user of this
         showDialogIfNecessary();
+        activePromotion = null;
     }
 
     @Override
@@ -749,6 +783,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
                 // needed (which one will be, since we're here because we tried to promote a piece)
                 display.reset();
                 resetFromModel();
+                activePromotion = null;
                 createPromotionBannerIfNeeded();
             }
 

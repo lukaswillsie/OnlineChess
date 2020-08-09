@@ -73,29 +73,6 @@ public class ActiveGamesActivity extends AppCompatActivity implements ReconnectL
     }
 
     /**
-     * Checks if the given Game is over
-     *
-     * @param game - the Game to analyze
-     * @return true if the given Game is over (somebody has won or a draw has been agreed to),
-     * false otherwise
-     */
-    private boolean isOver(UserGame game) {
-        return (int) game.getData(GameData.USER_WON) == 1
-                || (int) game.getData(GameData.USER_LOST) == 1
-                || (int) game.getData(GameData.DRAWN) == 1;
-    }
-
-    /**
-     * Checks if it is the user's opponent's turn in the given Game
-     *
-     * @param game - the Game to analyze
-     * @return true of it's the user's opponent's turn in the given Game, false otherwise
-     */
-    private boolean isOpponentTurn(UserGame game) {
-        return (int) game.getData(GameData.STATE) == 0;
-    }
-
-    /**
      * Returns a list of all of the user's active games, sorted in the following order:
      * 1. Ongoing games in which it is the user's turn
      * 2. Ongoing games in which it is the opponent's turn
@@ -111,17 +88,14 @@ public class ActiveGamesActivity extends AppCompatActivity implements ReconnectL
         List<UserGame> games = Server.getGames();
         for (UserGame game : games) {
             if (!((int) game.getData(GameData.ARCHIVED) == 1)) {
-                if (isOver(game)) {
-                    Log.i(tag, "Game " + game.getData(GameData.GAMEID) + " is over");
+                if (game.isOver()) {
                     activeGames.add(gameOverPos, game);
                     gameOverPos++;
-                } else if (isOpponentTurn(game)) {
-                    Log.i(tag, game.getData(GameData.GAMEID) + " is opponent turn");
+                } else if (game.isOpponentTurn()) {
                     activeGames.add(opponentTurnPos, game);
                     opponentTurnPos++;
                     gameOverPos++;
                 } else {
-                    Log.i(tag, game.getData(GameData.GAMEID) + " is user turn");
                     activeGames.add(userTurnPos, game);
                     userTurnPos++;
                     opponentTurnPos++;

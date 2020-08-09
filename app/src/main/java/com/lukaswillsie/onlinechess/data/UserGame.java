@@ -37,7 +37,8 @@ public class UserGame {
     private Colour colour;
 
     /**
-     * Create an empty new Game object. This object should not be used until initialize() is called.
+     * Create an empty new UserGame object. This object should not be used until initialize() is
+     * called.
      *
      * @param username - The name of the user currently logged into the app
      */
@@ -46,7 +47,7 @@ public class UserGame {
     }
 
     /**
-     * Initialize this Game object from the given source data. data is assumed to be a list of
+     * Initialize this UserGame object from the given source data. data is assumed to be a list of
      * Objects, all either Integers or Strings.
      * <p>
      * See the Protocols.pdf document in the ChessServer repo for more details about how the server
@@ -58,7 +59,7 @@ public class UserGame {
      * the ServerData enum. Each data point should be converted to a String or Integer according
      * to the "type" field in the ServerData enum, and then each batch of data points should be
      * converted into a list, keeping the same order as they were sent in by the server, and then
-     * each list should be given to a different Game object via their initialize() method.
+     * each list should be given to a different UserGame object via their initialize() method.
      * <p>
      * This method will unpack the data from the server and extract the information relevant to
      * the app.
@@ -210,6 +211,35 @@ public class UserGame {
         }
     }
 
+    /**
+     * Checks if this game is over. If this object hasn't been successfully initialized, return
+     * false.
+     *
+     * @return true if this Game is over (somebody has won or a draw has been agreed to), false
+     * otherwise
+     */
+    public boolean isOver() {
+        try {
+            return      (int) data.get(GameData.USER_WON) == 1
+                    ||  (int) data.get(GameData.USER_LOST) == 1
+                    ||  (int) data.get(GameData.DRAWN) == 1;
+        }
+        catch(NullPointerException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if it is the user's opponent's turn in this game. If this object hasn't been
+     * successfully initialized, return false.
+     *
+     * @return true if and only if it's the user's opponent's turn in this game, false otherwise
+     */
+    public boolean isOpponentTurn() {
+        return (int) data.get(GameData.STATE) == 0;
+    }
+
+    @Override
     public String toString() {
         if (this.data == null) {
             return "No game data";

@@ -89,13 +89,18 @@ public class BoardDisplay {
 
     /**
      * Binds this BoardDisplay object to the given GamePresenter. The screen will be updated to
-     * display the board contained in the given GamePresenter. The given DisplayListener will be
-     * notified of all touch events that occur on the board
+     * display the board contained in the given GamePresenter. The given DisplayListener will
+     * be notified of all touch events that occur on the board.
+     *
+     * Anything currently being displayed on the screen will be erased, and after this method has
+     * executed the board on the screen will exactly mirror the board contained in the given
+     * GamePresenter.
      */
     public void activate(GamePresenter presenter, DisplayListener listener) {
         this.presenter = presenter;
         this.listener = listener;
 
+        resetSquares();
         Piece piece;
         for (int row = 0; row < 8; row++) {
             for (int column = 0; column < 8; column++) {
@@ -105,9 +110,7 @@ public class BoardDisplay {
                     piece = presenter.getPiece(7 - row, 7 - column);
                 }
 
-                if (piece != null) {
-                    board[row][column].setPiece(piece);
-                }
+                board[row][column].setPiece(piece);
 
                 board[row][column].setSquareOnTouchListener(new SquareTouchListener());
                 board[row][column].setSquareDragListener(new SquareDragListener());

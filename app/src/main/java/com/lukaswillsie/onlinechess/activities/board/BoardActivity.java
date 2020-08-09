@@ -5,11 +5,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.lukaswillsie.onlinechess.R;
+import com.lukaswillsie.onlinechess.activities.Display;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogActivity;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogFragment;
 import com.lukaswillsie.onlinechess.activities.ReconnectListener;
@@ -21,6 +23,7 @@ import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoadGameRequester;
 import com.lukaswillsie.onlinechess.network.helper.MultipleRequestException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import Chess.com.lukaswillsie.chess.Board;
@@ -129,7 +132,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
             return;
         }
 
-        // Populate the screen with
+        // Populate the screen with data about the game
         String gameID = (String) game.getData(GameData.GAMEID);
         int turn = (Integer) game.getData(GameData.TURN);
         String opponent = (String) game.getData(GameData.OPPONENT);
@@ -139,14 +142,119 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
         else {
             ((TextView) findViewById(R.id.opponent)).setText(getString(R.string.game_opponent_label, opponent));
         }
-
         ((TextView) findViewById(R.id.title)).setText(gameID);
-        ((TextView) findViewById(R.id.turn_counter)).setText(getString(R.string.game_turn_number_label, "" + turn));
+        ((TextView) findViewById(R.id.turn_counter)).setText(getString(R.string.game_turn_number_label, Integer.toString(turn)));
 
         // Create a GamePresenter and GameManager for this game, now that we have all the data we
         // need
         GamePresenter presenter = new GamePresenter(game, board);
-        manager = new ChessManager(gameID, presenter, display, this, this);
+        if(manager == null) {
+            manager = new ChessManager(gameID, presenter, display, this, this);
+        }
+        else {
+            manager.setGame(gameID, presenter);
+        }
+    }
+
+    /**
+     * Called when the user presses the "Next" button. The idea behind the "Next" and "Previous"
+     * buttons is that we want to allow the user to quickly cycle through all the games in which
+     * it's their turn to make a move. So here we fetch a list of all such games, and load a new
+     * game for the user depending on what game they're viewing now.
+     *
+     * @param v - the view that was clicked
+     */
+    public void nextGame(View v) {
+        // Get a list of all active games in which it is the user's turn to make a move
+        List<UserGame> activeGames = new ArrayList<>();
+        List<UserGame> games = Server.getGames();
+        for (UserGame game : games) {
+            if (!((int) game.getData(GameData.ARCHIVED) == 1)) {
+                if (!game.isOver() && !game.isOpponentTurn()) {
+                    Log.i(tag, "Game " + game.getData(GameData.GAMEID) + " is over");
+                    activeGames.add(game);
+                }
+            }
+        }
+
+        // Get the index of the current game in the list of games in which it is the user's turn
+        int index = -1;
+        for(int i = 0; i < activeGames.size(); i++) {
+            if(activeGames.get(i).getData(GameData.GAMEID).equals(gameID)) {
+                index = i;
+                break;
+            }
+        }
+
+        // If the user is not viewing a game in which it is their turn, we jump to a game in which
+        // do have to make a move, namely the first in our list. If there aren't ANY games they have
+        // to make a move in, we notify them of this fact.
+        if(index == -1) {
+            if(activeGames.size() == 0) {
+                Display.makeToast(this, "There are no games in which it is your turn", Toast.LENGTH_LONG);
+            }
+            else {
+                this.gameID = (String) activeGames.get(0).getData(GameData.GAMEID);
+                start();
+            }
+        }
+        else {
+            // Increment index, or set index to 0 if it's already at the end of activeGames
+            index = (index == activeGames.size()-1) ? 0 : index + 1;
+
+            this.gameID = (String) activeGames.get(index).getData(GameData.GAMEID);
+            start();
+        }
+    }
+
+    /**
+     * Called when the user presses the "Previous" button. The idea behind the "Next" and "Previous"
+     * buttons is that we want to allow the user to quickly cycle through all the games in which
+     * it's their turn to make a move. So here we fetch a list of all such games, and load a new
+     * game for the user depending on what game they're viewing now.
+     *
+     * @param v - the view that was clicked
+     */
+    public void previousGame(View v) {
+        // Get a list of all active games in which it is the user's turn to make a move
+        List<UserGame> activeGames = new ArrayList<>();
+        List<UserGame> games = Server.getGames();
+        for (UserGame game : games) {
+            if (!((int) game.getData(GameData.ARCHIVED) == 1)) {
+                if (!game.isOver() && !game.isOpponentTurn()) {
+                    Log.i(tag, "Game " + game.getData(GameData.GAMEID) + " is over");
+                    activeGames.add(game);
+                }
+            }
+        }
+
+        // Get the index of the current game in the list of games in which it is the user's turn
+        int index = -1;
+        for(int i = 0; i < activeGames.size(); i++) {
+            if(activeGames.get(i).getData(GameData.GAMEID).equals(gameID)) {
+                index = i;
+                break;
+            }
+        }
+
+        // If the user is not viewing a game in which it is their turn, we show them the game which
+        // is first in the list. Or notify them if there are no games in which it is their turn.
+        if(index == -1) {
+            if(activeGames.size() == 0) {
+                Display.makeToast(this, "There are no games in which it is your turn", Toast.LENGTH_LONG);
+            }
+            else {
+                this.gameID = (String) activeGames.get(0).getData(GameData.GAMEID);
+                start();
+            }
+        }
+        else {
+            // Decrement index, or set it to activeGames.size() - 1 if it's already 0
+            index = (index == 0) ? activeGames.size() - 1 : index - 1;
+
+            this.gameID = (String) activeGames.get(index).getData(GameData.GAMEID);
+            start();
+        }
     }
 
     /**
