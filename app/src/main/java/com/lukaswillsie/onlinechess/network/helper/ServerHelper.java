@@ -12,6 +12,7 @@ import com.lukaswillsie.onlinechess.network.helper.requesters.ArchiveRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.Connector;
 import com.lukaswillsie.onlinechess.network.helper.requesters.CreateAccountRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.CreateGameRequester;
+import com.lukaswillsie.onlinechess.network.helper.requesters.DrawRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.JoinGameRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoadGameRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
@@ -111,6 +112,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
     private LoadGameHelper loadGameHelper;
     private MoveHelper moveHelper;
     private PromotionHelper promotionHelper;
+    private DrawHelper drawHelper;
 
     /*
      * A list of all helpers delegated to by this object, so that they can all be notified at once
@@ -136,6 +138,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
         this.loadGameHelper = new LoadGameHelper(this);
         this.moveHelper = new MoveHelper(this);
         this.promotionHelper = new PromotionHelper(this);
+        this.drawHelper = new DrawHelper(this);
 
         this.helpers = new ArrayList<>();
         this.helpers.add(loginHelper);
@@ -148,6 +151,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
         this.helpers.add(loadGameHelper);
         this.helpers.add(moveHelper);
         this.helpers.add(promotionHelper);
+        this.helpers.add(drawHelper);
 
         this.requester = requester;
         ConnectThread thread = new ConnectThread(HOSTNAME, PORT, this);
@@ -309,6 +313,22 @@ public class ServerHelper extends Handler implements ConnectCaller {
      */
     public void promote(PromotionRequester requester, String gameID, PieceType.PromotePiece piece) throws MultipleRequestException {
         promotionHelper.promote(requester, gameID, piece);
+    }
+
+    /**
+     * Submit a draw request to the server.
+     *
+     * Note: the server condenses both the OFFERING of draws and the ACCEPTING of draw offers into
+     * one command. So what this request means depends on whether or not there is an active draw
+     * offer from the opponent in the specified game.
+     *
+     * @param requester - will receive a callback once the server has responded to the request
+     * @param gameID - the game in which to offer/accept a draw
+     * @throws MultipleRequestException - if this object is already handling a draw request when
+     * this method is called
+     */
+    public void draw(DrawRequester requester, String gameID) throws MultipleRequestException {
+        drawHelper.draw(requester, gameID);
     }
 
     /**
