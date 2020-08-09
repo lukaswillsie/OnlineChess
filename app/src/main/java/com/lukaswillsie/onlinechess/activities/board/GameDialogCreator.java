@@ -33,20 +33,22 @@ public interface GameDialogCreator {
 
     /**
      * Show a dialog to the user notifying them that they won the game! The dialog doesn't have to
-     * have any buttons, and can be closed or cancelled so the user can view the state of the board
+     * have any buttons, and can be closed or cancelled so the user can view the state of the board.
+     *
+     * @param resigned - whether or not the victory was achieved because the opponent resigned
      */
-    void showUserWinDialog();
+    void showUserWinDialog(boolean resigned);
 
     /**
      * Show a dialog to the user notifying them that they lost the game. The dialog doesn't have to
-     * have any buttons, and can be closed or cancelled so the user can view the state of the board
+     * have any buttons, and can be closed or cancelled so the user can view the state of the board.
      */
     void showUserLoseDialog();
 
     /**
-     * Show a dialog to the user notifying them that the game ended in a draw! The dialog doesn't
+     * Show a dialog to the user notifying them that the game ended in a draw. The dialog doesn't
      * have to have any buttons, and can be closed or cancelled so the user can view the state of
-     * the board
+     * the board.
      */
     void showUserDrawDialog();
 }

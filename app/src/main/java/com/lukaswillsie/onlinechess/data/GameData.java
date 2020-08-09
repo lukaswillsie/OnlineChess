@@ -30,6 +30,10 @@ public enum GameData {
     DRAWN('i'),                    // 1 if the players in this game have agreed to a draw, 0 otherwise
     USER_WON('i'),                // 1 if the user won this game, 0 otherwise
     USER_LOST('i'),               // 1 if the user lost this game, 0 otherwise
+    FORFEIT('i'),                 // If either player has won the game, indicates whether the
+                                        // victory was by forfeit or checkmate. 1 if the victory was
+                                        // by forfeit, 0 if by checkmate. If neither player has won,
+                                        // means nothing.
     CHECK('i'),                    // 1 if the user is in check, 0 if not
     PROMOTION_NEEDED('i');        // 1 if the user needs to promote a pawn, 0 otherwise (note
                                         // that this is only possible if STATE == 1)

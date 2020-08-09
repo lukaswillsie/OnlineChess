@@ -89,6 +89,8 @@
     <string name="game_opponent_label">Opponent: %1$s</string>
     <string name="game_turn_number_label">Turn %1$s</string>
     <string name="user_won_dialog_title">You Won!</string>
+    <string name="user_won_opponent_resign_dialog_title">Your opponent resigned!</string>
     <string name="user_lost_dialog_title">You Lost! :(</string>
+    <string name="user_lost_resign_dialog_title">You resigned :(</string>
     <string name="draw_dialog_title">Draw</string>
 </resources>

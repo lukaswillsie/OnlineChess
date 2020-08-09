@@ -125,6 +125,8 @@ public class UserGame {
 
             data.put(GameData.PROMOTION_NEEDED, this.getServerData(serverData, ServerData.PROMOTION_NEEDED));
 
+            data.put(GameData.FORFEIT, this.getServerData(serverData, ServerData.FORFEIT));
+
             // If the user won, set USER_WON and USER_LOST accordingly
             if (this.getServerData(serverData, ServerData.WINNER).equals(username)) {
                 data.put(GameData.USER_WON, 1);

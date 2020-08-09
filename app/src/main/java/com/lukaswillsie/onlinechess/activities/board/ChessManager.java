@@ -171,8 +171,14 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
     }
 
     private void showDialogIfNecessary() {
+        System.out.println("FORFEIT: " + presenter.getData(GameData.FORFEIT));
         if((Integer) presenter.getData(GameData.USER_WON) == 1) {
-            dialogCreator.showUserWinDialog();
+            if((Integer) presenter.getData(GameData.FORFEIT) == 1) {
+                dialogCreator.showUserWinDialog(true);
+            }
+            else {
+                dialogCreator.showUserWinDialog(false);
+            }
         }
         else if((Integer) presenter.getData(GameData.USER_LOST) == 1) {
             dialogCreator.showUserLoseDialog();

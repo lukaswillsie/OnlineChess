@@ -84,7 +84,6 @@ public class LoginThread extends NetworkThread {
         // exceptions they encounter while trying to read
         try {
             int code = readInt();
-            Log.i(tag, "Read: " + code);
 
             switch (code) {
                 case ReturnCodes.Login.SUCCESS:
@@ -117,7 +116,6 @@ public class LoginThread extends NetworkThread {
             // Now we read all the user's game data from the server
 
             int numGames = readInt();
-            Log.i(tag, "Read: " + code);
 
             // According to protocol, it's possible that the server encounters an error after logging in
             // the user but BEFORE sending games. So we handle that possibility here.
@@ -137,11 +135,9 @@ public class LoginThread extends NetworkThread {
                         // Note that we're in a try-catch, so we assume that the line returned here
                         // is valid and complete
                         line = this.readLine();
-                        Log.i(tag, "Read: " + line);
                         serverData.add(line);
                     } else if (data.type == 'i') {
                         code = this.readInt();
-                        Log.i(tag, "Read: " + code);
                         serverData.add(code);
                     }
                 }

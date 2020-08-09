@@ -43,7 +43,6 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
      * The ID of the game being displayed by this Activity
      */
     private String gameID;
-
     /**
      * The BoardDisplay object managing the UI
      */
@@ -183,8 +182,13 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
      * inspect the board.
      */
     @Override
-    public void showUserWinDialog() {
-        this.showUserOutcomeDialog(Outcome.WIN);
+    public void showUserWinDialog(boolean resigned) {
+        if(resigned) {
+            showOutcomeDialog(Outcome.WIN_RESIGN);
+        }
+        else {
+            showOutcomeDialog(Outcome.WIN);
+        }
     }
 
     /**
@@ -193,7 +197,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
      */
     @Override
     public void showUserLoseDialog() {
-        this.showUserOutcomeDialog(Outcome.LOSE);
+        showOutcomeDialog(Outcome.LOSE);
     }
 
     /**
@@ -202,27 +206,20 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
      */
     @Override
     public void showUserDrawDialog() {
-        this.showUserOutcomeDialog(Outcome.DRAW);
+        showOutcomeDialog(Outcome.DRAW);
     }
 
-    /**
-     * Describes the possible outcomes of a game of chess.
-     */
-    private enum Outcome {
-        WIN,
-        LOSE,
-        DRAW;
-    }
-    /**
-     * Display a dialog to the user notifying them of the specified outcome. We use this method
-     * to avoid copying code above
-     * @param outcome - the outcome of which we are notifying the user
-     */
-    private void showUserOutcomeDialog(Outcome outcome) {
+    private void showOutcomeDialog(Outcome outcome) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+
+
         switch (outcome) {
             case WIN:
                 builder.setView(getLayoutInflater().inflate(R.layout.win_game_dialog, null));
+                break;
+            case WIN_RESIGN:
+                builder.setView(getLayoutInflater().inflate(R.layout.win_game_resign_dialog, null));
                 break;
             case LOSE:
                 builder.setView(getLayoutInflater().inflate(R.layout.lose_game_dialog, null));
@@ -232,8 +229,15 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
                 break;
         }
 
-        builder.setPositiveButton("See the board", null);
+        builder.setPositiveButton(R.string.ok_dialog_button, null);
         builder.show();
+    }
+
+    private enum Outcome {
+        WIN,
+        WIN_RESIGN,
+        LOSE,
+        DRAW;
     }
 
     /**
