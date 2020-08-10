@@ -6,52 +6,47 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.lukaswillsie.onlinechess.network.ReturnCodes;
-import com.lukaswillsie.onlinechess.network.helper.requesters.DrawRequester;
+import com.lukaswillsie.onlinechess.network.helper.requesters.RejectRequester;
 import com.lukaswillsie.onlinechess.network.threads.ReturnCodeThread;
 import com.lukaswillsie.onlinechess.network.threads.callers.ReturnCodeCaller;
 
 /**
- * Handles draw requests for ServerHelper objects
+ * Handles reject requests for ServerHelper objects
  */
-public class DrawHelper extends SubHelper implements ReturnCodeCaller {
+public class RejectHelper extends SubHelper implements ReturnCodeCaller {
     /**
      * Tag used for logging to the console
      */
-    private static final String tag = "DrawHelper";
+    private static final String tag = "RejectHelper";
     /**
      * Set each time a new request is submitted; will receive callbacks relating to that request
      */
-    private DrawRequester requester;
-
+    private RejectRequester requester;
     /**
-     * The ID of the game that we are currently submitting a draw request for
+     * The ID of the game that we are currently submitting a reject request in
      */
     private String gameID;
 
     /**
-     * Create a new DrawHelper as part of the given ServerHelper
+     * Create a new RejectHelper as part of the given ServerHelper
      *
      * @param container - the ServerHelper that this object is a part of
      */
-    DrawHelper(ServerHelper container) {
+    RejectHelper(ServerHelper container) {
         super(container);
     }
 
     /**
-     * Submit a draw request to the server.
-     *
-     * Note: the server condenses both the OFFERING of draws and the ACCEPTING of draw offers into
-     * one command. So what this request means depends on whether or not there is an active draw
-     * offer from the opponent in the specified game.
+     * Submit a reject request to the server.
      *
      * @param requester - will receive a callback once the server has responded to the request
-     * @param gameID - the game in which to offer/accept a draw
-     * @throws MultipleRequestException - if this object is already handling a draw request when
+     * @param gameID - the game in which to reject a draw offer
+     * @throws MultipleRequestException - if this object is already handling a reject request when
      * this method is called
      */
-    void draw(DrawRequester requester, String gameID) throws MultipleRequestException {
+    void reject(RejectRequester requester, String gameID) throws MultipleRequestException {
         if(this.requester != null) {
-            throw new MultipleRequestException("Tried to submit multiple draw requests to ServerHelper");
+            throw new MultipleRequestException("Tried to submit multiple reject requests to ServerHelper");
         }
 
         this.requester = requester;
@@ -62,14 +57,14 @@ public class DrawHelper extends SubHelper implements ReturnCodeCaller {
     }
 
     /**
-     * Return a request String that can be sent to the server to request a draw offer/acceptance in
-     * the given game.
+     * Return a request String that can be sent to the server to reject a draw offer in the given
+     * game.
      *
      * @param gameID - the game about which to make the request
-     * @return A draw request String for the given gameID
+     * @return A reject request String for the given gameID
      */
     private String getRequest(String gameID) {
-        return "draw " + gameID;
+        return "reject " + gameID;
     }
 
     /**
@@ -99,35 +94,40 @@ public class DrawHelper extends SubHelper implements ReturnCodeCaller {
 
                 this.obtainMessage(SERVER_ERROR).sendToTarget();
                 break;
-            case ReturnCodes.Draw.SUCCESS:
-                Log.e(tag, "Server says draw offer/acceptance in game \"" + gameID + "\" was a success");
+            case ReturnCodes.Reject.SUCCESS:
+                Log.e(tag, "Server says rejection of draw offer in game \"" + gameID + "\" was a success");
 
                 this.obtainMessage(SUCCESS).sendToTarget();
                 break;
-            case ReturnCodes.Draw.GAME_DOES_NOT_EXIST:
+            case ReturnCodes.Reject.GAME_DOES_NOT_EXIST:
                 Log.e(tag, "Server says game \"" + gameID + "\" does not exist");
 
                 this.obtainMessage(GAME_DOES_NOT_EXIST).sendToTarget();
                 break;
-            case ReturnCodes.Draw.USER_NOT_IN_GAME:
+            case ReturnCodes.Reject.USER_NOT_IN_GAME:
                 Log.e(tag, "Server says user is not in game \"" + gameID + "\"");
 
                 this.obtainMessage(USER_NOT_IN_GAME).sendToTarget();
                 break;
-            case ReturnCodes.Draw.NO_OPPONENT:
+            case ReturnCodes.Reject.NO_OPPONENT:
                 Log.e(tag, "Server says user has no opponent in game \"" + gameID + "\"");
 
                 this.obtainMessage(NO_OPPONENT).sendToTarget();
                 break;
-            case ReturnCodes.Draw.GAME_IS_OVER:
+            case ReturnCodes.Reject.GAME_IS_OVER:
                 Log.e(tag, "Server says game \"" + gameID + "\" is already over");
 
                 this.obtainMessage(GAME_IS_OVER).sendToTarget();
                 break;
-            case ReturnCodes.Draw.NOT_USER_TURN:
+            case ReturnCodes.Reject.NOT_USER_TURN:
                 Log.e(tag, "Server says it is not the user's turn in game \"" + gameID + "\"");
 
                 this.obtainMessage(NOT_USER_TURN).sendToTarget();
+                break;
+            case ReturnCodes.Reject.NO_DRAW_OFFER:
+                Log.e(tag, "Server says there is no draw offer to reject in game \"" + gameID + "\"");
+
+                this.obtainMessage(NO_DRAW_OFFER).sendToTarget();
                 break;
             default:
                 Log.e(tag, "Server returned \"" + code + "\", which is outside of protocol");
@@ -166,6 +166,7 @@ public class DrawHelper extends SubHelper implements ReturnCodeCaller {
     private static final int NO_OPPONENT = 3;
     private static final int GAME_IS_OVER = 4;
     private static final int NOT_USER_TURN = 5;
+    private static final int NO_DRAW_OFFER = 6;
 
     /**
      * We use this method so that we can give callbacks on the UI thread (as opposed to our worker
@@ -196,7 +197,7 @@ public class DrawHelper extends SubHelper implements ReturnCodeCaller {
                 this.requester = null;
                 break;
             case SUCCESS:
-                requester.drawSuccess();
+                requester.rejectSuccess();
 
                 // Allows us to accept another request
                 this.requester = null;

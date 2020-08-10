@@ -13,12 +13,14 @@ import com.lukaswillsie.onlinechess.network.helper.requesters.Connector;
 import com.lukaswillsie.onlinechess.network.helper.requesters.CreateAccountRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.CreateGameRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.DrawRequester;
+import com.lukaswillsie.onlinechess.network.helper.requesters.ForfeitRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.JoinGameRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoadGameRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.MoveRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.OpenGamesRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.PromotionRequester;
+import com.lukaswillsie.onlinechess.network.helper.requesters.RejectRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.RestoreRequester;
 import com.lukaswillsie.onlinechess.network.threads.ConnectThread;
 import com.lukaswillsie.onlinechess.network.threads.callers.ConnectCaller;
@@ -113,6 +115,8 @@ public class ServerHelper extends Handler implements ConnectCaller {
     private MoveHelper moveHelper;
     private PromotionHelper promotionHelper;
     private DrawHelper drawHelper;
+    private RejectHelper rejectHelper;
+    private ForfeitHelper forfeitHelper;
 
     /*
      * A list of all helpers delegated to by this object, so that they can all be notified at once
@@ -139,6 +143,9 @@ public class ServerHelper extends Handler implements ConnectCaller {
         this.moveHelper = new MoveHelper(this);
         this.promotionHelper = new PromotionHelper(this);
         this.drawHelper = new DrawHelper(this);
+        this.rejectHelper = new RejectHelper(this);
+        this.forfeitHelper = new ForfeitHelper(this);
+
 
         this.helpers = new ArrayList<>();
         this.helpers.add(loginHelper);
@@ -152,6 +159,8 @@ public class ServerHelper extends Handler implements ConnectCaller {
         this.helpers.add(moveHelper);
         this.helpers.add(promotionHelper);
         this.helpers.add(drawHelper);
+        this.helpers.add(rejectHelper);
+        this.helpers.add(forfeitHelper);
 
         this.requester = requester;
         ConnectThread thread = new ConnectThread(HOSTNAME, PORT, this);
@@ -329,6 +338,30 @@ public class ServerHelper extends Handler implements ConnectCaller {
      */
     public void draw(DrawRequester requester, String gameID) throws MultipleRequestException {
         drawHelper.draw(requester, gameID);
+    }
+
+    /**
+     * Submit a reject request to the server.
+     *
+     * @param requester - will receive a callback once the server has responded to the request
+     * @param gameID - the game in which to reject a draw offer
+     * @throws MultipleRequestException - if this object is already handling a reject request when
+     * this method is called
+     */
+    public void reject(RejectRequester requester, String gameID) throws MultipleRequestException {
+        rejectHelper.reject(requester, gameID);
+    }
+
+    /**
+     * Submit a forfeit request to the server.
+     *
+     * @param requester - will receive a callback once the server has responded to the request
+     * @param gameID - the game that the user wants to forfeit
+     * @throws MultipleRequestException - if this object is already handling a forfeit request when
+     * this method is called
+     */
+    public void forfeit(ForfeitRequester requester, String gameID) throws MultipleRequestException {
+        forfeitHelper.forfeit(requester, gameID);
     }
 
     /**

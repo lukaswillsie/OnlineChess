@@ -6,52 +6,49 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.lukaswillsie.onlinechess.network.ReturnCodes;
-import com.lukaswillsie.onlinechess.network.helper.requesters.DrawRequester;
+import com.lukaswillsie.onlinechess.network.helper.requesters.ForfeitRequester;
 import com.lukaswillsie.onlinechess.network.threads.ReturnCodeThread;
 import com.lukaswillsie.onlinechess.network.threads.callers.ReturnCodeCaller;
 
 /**
- * Handles draw requests for ServerHelper objects
+ * Handles forfeit requests for ServerHelper objects
  */
-public class DrawHelper extends SubHelper implements ReturnCodeCaller {
+public class ForfeitHelper extends SubHelper implements ReturnCodeCaller {
     /**
      * Tag used for logging to the console
      */
-    private static final String tag = "DrawHelper";
-    /**
-     * Set each time a new request is submitted; will receive callbacks relating to that request
-     */
-    private DrawRequester requester;
+    private static final String tag = "ForfeitHelper";
 
     /**
-     * The ID of the game that we are currently submitting a draw request for
+     * Set each time a new request is submitted; will receiving callbacks relating to that request
+     */
+    private ForfeitRequester requester;
+
+    /**
+     * The ID of the game that we are currently submitting a forfeit request in
      */
     private String gameID;
 
     /**
-     * Create a new DrawHelper as part of the given ServerHelper
+     * Create a new ForfeitHelper as part of the given ServerHelper
      *
      * @param container - the ServerHelper that this object is a part of
      */
-    DrawHelper(ServerHelper container) {
+    ForfeitHelper(ServerHelper container) {
         super(container);
     }
 
     /**
-     * Submit a draw request to the server.
-     *
-     * Note: the server condenses both the OFFERING of draws and the ACCEPTING of draw offers into
-     * one command. So what this request means depends on whether or not there is an active draw
-     * offer from the opponent in the specified game.
+     * Submit a forfeit request to the server.
      *
      * @param requester - will receive a callback once the server has responded to the request
-     * @param gameID - the game in which to offer/accept a draw
-     * @throws MultipleRequestException - if this object is already handling a draw request when
+     * @param gameID - the game that the user wants to forfeit
+     * @throws MultipleRequestException - if this object is already handling a forfeit request when
      * this method is called
      */
-    void draw(DrawRequester requester, String gameID) throws MultipleRequestException {
+    void forfeit(ForfeitRequester requester, String gameID) throws MultipleRequestException {
         if(this.requester != null) {
-            throw new MultipleRequestException("Tried to submit multiple draw requests to ServerHelper");
+            throw new MultipleRequestException("Tried to submit multiple forfeit requests to ServerHelper");
         }
 
         this.requester = requester;
@@ -62,14 +59,13 @@ public class DrawHelper extends SubHelper implements ReturnCodeCaller {
     }
 
     /**
-     * Return a request String that can be sent to the server to request a draw offer/acceptance in
-     * the given game.
+     * Return a request string that can be sent to the server to forfeit the given game
      *
-     * @param gameID - the game about which to make the request
-     * @return A draw request String for the given gameID
+     * @param gameID - the game to try and forfeit
+     * @return A forfeit request String for the given gameID
      */
     private String getRequest(String gameID) {
-        return "draw " + gameID;
+        return "forfeit " + gameID;
     }
 
     /**
@@ -99,32 +95,32 @@ public class DrawHelper extends SubHelper implements ReturnCodeCaller {
 
                 this.obtainMessage(SERVER_ERROR).sendToTarget();
                 break;
-            case ReturnCodes.Draw.SUCCESS:
-                Log.e(tag, "Server says draw offer/acceptance in game \"" + gameID + "\" was a success");
+            case ReturnCodes.Forfeit.SUCCESS:
+                Log.e(tag, "Server says forfeit in game \"" + gameID + "\" was a success");
 
                 this.obtainMessage(SUCCESS).sendToTarget();
                 break;
-            case ReturnCodes.Draw.GAME_DOES_NOT_EXIST:
+            case ReturnCodes.Forfeit.GAME_DOES_NOT_EXIST:
                 Log.e(tag, "Server says game \"" + gameID + "\" does not exist");
 
                 this.obtainMessage(GAME_DOES_NOT_EXIST).sendToTarget();
                 break;
-            case ReturnCodes.Draw.USER_NOT_IN_GAME:
+            case ReturnCodes.Forfeit.USER_NOT_IN_GAME:
                 Log.e(tag, "Server says user is not in game \"" + gameID + "\"");
 
                 this.obtainMessage(USER_NOT_IN_GAME).sendToTarget();
                 break;
-            case ReturnCodes.Draw.NO_OPPONENT:
+            case ReturnCodes.Forfeit.NO_OPPONENT:
                 Log.e(tag, "Server says user has no opponent in game \"" + gameID + "\"");
 
                 this.obtainMessage(NO_OPPONENT).sendToTarget();
                 break;
-            case ReturnCodes.Draw.GAME_IS_OVER:
+            case ReturnCodes.Forfeit.GAME_IS_OVER:
                 Log.e(tag, "Server says game \"" + gameID + "\" is already over");
 
                 this.obtainMessage(GAME_IS_OVER).sendToTarget();
                 break;
-            case ReturnCodes.Draw.NOT_USER_TURN:
+            case ReturnCodes.Forfeit.NOT_USER_TURN:
                 Log.e(tag, "Server says it is not the user's turn in game \"" + gameID + "\"");
 
                 this.obtainMessage(NOT_USER_TURN).sendToTarget();
@@ -196,7 +192,7 @@ public class DrawHelper extends SubHelper implements ReturnCodeCaller {
                 this.requester = null;
                 break;
             case SUCCESS:
-                requester.drawSuccess();
+                requester.forfeitSuccess();
 
                 // Allows us to accept another request
                 this.requester = null;
