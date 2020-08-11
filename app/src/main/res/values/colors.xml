@@ -18,6 +18,7 @@
     <color name="black">@android:color/black</color>
     <color name="join_game_successful">#50DA29</color>
     <color name="board_background">#292929</color>
+    <color name="board_button_background">#1A1A1A</color>
     <color name="light_gray">#8C8C8C</color>
     <color name="dark_gray">#1A1A1A</color>
 </resources>

@@ -51,6 +51,10 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
      */
     private GameDialogCreator dialogCreator;
     /**
+     * Object that will be notified about crucial game events, like when the user's turn ends
+     */
+    private GameListener listener;
+    /**
      * The activity displaying the game that this ChessManager is managing
      */
     private AppCompatActivity activity;
@@ -72,7 +76,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
     private PieceType.PromotePiece activePromotion;
     /**
      * Keeps track of whether or not the user is currently able to move. In particular, it has to
-     * be the user's turn and the user has to have an opponent in their game.
+     * be the user's turn and the user has to have an opponent in the game.
      */
     private boolean userCanMove;
     /**
@@ -92,6 +96,11 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
      * The object that will process and send promote requests to the server for us
      */
     private PromoteRequestHandler promoteHandler;
+    /**
+     * Whether or not this object has been PAUSED. Being paused just means that this object won't
+     * accept any new UI events from the user, even if it's the user's turn to make a move.
+     */
+    private boolean paused = false;
 
     /**
      * Create a new ChessManager that will manage the game represented by the given GamePresenter
@@ -102,14 +111,16 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
      * @param gameID        - the ID of the game that this object is managing
      * @param presenter     - a GamePresenter representing the game that this object will manage
      * @param display       - the object that this ChessManager will use to interact with the UI
+     * @param listener      - the object that will receive game-event callbacks from this object
      * @param dialogCreator - the object that this ChessManager will use to create error dialogs,
      *                      when necessary
      * @param activity      - the Activity displaying the game that this ChessManager is managing
      */
-    ChessManager(String gameID, GamePresenter presenter, BoardDisplay display, GameDialogCreator dialogCreator,
+    ChessManager(String gameID, GamePresenter presenter, BoardDisplay display, GameListener listener, GameDialogCreator dialogCreator,
                  AppCompatActivity activity) {
         this.presenter = presenter;
         this.display = display;
+        this.listener = listener;
         this.dialogCreator = dialogCreator;
         this.moveHandler = new MoveRequestHandler(this);
         this.promoteHandler = new PromoteRequestHandler(this);
@@ -125,17 +136,39 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
     }
 
     /**
+     * Pauses this object, stopping it from accepting any new UI events from the user until resume()
+     * or setGame() is called.
+     */
+    public void pause() {
+        paused = true;
+    }
+
+    /**
+     * Resume (or un-pause) this object. Allows it to begin accepting UI events again, if it was
+     * paused before.
+     */
+    public void resume() {
+        paused = false;
+
+        this.resetFromModel();
+        showDialogIfNecessary();
+    }
+
+    /**
      * Assigns this ChessManager object to the game specified by the given gameID and GamePresenter.
      * This object will immediately begin managing that game. Whatever game was previously being
-     * displayed will be wiped from the screen and the new game will be displayed. If this object
-     * is currently waiting for a response from the server on a move or promotion request, this
-     * method does nothing.
+     * displayed will be wiped from the screen and the new game will be displayed. This will also
+     * un-pause this object, if it was paused at the time of the call. If this object is currently
+     * waiting for a response from the server on a move or promotion request, this method does
+     * nothing.
      *
-     * This object will continue to use the same BoardDisplay, GameDialogCreator, and
+     * This object will continue to use the same BoardDisplay, GameListener, GameDialogCreator, and
      * AppCompatActivity given to it at creation.
      */
     public void setGame(String gameID, @NonNull GamePresenter presenter) {
         if(activeMove == null && activePromotion == null) {
+            this.paused = false;
+
             this.gameID = gameID;
             this.presenter = presenter;
             display.activate(presenter, this);
@@ -222,6 +255,11 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
 
     @Override
     public boolean onTouch(int row, int column, MotionEvent event) {
+        // If we have been paused, immediately reject the event
+        if(paused) {
+            return false;
+        }
+
         Log.i(tag, "(" + row + ", " + column + ")\n" + event.toString());
         int action = event.getAction();
         Piece piece;
@@ -381,6 +419,11 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
 
     @Override
     public boolean onDrag(int row, int column, DragEvent event) {
+        // If we have been paused, immediately reject the event
+        if(paused) {
+            return false;
+        }
+
         switch (event.getAction()) {
             case DragEvent.ACTION_DRAG_STARTED:
                 // When a drag starts, the only squares on the board that care about the drag are
@@ -610,6 +653,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
         // If the move caused a checkmate or stalemate, we want to show the user a dialog to notify
         // them of this fact
         showDialogIfNecessary();
+        listener.userMoved();
         activeMove = null;
     }
 
@@ -770,6 +814,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
         // If a checkmate or stalemate was delivered, we want to notify the user of this
         showDialogIfNecessary();
         activePromotion = null;
+        listener.userMoved();
     }
 
     @Override

@@ -22,7 +22,6 @@
             android:layout_height="0dp"
             android:id="@+id/queen"
             android:layout_weight="1"
-            android:onClick="bannerOnClickTest"
             android:src="@drawable/white_queen"
             android:background="@drawable/promotion_banner_item_background"/>
 
@@ -31,7 +30,6 @@
             android:layout_height="0dp"
             android:id="@+id/rook"
             android:layout_weight="1"
-            android:onClick="bannerOnClickTest"
             android:src="@drawable/white_rook"
             android:background="@drawable/promotion_banner_item_background"/>
 
@@ -40,7 +38,6 @@
             android:layout_height="0dp"
             android:id="@+id/bishop"
             android:layout_weight="1"
-            android:onClick="bannerOnClickTest"
             android:src="@drawable/white_bishop"
             android:background="@drawable/promotion_banner_item_background"/>
 
@@ -49,7 +46,6 @@
             android:layout_height="0dp"
             android:id="@+id/knight"
             android:layout_weight="1"
-            android:onClick="bannerOnClickTest"
             android:src="@drawable/white_knight"
             android:background="@drawable/promotion_banner_item_background"/>
         

@@ -20,6 +20,9 @@ import com.lukaswillsie.onlinechess.data.GameData;
 import com.lukaswillsie.onlinechess.data.UserGame;
 import com.lukaswillsie.onlinechess.network.Server;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
+import com.lukaswillsie.onlinechess.network.helper.requesters.ArchiveRequester;
+import com.lukaswillsie.onlinechess.network.helper.requesters.DrawRequester;
+import com.lukaswillsie.onlinechess.network.helper.requesters.ForfeitRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoadGameRequester;
 import com.lukaswillsie.onlinechess.network.helper.MultipleRequestException;
 
@@ -32,7 +35,7 @@ import Chess.com.lukaswillsie.chess.Board;
  * BoardActivity is the most important Activity in the app; it allows users to actually view
  * their game boards and make moves.
  */
-public class BoardActivity extends ErrorDialogActivity implements ReconnectListener, LoadGameRequester, GameDialogCreator {
+public class BoardActivity extends ErrorDialogActivity implements ReconnectListener, LoadGameRequester, GameDialogCreator,  GameListener {
     /**
      * Activities that start this Activity MUST use this tag to pass, as an extra in the intent,
      * the ID of the game that this Activity is supposed to load.
@@ -46,6 +49,10 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
      * The ID of the game being displayed by this Activity
      */
     private String gameID;
+    /*
+     * The UserGame object containing information about the game that we are currently displaying
+     */
+    private UserGame game;
     /**
      * The BoardDisplay object managing the UI
      */
@@ -55,13 +62,19 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
      * The object managing the game being displayed by this Activity
      */
     private ChessManager manager;
+    /**
+     * If true, means we are currently submitting a draw/resign request to the server, and shouldn't
+     * submit any more requests. Otherwise, we are free to submit a request after the user clicks
+     * one of the "Draw" or "Resign" buttons.
+     */
+    private boolean activeRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_board);
 
-        gameID = getIntent().getStringExtra(GAMEID_TAG);
+        String gameID = getIntent().getStringExtra(GAMEID_TAG);
 
         // Will create an empty chessboard on the screen
         display = new BoardDisplay();
@@ -73,7 +86,39 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
         if (serverHelper == null) {
             new Reconnector(this, this).reconnect();
         } else {
-            start();
+            start(gameID);
+        }
+    }
+
+    /**
+     * Called if the user clicks the "Draw" button
+     *
+     * @param v - the View that was clicked
+     */
+    public void draw(View v) {
+        if(manager != null && !activeRequest) {
+            try {
+                Server.getServerHelper().draw(new DrawOfferRequestListener(), gameID);
+                activeRequest = true;
+            } catch (MultipleRequestException e) {
+                Log.e(tag, "ServerHelper says we submitted multiple draw offer requests, even though this should never happen");
+            }
+        }
+    }
+
+    /**
+     * Called if the user clicks the "Resign" button
+     *
+     * @param v - the View that was clicked
+     */
+    public void resign(View v) {
+        if(manager != null && !activeRequest) {
+            try {
+                Server.getServerHelper().forfeit(new ForfeitRequestListener(), gameID);
+                activeRequest = true;
+            } catch (MultipleRequestException e) {
+                Log.e(tag, "ServerHelper says we submitted multiple draw offer requests, even though this should never happen");
+            }
         }
     }
 
@@ -82,36 +127,28 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
      */
     @Override
     public void reconnectionComplete() {
-        start();
+        start(gameID);
     }
 
     /**
-     * Send a request to the server, trying to load the game this Activity has been told to load
-     */
-    private void start() {
-        ServerHelper serverHelper = Server.getServerHelper();
-        try {
-            serverHelper.loadGame(this, gameID);
-        } catch (MultipleRequestException e) {
-            Log.e(tag, "Tried to make multiple load game requests of serverHelper");
-            this.showSystemErrorDialog();
-        }
-    }
-
-    public void bannerOnClickTest(View v) {
-        System.out.println("CLICKED");
-    }
-
-    /**
-     * Called after a load game request finishes successfully. The given Board object will represent
-     * the requested game, and will have been initialized successfully from the data sent over by
-     * the server.
-     *
-     * @param board - a Board object successfully initialized to hold all data associated with the
-     *              requested game
+     * Called by ChessManager after the user makes a move. Here, we call setUI() to make sure that
+     * all of our satellite data TextViews are updated, for example the one that says "Your turn" or
+     * "{opponent}'s turn".
      */
     @Override
-    public void success(Board board) {
+    public void userMoved() {
+        setUI();
+    }
+
+    /**
+     * Sends a request to the server to load the game with the given gameID. Once the server has
+     * responded, that game will be displayed on the screen. If the given gameID does not correspond
+     * to a game in the user's list of games, will display a dialog for the user that finishes
+     * this activity when closed.
+     *
+     * @param gameID -
+     */
+    private void start(String gameID) {
         // Find the UserGame object corresponding to the game we're supposed to be displaying
         List<UserGame> userGames = Server.getGames();
         UserGame game = null;
@@ -131,28 +168,109 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
             builder.setOnCancelListener(new CriticalErrorListener());
             return;
         }
+        this.game = game;
+        this.gameID = gameID;
 
-        // Populate the screen with data about the game
-        String gameID = (String) game.getData(GameData.GAMEID);
-        int turn = (Integer) game.getData(GameData.TURN);
-        String opponent = (String) game.getData(GameData.OPPONENT);
-        if(opponent.length() == 0) {
-            ((TextView) findViewById(R.id.opponent)).setText(R.string.game_no_opponent_text);
+        ServerHelper serverHelper = Server.getServerHelper();
+        try {
+            serverHelper.loadGame(this, gameID);
+        } catch (MultipleRequestException e) {
+            Log.e(tag, "Tried to make multiple load game requests of serverHelper");
+            this.showSystemErrorDialog();
         }
-        else {
-            ((TextView) findViewById(R.id.opponent)).setText(getString(R.string.game_opponent_label, opponent));
-        }
-        ((TextView) findViewById(R.id.title)).setText(gameID);
-        ((TextView) findViewById(R.id.turn_counter)).setText(getString(R.string.game_turn_number_label, Integer.toString(turn)));
+    }
 
+    /**
+     * Called after a load game request finishes successfully. The given Board object will represent
+     * the requested game, and will have been initialized successfully from the data sent over by
+     * the server.
+     *
+     * @param board - a Board object successfully initialized to hold all data associated with the
+     *              requested game
+     */
+    @Override
+    public void success(Board board) {
         // Create a GamePresenter and GameManager for this game, now that we have all the data we
         // need
         GamePresenter presenter = new GamePresenter(game, board);
         if(manager == null) {
-            manager = new ChessManager(gameID, presenter, display, this, this);
+            manager = new ChessManager(gameID, presenter, display, this, this, this);
         }
         else {
             manager.setGame(gameID, presenter);
+        }
+
+        setUI();
+    }
+
+    /**
+     * This method sets the state of the UI so that it perfectly reflects the state of the game
+     * being displayed. It ensures that the various TextViews containing information about the
+     * game contain the correct information. It also ensures that the visibility of the "Draw" and
+     * "Resign" buttons is set properly, according to whether or not it is the user's turn
+     */
+    private void setUI() {
+        if (game != null) {
+            // Populate the screen with data about the game
+            String gameID = (String) game.getData(GameData.GAMEID);
+            int turn = (Integer) game.getData(GameData.TURN);
+            int drawOffered = (Integer) game.getData(GameData.DRAW_OFFERED);
+            int state = (Integer) game.getData(GameData.STATE);
+            String opponent = (String) game.getData(GameData.OPPONENT);
+
+            if(opponent.length() == 0) {
+                ((TextView) findViewById(R.id.opponent)).setText(R.string.game_no_opponent_text);
+            }
+            else {
+                ((TextView) findViewById(R.id.opponent)).setText(getString(R.string.game_opponent_label, opponent));
+            }
+            ((TextView) findViewById(R.id.title)).setText(gameID);
+            ((TextView) findViewById(R.id.turn_counter)).setText(getString(R.string.game_turn_number_label, Integer.toString(turn)));
+
+            TextView stateLabel = findViewById(R.id.state);
+            if(game.isOver()) {
+                if((Integer) game.getData(GameData.USER_WON) == 1) {
+                    stateLabel.setTextColor(getResources().getColor(R.color.user_win));
+                    stateLabel.setText(R.string.user_won_state_label);
+                }
+                else if((Integer) game.getData(GameData.USER_LOST) == 1) {
+                    stateLabel.setTextColor(getResources().getColor(R.color.user_lose));
+                    stateLabel.setText(R.string.user_lost_state_label);
+                }
+            }
+            else if(state == 1) {
+                stateLabel.setTextColor(getResources().getColor(R.color.user_turn));
+                stateLabel.setText(R.string.user_turn_state_label);
+            }
+            else {
+                stateLabel.setTextColor(getResources().getColor(R.color.light_gray));
+
+                if (drawOffered == 1) {
+                    stateLabel.setText(R.string.opponent_turn_draw_offer_state_label);
+                }
+                else {
+                    stateLabel.setText(getString(R.string.opponent_move_state_label, opponent));
+                }
+            }
+
+            // If it's the user's turn, check if they've been offered a draw
+            if(state == 1) {
+                findViewById(R.id.placeholder).setVisibility(View.GONE);
+                findViewById(R.id.offer_draw_button).setVisibility(View.VISIBLE);
+                findViewById(R.id.resign_button).setVisibility(View.VISIBLE);
+
+                // If the user has been offered a draw
+                if(drawOffered == 1) {
+                    // TODO: Show the user a dialog and let them respond to the draw offer
+                }
+            }
+            // Otherwise, hide the "Draw" and "Resign" buttons because the user can't offer a draw or
+            // resign if it's not their turn
+            else {
+                findViewById(R.id.placeholder).setVisibility(View.VISIBLE);
+                findViewById(R.id.offer_draw_button).setVisibility(View.GONE);
+                findViewById(R.id.resign_button).setVisibility(View.GONE);
+            }
         }
     }
 
@@ -194,16 +312,14 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
                 Display.makeToast(this, "There are no games in which it is your turn", Toast.LENGTH_LONG);
             }
             else {
-                this.gameID = (String) activeGames.get(0).getData(GameData.GAMEID);
-                start();
+                start((String) activeGames.get(0).getData(GameData.GAMEID));
             }
         }
         else {
             // Increment index, or set index to 0 if it's already at the end of activeGames
             index = (index == activeGames.size()-1) ? 0 : index + 1;
 
-            this.gameID = (String) activeGames.get(index).getData(GameData.GAMEID);
-            start();
+            start((String) activeGames.get(index).getData(GameData.GAMEID));
         }
     }
 
@@ -244,16 +360,14 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
                 Display.makeToast(this, "There are no games in which it is your turn", Toast.LENGTH_LONG);
             }
             else {
-                this.gameID = (String) activeGames.get(0).getData(GameData.GAMEID);
-                start();
+                start((String) activeGames.get(0).getData(GameData.GAMEID));
             }
         }
         else {
             // Decrement index, or set it to activeGames.size() - 1 if it's already 0
             index = (index == 0) ? activeGames.size() - 1 : index - 1;
 
-            this.gameID = (String) activeGames.get(index).getData(GameData.GAMEID);
-            start();
+            start((String) activeGames.get(index).getData(GameData.GAMEID));
         }
     }
 
@@ -317,10 +431,24 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
         showOutcomeDialog(Outcome.DRAW);
     }
 
+    /**
+     * Represents the different possible outcomes that a game of chess can have.
+     */
+    private enum Outcome {
+        WIN,        // The user won through checkmate
+        WIN_RESIGN, // The user won because their opponent resigned
+        LOSE,       // The user lost
+        DRAW;       // The game ended in a draw
+    }
+
+    /**
+     * Show a dialog to the user communicating the specified outcome in the game we are displaying.
+     *
+     * @param outcome - represents how the game we are displaying ended, and thus what event the
+     *                user should be notified of
+     */
     private void showOutcomeDialog(Outcome outcome) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-
 
         switch (outcome) {
             case WIN:
@@ -339,13 +467,6 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
 
         builder.setPositiveButton(R.string.ok_dialog_button, null);
         builder.show();
-    }
-
-    private enum Outcome {
-        WIN,
-        WIN_RESIGN,
-        LOSE,
-        DRAW;
     }
 
     /**
@@ -405,7 +526,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
     @Override
     public void retrySystemError() {
         // Attempt to load the data we need again
-        start();
+        start(gameID);
     }
 
 
@@ -426,7 +547,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
     @Override
     public void retryServerError() {
         // Attempt to load the data we need again
-        start();
+        start(gameID);
     }
 
     /**
@@ -444,6 +565,207 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
     @Override
     public void retryConnection() {
         new Reconnector(this, this).reconnect();
+    }
+
+    /**
+     * We give an instance of this class to ServerHelper when we send a Draw offer on behalf of the
+     * user. It will receive the callback once the request completes. We use an inner class here for
+     * readability and organization. We also use one because the DrawRequester and ForfeitRequester
+     * (see ForfeitRequestListener below) interfaces share quite a few method signatures. So if
+     * BoardActivity implemented both interfaces, to those methods we'd have to add a way to
+     * differentiate between draw request callbacks and forfeit request callbacks. This is cleaner.
+     */
+    private class DrawOfferRequestListener implements DrawRequester {
+        /**
+         * Called if our draw request succeeds
+         */
+        @Override
+        public void drawSuccess() {
+            // Now that we've offered a draw, it's the opponent's turn
+            game.setData(GameData.STATE, 0);
+            game.setData(GameData.DRAW_OFFERED, 1);
+            manager.resume();
+
+            setUI();
+            activeRequest = false;
+        }
+
+        /**
+         * Called if our draw request fails because the connection to the server has been lost
+         */
+        @Override
+        public void connectionLost() {
+            activeRequest = false;
+            setUI();
+            manager.resume();
+            new Reconnector(BoardActivity.this, BoardActivity.this).reconnect();
+        }
+
+        /*
+         * Various methods that get called if our draw offer request fails. We lump these together
+         * because we only submit resignation requests if we know they're valid, according to our
+         * data when we send them. So if the request fails, we just tell the user that it failed,
+         * and don't do anything further.
+         */
+        @Override
+        public void gameDoesNotExist() {
+            showErrorDialog();
+            activeRequest = false;
+            setUI();
+            manager.resume();
+        }
+
+        @Override
+        public void userNotInGame() {
+            showErrorDialog();
+            activeRequest = false;
+            setUI();
+            manager.resume();
+        }
+
+        @Override
+        public void noOpponent() {
+            showErrorDialog();
+            activeRequest = false;
+            setUI();
+            manager.resume();
+        }
+
+        @Override
+        public void gameIsOver() {
+            showErrorDialog();
+            activeRequest = false;
+            setUI();
+            manager.resume();
+        }
+
+        @Override
+        public void notUserTurn() {
+            showErrorDialog();
+            activeRequest = false;
+            setUI();
+            manager.resume();
+        }
+
+        @Override
+        public void serverError() {
+            showErrorDialog();
+            activeRequest = false;
+            setUI();
+            manager.resume();
+        }
+
+        @Override
+        public void systemError() {
+            showErrorDialog();
+            activeRequest = false;
+            setUI();
+            manager.resume();
+        }
+
+        private void showErrorDialog() {
+            Display.showSimpleDialog(R.string.draw_offer_failed, BoardActivity.this);
+        }
+    }
+
+    /**
+     * We give an instance of this class to ServerHelper when we send a resignation on behalf of the
+     * user. It will receive the callback once the request completes. We use an inner class here for
+     * readability and organization. We also use one because the DrawRequester and ForfeitRequester
+     * (see DrawOfferRequestListener above) interfaces share quite a few method signatures. So if
+     * BoardActivity implemented both interfaces, to those methods we'd have to add a way to
+     * differentiate between draw request callbacks and forfeit request callbacks. This is cleaner.
+     */
+    private class ForfeitRequestListener implements ForfeitRequester {
+        /**
+         * Called if our forfeit request succeeds
+         */
+        @Override
+        public void forfeitSuccess() {
+            game.setData(GameData.USER_LOST, 1);
+            game.setData(GameData.FORFEIT, 1);
+
+            manager.resume();
+            setUI();
+            activeRequest = false;
+        }
+
+        /**
+         * Called if our forfeit request fails because of a loss of connection to the server
+         */
+        @Override
+        public void connectionLost() {
+            new Reconnector(BoardActivity.this, BoardActivity.this).reconnect();
+            activeRequest = false;
+            setUI();
+            manager.resume();
+        }
+
+        /*
+         * Various methods that get called if our resignation request fails. We lump these together
+         * because we only submit resignation requests if we know they're valid, according to our
+         * data when we send them. So if the request fails, we just tell the user that it failed,
+         * and don't do anything further.
+         */
+        @Override
+        public void gameDoesNotExist() {
+            showErrorDialog();
+            activeRequest = false;
+            setUI();
+            manager.resume();
+        }
+
+        @Override
+        public void userNotInGame() {
+            showErrorDialog();
+            activeRequest = false;
+            setUI();
+            manager.resume();
+        }
+
+        @Override
+        public void noOpponent() {
+            showErrorDialog();
+            activeRequest = false;
+            setUI();
+            manager.resume();
+        }
+
+        @Override
+        public void gameIsOver() {
+            showErrorDialog();
+            activeRequest = false;
+            setUI();
+            manager.resume();
+        }
+
+        @Override
+        public void notUserTurn() {
+            showErrorDialog();
+            activeRequest = false;
+            setUI();
+            manager.resume();
+        }
+
+        @Override
+        public void serverError() {
+            showErrorDialog();
+            activeRequest = false;
+            setUI();
+            manager.resume();
+        }
+
+        @Override
+        public void systemError() {
+            showErrorDialog();
+            activeRequest = false;
+            setUI();
+            manager.resume();
+        }
+
+        private void showErrorDialog() {
+            Display.showSimpleDialog(R.string.resignation_failed, BoardActivity.this);
+        }
     }
 
     /**

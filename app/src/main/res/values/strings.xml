@@ -85,6 +85,10 @@
     <string name="move_failed_error_text">Something went wrong and we couldn\'t submit your move. Do you want us to try again?</string>
     <string name="model_failure_error_text">Sorry, something went wrong and we couldn\'t submit your move.</string>
     <string name="load_error_text">Sorry, something went wrong and we couldn\'t load your game.</string>
+    <string name="previous_game_button_label">Previous</string>
+    <string name="draw_button_label">Draw</string>
+    <string name="resign_button_label">Resign</string>
+    <string name="next_game_button_label">Next</string>
     <string name="game_no_opponent_text">No opponent</string>
     <string name="game_opponent_label">Opponent: %1$s</string>
     <string name="game_turn_number_label">Turn %1$s</string>
@@ -93,4 +97,13 @@
     <string name="user_lost_dialog_title">You Lost! :(</string>
     <string name="user_lost_resign_dialog_title">You resigned :(</string>
     <string name="draw_dialog_title">Draw</string>
+    <string name="user_turn_state_label">Your turn</string>
+    <string name="opponent_move_state_label">%1$s\'s turn</string>
+    <string name="opponent_turn_draw_offer_state_label">Draw offer sent</string>
+    <string name="user_won_state_label">You won!</string>
+    <string name="user_lost_state_label">You lost</string>
+    <string name="draw_offer_failed">Oops! Something went wrong and we couldn\'t offer your opponent a draw.</string>
+    <string name="draw_acceptance_failed">Oops! Something went wrong and we couldn\'t accept the draw for you.</string>
+    <string name="resignation_failed">Oops! Something went wrong and we couldn\'t submit your resignation.</string>
+
 </resources>
