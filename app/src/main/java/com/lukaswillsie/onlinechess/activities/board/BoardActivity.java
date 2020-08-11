@@ -253,8 +253,8 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
                 }
             }
 
-            // If it's the user's turn, check if they've been offered a draw
-            if(state == 1) {
+            // If the game isn't over and it's the user's turn, check if they've been offered a draw
+            if(!game.isOver() && state == 1) {
                 findViewById(R.id.placeholder).setVisibility(View.GONE);
                 findViewById(R.id.offer_draw_button).setVisibility(View.VISIBLE);
                 findViewById(R.id.resign_button).setVisibility(View.VISIBLE);
