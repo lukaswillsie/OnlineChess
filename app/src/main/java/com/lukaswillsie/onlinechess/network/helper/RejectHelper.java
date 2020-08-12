@@ -232,6 +232,12 @@ public class RejectHelper extends SubHelper implements ReturnCodeCaller {
                 // Allows us to accept another request
                 this.requester = null;
                 break;
+            case NO_DRAW_OFFER:
+                requester.noDrawOffer();
+
+                // Allows us to accept another request
+                this.requester = null;
+                break;
         }
     }
 }

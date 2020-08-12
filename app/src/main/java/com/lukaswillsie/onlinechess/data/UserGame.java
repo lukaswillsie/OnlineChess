@@ -119,8 +119,7 @@ public class UserGame {
 
             data.put(GameData.TURN, this.getServerData(serverData, ServerData.TURN));
 
-            // The user has only been offered a draw if it's their turn AND a draw has been offered
-            data.put(GameData.DRAW_OFFERED, (state == 1 && this.getServerData(serverData, ServerData.DRAW_OFFERED).equals(1)) ? 1 : 0);
+            data.put(GameData.DRAW_OFFERED, this.getServerData(serverData, ServerData.DRAW_OFFERED));
 
             data.put(GameData.DRAWN, this.getServerData(serverData, ServerData.DRAWN));
 

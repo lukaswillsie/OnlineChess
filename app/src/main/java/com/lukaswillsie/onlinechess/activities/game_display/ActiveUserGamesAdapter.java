@@ -67,7 +67,6 @@ public class ActiveUserGamesAdapter extends UserGamesAdapter {
         int userLost = (Integer) game.getData(GameData.USER_LOST);
         int drawn = (Integer) game.getData(GameData.DRAWN);
         int state = (Integer) game.getData(GameData.STATE);
-        int drawOffered = (Integer) game.getData(GameData.DRAW_OFFERED);
 
 
         if (userWon == 1) {
@@ -82,12 +81,7 @@ public class ActiveUserGamesAdapter extends UserGamesAdapter {
         } else if (state == 0) {
             setIconBackground(holder, R.drawable.archive_icon_opponent_turn);
             setIconListener(holder, new ArchiveListener(game));
-        } else if (drawOffered == 1) {
-            setIconBackground(holder, R.drawable.archive_icon_user_turn);
-            setIconListener(holder, new ArchiveListener(game));
-        }
-        // Otherwise, it's the user's turn and nothing irregular is going on
-        else {
+        } else {
             setIconBackground(holder, R.drawable.archive_icon_user_turn);
             setIconListener(holder, new ArchiveListener(game));
         }

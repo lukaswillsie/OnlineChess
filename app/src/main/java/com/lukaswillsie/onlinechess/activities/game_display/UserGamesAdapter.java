@@ -137,7 +137,13 @@ public class UserGamesAdapter extends RecyclerView.Adapter<UserGamesAdapter.Game
 
             holder.card.setBackground(resources.getDrawable(R.drawable.game_over_background));
         } else if (state == 0) {
-            holder.status.setText(R.string.opponent_turn);
+            if(drawOffered == 1) {
+                holder.status.setText(R.string.draw_offered_to_opponent);
+            }
+            else {
+                holder.status.setText(R.string.opponent_turn);
+            }
+
             holder.status.setTextColor(resources.getColor(R.color.opponent_turn));
             holder.status.setAlpha(0.75f);
 

@@ -20,11 +20,11 @@ import com.lukaswillsie.onlinechess.data.GameData;
 import com.lukaswillsie.onlinechess.data.UserGame;
 import com.lukaswillsie.onlinechess.network.Server;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
-import com.lukaswillsie.onlinechess.network.helper.requesters.ArchiveRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.DrawRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.ForfeitRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoadGameRequester;
 import com.lukaswillsie.onlinechess.network.helper.MultipleRequestException;
+import com.lukaswillsie.onlinechess.network.helper.requesters.RejectRequester;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -98,7 +98,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
     public void draw(View v) {
         if(manager != null && !activeRequest) {
             try {
-                Server.getServerHelper().draw(new DrawOfferRequestListener(), gameID);
+                Server.getServerHelper().draw(new OfferDrawRequestListener(), gameID);
                 activeRequest = true;
             } catch (MultipleRequestException e) {
                 Log.e(tag, "ServerHelper says we submitted multiple draw offer requests, even though this should never happen");
@@ -237,6 +237,11 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
                     stateLabel.setTextColor(getResources().getColor(R.color.user_lose));
                     stateLabel.setText(R.string.user_lost_state_label);
                 }
+                // The game is a draw
+                else {
+                    stateLabel.setTextColor(getResources().getColor(R.color.light_gray));
+                    stateLabel.setText(R.string.draw_state_label);
+                }
             }
             else if(state == 1) {
                 stateLabel.setTextColor(getResources().getColor(R.color.user_turn));
@@ -253,7 +258,14 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
                 }
             }
 
-            // If the game isn't over and it's the user's turn, check if they've been offered a draw
+            // We assume that the state label should be visible, and the draw offer layout
+            // invisible. If the user has been offered a draw, we're going to reverse this, but it's
+            // simpler to assume otherwise.
+            stateLabel.setVisibility(View.VISIBLE);
+            findViewById(R.id.draw_offer_layout).setVisibility(View.GONE);
+
+            // Figure out what to do with the "Draw" and "Resign" buttons, as well as the draw offer
+            // layout
             if(!game.isOver() && state == 1) {
                 findViewById(R.id.placeholder).setVisibility(View.GONE);
                 findViewById(R.id.offer_draw_button).setVisibility(View.VISIBLE);
@@ -261,17 +273,53 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
 
                 // If the user has been offered a draw
                 if(drawOffered == 1) {
-                    // TODO: Show the user a dialog and let them respond to the draw offer
+                    showDrawOfferLayout();
+                    stateLabel.setVisibility(View.GONE);
                 }
             }
             // Otherwise, hide the "Draw" and "Resign" buttons because the user can't offer a draw or
-            // resign if it's not their turn
+            // resign if it's not their turn (or if the game is over)
             else {
                 findViewById(R.id.placeholder).setVisibility(View.VISIBLE);
                 findViewById(R.id.offer_draw_button).setVisibility(View.GONE);
                 findViewById(R.id.resign_button).setVisibility(View.GONE);
             }
         }
+    }
+
+    /**
+     * Reveals the layout on the screen that allows users to respond to a draw offer by their
+     * opponent.
+     */
+    private void showDrawOfferLayout() {
+        ConstraintLayout drawOfferLayout = findViewById(R.id.draw_offer_layout);
+        drawOfferLayout.setVisibility(View.VISIBLE);
+        drawOfferLayout.findViewById(R.id.reject_offer_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    Server.getServerHelper().reject(new AcceptRejectListener(false), gameID);
+                } catch (MultipleRequestException e) {
+                    // This might happen if the user rapidly clicks the accept button multiple
+                    // times. We simply do nothing here, and wait for the request that the first
+                    // click submitted to be handled.
+                    Log.e(tag, "Submitted multiple draw offer accept requests to ServerHelper");
+                }
+            }
+        });
+        drawOfferLayout.findViewById(R.id.accept_offer_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    Server.getServerHelper().draw(new AcceptRejectListener(true), gameID);
+                } catch (MultipleRequestException e) {
+                    // This might happen if the user rapidly clicks the reject button multiple
+                    // times. We simply do nothing here, and wait for the request that the first
+                    // click submitted to be handled.
+                    Log.e(tag, "Submitted multiple draw offer reject requests to ServerHelper");
+                }
+            }
+        });
     }
 
     /**
@@ -568,14 +616,14 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
     }
 
     /**
-     * We give an instance of this class to ServerHelper when we send a Draw offer on behalf of the
+     * We give an instance of this class to ServerHelper when we send a draw offer on behalf of the
      * user. It will receive the callback once the request completes. We use an inner class here for
      * readability and organization. We also use one because the DrawRequester and ForfeitRequester
      * (see ForfeitRequestListener below) interfaces share quite a few method signatures. So if
      * BoardActivity implemented both interfaces, to those methods we'd have to add a way to
      * differentiate between draw request callbacks and forfeit request callbacks. This is cleaner.
      */
-    private class DrawOfferRequestListener implements DrawRequester {
+    private class OfferDrawRequestListener implements DrawRequester {
         /**
          * Called if our draw request succeeds
          */
@@ -669,10 +717,179 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
     }
 
     /**
+     * We use this class to receive callbacks whenever we send a request to either accept or reject
+     * a draw offer.
+     */
+    private class AcceptRejectListener implements DrawRequester, RejectRequester {
+        /**
+         * Whether the request that this object is listening to is a request to ACCEPT a draw offer,
+         * or REJECT one.
+         */
+        private boolean isAccept;
+
+        /**
+         * Create a new AcceptRejectListener. It will be able to handle callbacks related to either a
+         * draw offer accept request, or a draw offer reject request.
+         *
+         * @param isAccept - whether the request this object is managing is to accept a draw offer
+         *                 or reject one
+         */
+        private AcceptRejectListener(boolean isAccept) {
+            this.isAccept = isAccept;
+        }
+        
+        @Override
+        public void drawSuccess() {
+            // Update the model
+            game.setData(GameData.DRAWN, 1);
+            game.setData(GameData.DRAW_OFFERED, 0);
+
+            showUserDrawDialog();
+            setUI();
+        }
+
+        @Override
+        public void rejectSuccess() {
+            // Update the model
+            game.setData(GameData.STATE, 0);
+            game.setData(GameData.DRAW_OFFERED, 0);
+
+            setUI();
+        }
+
+        /**
+         * Called when we want to notify the user that a draw accept request failed
+         */
+        private void showAcceptanceError() {
+            Display.makeToast(BoardActivity.this, R.string.draw_acceptance_failed, Toast.LENGTH_LONG);
+        }
+
+        /**
+         * Called when we want to notify the user that a draw rejection failed
+         */
+        private void showRejectionError() {
+            Display.makeToast(BoardActivity.this, R.string.draw_rejection_failed, Toast.LENGTH_LONG);
+        }
+
+        /**
+         * Called if a accept or reject request fails because of a loss of connection with the
+         * server
+         */
+        @Override
+        public void connectionLost() {
+            new Reconnector(BoardActivity.this, BoardActivity.this).reconnect();
+        }
+
+        /*
+         * The below methods are called if the server thinks there is some sort of problem with a
+         * request that we sent. We only send requests if we think they're valid, and should be
+         * legal according to the data that the server has sent us. So we treat all of these the
+         * same way: we notify the user that there was a problem and allow them to try again if they
+         * want.
+         */
+
+        @Override
+        public void gameDoesNotExist() {
+            if (isAccept) {
+                showAcceptanceError();
+            }
+            else {
+                showRejectionError();
+            }
+
+            setUI();
+        }
+
+        @Override
+        public void userNotInGame() {
+            if (isAccept) {
+                showAcceptanceError();
+            }
+            else {
+                showRejectionError();
+            }
+
+            setUI();
+        }
+
+        @Override
+        public void noOpponent() {
+            if (isAccept) {
+                showAcceptanceError();
+            }
+            else {
+                showRejectionError();
+            }
+
+            setUI();
+        }
+
+        @Override
+        public void gameIsOver() {
+            if (isAccept) {
+                showAcceptanceError();
+            }
+            else {
+                showRejectionError();
+            }
+
+            setUI();
+        }
+
+        @Override
+        public void notUserTurn() {
+            if (isAccept) {
+                showAcceptanceError();
+            }
+            else {
+                showRejectionError();
+            }
+
+            setUI();
+        }
+
+        @Override
+        public void noDrawOffer() {
+            if (isAccept) {
+                showAcceptanceError();
+            }
+            else {
+                showRejectionError();
+            }
+
+            setUI();
+        }
+
+        @Override
+        public void serverError() {
+            if (isAccept) {
+                showAcceptanceError();
+            }
+            else {
+                showRejectionError();
+            }
+
+            setUI();
+        }
+
+        @Override
+        public void systemError() {
+            if (isAccept) {
+                showAcceptanceError();
+            }
+            else {
+                showRejectionError();
+            }
+
+            setUI();
+        }
+    }
+
+    /**
      * We give an instance of this class to ServerHelper when we send a resignation on behalf of the
      * user. It will receive the callback once the request completes. We use an inner class here for
      * readability and organization. We also use one because the DrawRequester and ForfeitRequester
-     * (see DrawOfferRequestListener above) interfaces share quite a few method signatures. So if
+     * (see OfferDrawRequestListener above) interfaces share quite a few method signatures. So if
      * BoardActivity implemented both interfaces, to those methods we'd have to add a way to
      * differentiate between draw request callbacks and forfeit request callbacks. This is cleaner.
      */

@@ -55,6 +55,7 @@
     <string name="opponent_turn">Opponent\'s turn</string>
     <string name="user_turn">Your turn</string>
     <string name="draw_offered_to_user">Draw offer</string>
+    <string name="draw_offered_to_opponent">Draw offer sent</string>
 
     <!-- Archived Games Screen-->
     <string name="archived_games_title">Your Archived Games</string>
@@ -102,8 +103,9 @@
     <string name="opponent_turn_draw_offer_state_label">Draw offer sent</string>
     <string name="user_won_state_label">You won!</string>
     <string name="user_lost_state_label">You lost</string>
+    <string name="draw_state_label">Draw</string>
     <string name="draw_offer_failed">Oops! Something went wrong and we couldn\'t offer your opponent a draw.</string>
     <string name="draw_acceptance_failed">Oops! Something went wrong and we couldn\'t accept the draw for you.</string>
+    <string name="draw_rejection_failed">Oops! Something went wrong and we couldn\'t reject the draw for you.</string>
     <string name="resignation_failed">Oops! Something went wrong and we couldn\'t submit your resignation.</string>
-
 </resources>
