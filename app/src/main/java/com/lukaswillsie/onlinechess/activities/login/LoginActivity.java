@@ -1,12 +1,10 @@
 package com.lukaswillsie.onlinechess.activities.login;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -15,18 +13,18 @@ import android.widget.Toast;
 
 import androidx.cardview.widget.CardView;
 
-import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.Display;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogActivity;
-import com.lukaswillsie.onlinechess.data.Format;
 import com.lukaswillsie.onlinechess.activities.MainActivity;
 import com.lukaswillsie.onlinechess.activities.load.LoadActivity;
+import com.lukaswillsie.onlinechess.data.Format;
 import com.lukaswillsie.onlinechess.data.RememberMeHelper;
 import com.lukaswillsie.onlinechess.data.UserGame;
+import com.lukaswillsie.onlinechess.network.Server;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
-import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
+import com.lukaswillsie.onlinechess.network.helper.MultipleRequestException;
 
 import java.io.IOException;
 import java.util.List;
@@ -56,8 +54,12 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
         Formatter.styleEditText((EditText) findViewById(R.id.username));
         Formatter.styleEditText((EditText) findViewById(R.id.password));
 
-        serverHelper = ((ChessApplication) getApplicationContext()).getServerHelper();
+        serverHelper = Server.getServerHelper();
         Log.i(tag, "serverHelper is " + serverHelper);
+    }
+
+    @Override
+    public void onBackPressed() {
     }
 
     /**
@@ -121,7 +123,7 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
                     // came up, and we present the option to try again. It's possible that the other
                     // request will have finished by then. If this doesn't resolve the problem, it's
                     // a bug, and this is the most graceful way we can handle it.
-                    this.createServerErrorDialog();
+                    this.showServerErrorDialog();
                     Log.e(tag, "Submitted multiple requests to ServerHelper");
                 }
             } else {
@@ -241,10 +243,8 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
         // This callback should only be used when the activity is in the below state
         if (this.state == State.LOADING) {
             // Save the list of games, as well as the user's username and password, globally in
-            // ChessApplication
-            ChessApplication application = (ChessApplication) getApplicationContext();
-            application.setGames(games);
-            application.login(((EditText)findViewById(R.id.username)).getText().toString());
+            // Server
+            Server.loggedIn(((EditText) findViewById(R.id.username)).getText().toString(), games);
 
 
             // Move to the next Activity
@@ -264,7 +264,7 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
         // that login processing has stopped
         this.state = State.WAITING_FOR_USER_INPUT;
         this.resetButton();
-        this.createConnectionLostDialog();
+        this.showConnectionLostDialog();
     }
 
     /**
@@ -279,7 +279,7 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
         // that login processing has stopped
         this.state = State.WAITING_FOR_USER_INPUT;
         this.resetButton();
-        this.createServerErrorDialog();
+        this.showServerErrorDialog();
     }
 
     /**
@@ -294,7 +294,7 @@ public class LoginActivity extends ErrorDialogActivity implements LoginRequester
         // that login processing has stopped
         this.state = State.WAITING_FOR_USER_INPUT;
         this.resetButton();
-        this.createSystemErrorDialog();
+        this.showSystemErrorDialog();
     }
 
     @Override

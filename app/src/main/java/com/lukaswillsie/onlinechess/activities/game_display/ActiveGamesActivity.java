@@ -7,12 +7,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.ReconnectListener;
 import com.lukaswillsie.onlinechess.activities.Reconnector;
 import com.lukaswillsie.onlinechess.data.GameData;
 import com.lukaswillsie.onlinechess.data.UserGame;
+import com.lukaswillsie.onlinechess.network.Server;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +30,10 @@ public class ActiveGamesActivity extends AppCompatActivity implements ReconnectL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_active_games);
 
-        if (((ChessApplication) getApplicationContext()).getServerHelper() == null) {
+        if (Server.getServerHelper() == null) {
             new Reconnector(this, this).reconnect();
         } else {
             // Set up our RecyclerView to display a list of the user's archived games
@@ -40,6 +41,23 @@ public class ActiveGamesActivity extends AppCompatActivity implements ReconnectL
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
             recyclerView.setAdapter(new ActiveUserGamesAdapter(this, getGames(), this));
         }
+    }
+
+    /**
+     * We ensure that if any of the user's games have changed in any way since this activity was
+     * paused, this activity displays the update. For example, suppose the user clicks on one of
+     * their games, goes into BoardActivity, and makes a move. Without this method, when they get
+     * back to this activity the UI state will be unchanged. So we'll still be telling them that
+     * it's their turn in the game they just made a move in, even though it's not. Thus, we need to
+     * refresh the UI to reflect the reality of the model.
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Set up our RecyclerView to display a list of the user's archived games
+        RecyclerView recyclerView = findViewById(R.id.games_recycler);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(new ActiveUserGamesAdapter(this, getGames(), this));
     }
 
     /**
@@ -55,29 +73,6 @@ public class ActiveGamesActivity extends AppCompatActivity implements ReconnectL
     }
 
     /**
-     * Checks if the given Game is over
-     *
-     * @param game - the Game to analyze
-     * @return true if the given Game is over (somebody has won or a draw has been agreed to),
-     * false otherwise
-     */
-    private boolean isOver(UserGame game) {
-        return (int) game.getData(GameData.USER_WON) == 1
-                || (int) game.getData(GameData.USER_LOST) == 1
-                || (int) game.getData(GameData.DRAWN) == 1;
-    }
-
-    /**
-     * Checks if it is the user's opponent's turn in the given Game
-     *
-     * @param game - the Game to analyze
-     * @return true of it's the user's opponent's turn in the given Game, false otherwise
-     */
-    private boolean isOpponentTurn(UserGame game) {
-        return (int) game.getData(GameData.STATE) == 0;
-    }
-
-    /**
      * Returns a list of all of the user's active games, sorted in the following order:
      * 1. Ongoing games in which it is the user's turn
      * 2. Ongoing games in which it is the opponent's turn
@@ -90,20 +85,17 @@ public class ActiveGamesActivity extends AppCompatActivity implements ReconnectL
         int opponentTurnPos = 0;
         int gameOverPos = 0;
         List<UserGame> activeGames = new ArrayList<>();
-        List<UserGame> games = ((ChessApplication) getApplicationContext()).getGames();
+        List<UserGame> games = Server.getGames();
         for (UserGame game : games) {
             if (!((int) game.getData(GameData.ARCHIVED) == 1)) {
-                if (isOver(game)) {
-                    Log.i(tag, "Game " + game.getData(GameData.GAMEID) + " is over");
+                if (game.isOver()) {
                     activeGames.add(gameOverPos, game);
                     gameOverPos++;
-                } else if (isOpponentTurn(game)) {
-                    Log.i(tag, game.getData(GameData.GAMEID) + " is opponent turn");
+                } else if (game.isOpponentTurn()) {
                     activeGames.add(opponentTurnPos, game);
                     opponentTurnPos++;
                     gameOverPos++;
                 } else {
-                    Log.i(tag, game.getData(GameData.GAMEID) + " is user turn");
                     activeGames.add(userTurnPos, game);
                     userTurnPos++;
                     opponentTurnPos++;

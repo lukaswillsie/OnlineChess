@@ -7,7 +7,6 @@ import com.lukaswillsie.onlinechess.data.UserGame;
 import com.lukaswillsie.onlinechess.network.ReturnCodes;
 import com.lukaswillsie.onlinechess.network.threads.callers.JoinGameCaller;
 
-import java.io.CharConversionException;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
@@ -61,11 +60,11 @@ public class JoinGameThread extends NetworkThread {
         int response;
         try {
             response = this.readInt();
-        } catch(EOFException e) {
+        } catch (EOFException e) {
             Log.i(tag, "Connection to server has been lost on server's end");
             caller.connectionLost();
             return;
-        } catch( SocketException e) {
+        } catch (SocketException e) {
             Log.i(tag, "Connection to server has been lost on server's end");
             caller.connectionLost();
             return;
@@ -76,7 +75,7 @@ public class JoinGameThread extends NetworkThread {
         }
 
         // Interpret the server's return code
-        switch(response) {
+        switch (response) {
             case ReturnCodes.NO_USER:
                 Log.i(tag, "Server says we haven't logged in a user");
 
@@ -133,28 +132,24 @@ public class JoinGameThread extends NetworkThread {
         List<Object> serverData = new ArrayList<>();
 
         try {
-            for(ServerData dataType : ServerData.order) {
-                if(dataType.type == 'i') {
+            for (ServerData dataType : ServerData.order) {
+                if (dataType.type == 'i') {
                     serverData.add(this.readInt());
-                }
-                else if (dataType.type == 's') {
+                } else if (dataType.type == 's') {
                     serverData.add(this.readLine());
                 }
             }
-        }
-        catch(EOFException e) {
+        } catch (EOFException e) {
             Log.i(tag, "EOFException reading from server. Server has closed the connection");
 
             caller.connectionLost();
             return;
-        }
-        catch(SocketException e) {
+        } catch (SocketException e) {
             Log.i(tag, "SocketException reading from server. Server may have crashed.");
 
             caller.connectionLost();
             return;
-        }
-        catch(IOException e) {
+        } catch (IOException e) {
             Log.i(tag, "IOException reading from server. There may have been a system error");
             e.printStackTrace();
 
@@ -164,7 +159,7 @@ public class JoinGameThread extends NetworkThread {
 
         response = game.initialize(serverData);
         // If the game couldn't be initialized from the data we received from the server
-        if(response == 1) {
+        if (response == 1) {
             caller.serverError();
             return;
         }

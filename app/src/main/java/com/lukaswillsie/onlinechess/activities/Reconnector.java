@@ -10,16 +10,16 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.load.LoadActivity;
 import com.lukaswillsie.onlinechess.activities.login.LoginActivity;
 import com.lukaswillsie.onlinechess.data.RememberMeHelper;
 import com.lukaswillsie.onlinechess.data.UserGame;
+import com.lukaswillsie.onlinechess.network.Server;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 import com.lukaswillsie.onlinechess.network.helper.requesters.Connector;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
-import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
+import com.lukaswillsie.onlinechess.network.helper.MultipleRequestException;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -31,7 +31,7 @@ import java.util.List;
  * <p>
  * There is a potentially serious problem that Android forces us to be able to handle that this
  * class handles. What if, while our app is running in the background, it is terminated to free
- * up memory? Our ServerHelper reference in ChessApplication will be lost, as will any connection
+ * up memory? Our static ServerHelper reference in Server will be lost, as will any connection
  * our app had to the server before termination. When the user navigates back to our app, the OS
  * tries to re-launch our app from exactly where the user left off, except now we've got no
  * connection to the server.
@@ -122,24 +122,8 @@ public class Reconnector implements Connector, LoginRequester {
 
             this.activeDialog = dialog;
 
-            try {
-                ServerHelper helper = new ServerHelper();
-                this.state = ReconnectState.CONNECTING;
-                helper.connect(this);
-            } catch (MultipleRequestException e) {
-                // This should never happen, but if it does, we notify the user that a problem
-                // came up, and we present the option to try again. It's possible that the other
-                // request will have finished by then. If this doesn't resolve the problem, it's
-                // a bug, and this is the most graceful way we can handle it.
-                Log.e(tag, "Made multiple requests of ServerHelper");
-
-                // Remove the loading dialog and display an error dialog
-                this.activeDialog.cancel();
-                this.activeDialog = null;
-
-                this.state = ReconnectState.NOT_ACTIVE;
-                showSystemErrorDialog();
-            }
+            Server.build(this);
+            this.state = ReconnectState.CONNECTING;
         }
     }
 
@@ -149,10 +133,6 @@ public class Reconnector implements Connector, LoginRequester {
     @Override
     public void connectionEstablished(ServerHelper helper) {
         if (this.state == ReconnectState.CONNECTING) {
-            // Save the given ServerHelper for later use
-            ChessApplication application = ((ChessApplication) activity.getApplicationContext());
-            application.setServerHelper(helper);
-
             // Change the text in the loading dialog box to read "Logging in..."
             TextView dialogText = this.activeDialog.findViewById(R.id.connecting_dialog_text);
             dialogText.setText(R.string.logging_in_dialog_text);
@@ -281,8 +261,7 @@ public class Reconnector implements Connector, LoginRequester {
             this.activeDialog = null;
 
             this.state = ReconnectState.NOT_ACTIVE;
-            ((ChessApplication) activity.getApplicationContext()).setGames(games);
-            ((ChessApplication) activity.getApplicationContext()).login(username);
+            Server.loggedIn(username, games);
             this.username = null;
 
             listener.reconnectionComplete();

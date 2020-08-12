@@ -6,13 +6,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.Display;
 import com.lukaswillsie.onlinechess.activities.ReconnectListener;
 import com.lukaswillsie.onlinechess.activities.Reconnector;
 import com.lukaswillsie.onlinechess.data.GameData;
 import com.lukaswillsie.onlinechess.data.UserGame;
+import com.lukaswillsie.onlinechess.network.Server;
 import com.lukaswillsie.onlinechess.network.helper.requesters.RestoreRequester;
 
 import java.util.List;
@@ -60,7 +60,6 @@ public class ArchivedUserGamesAdapter extends UserGamesAdapter {
         int userLost = (Integer) game.getData(GameData.USER_LOST);
         int drawn = (Integer) game.getData(GameData.DRAWN);
         int state = (Integer) game.getData(GameData.STATE);
-        int drawOffered = (Integer) game.getData(GameData.DRAW_OFFERED);
 
 
         if (userWon == 1) {
@@ -75,11 +74,7 @@ public class ArchivedUserGamesAdapter extends UserGamesAdapter {
         } else if (state == 0) {
             setIconBackground(holder, R.drawable.restore_icon_opponent_turn);
             setIconListener(holder, new RestoreListener(game));
-        } else if (drawOffered == 1) {
-            setIconBackground(holder, R.drawable.restore_icon_user_turn);
-            setIconListener(holder, new RestoreListener(game));
         }
-        // Otherwise, it's the user's turn and nothing irregular is going on
         else {
             setIconBackground(holder, R.drawable.restore_icon_user_turn);
             setIconListener(holder, new RestoreListener(game));
@@ -109,7 +104,7 @@ public class ArchivedUserGamesAdapter extends UserGamesAdapter {
         @Override
         public void onClick(View view) {
             // Send the server a restore request
-            ((ChessApplication) view.getContext().getApplicationContext()).getServerHelper().restore((String) game.getData(GameData.GAMEID), this);
+            Server.getServerHelper().restore((String) game.getData(GameData.GAMEID), this);
         }
 
         /**

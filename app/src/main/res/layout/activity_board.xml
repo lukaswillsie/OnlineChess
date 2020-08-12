@@ -10,10 +10,222 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/background"
-        android:src="@drawable/login_background"
-        android:scaleType="centerCrop"/>
+        android:background="@color/board_background"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/opponent"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginBottom="5dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/board_layout"
+        android:layout_marginStart="5dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/turn_counter"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/board_layout"
+        android:layout_marginRight="5dp"
+        android:layout_marginBottom="5dp"
+        android:layout_marginEnd="5dp" />
+    
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/title"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:textSize="35sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/board_layout"
+        app:layout_constraintVertical_bias="0.3"/>
 
     <include layout="@layout/empty_chessboard_layout"
         android:id="@+id/board_layout"/>
+
+    <include layout="@layout/draw_offer_dialog"
+        android:id="@+id/draw_offer_layout"
+        android:visibility="gone"/>
+    
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/state"
+        android:textSize="18sp"
+        android:textColor="@color/light_gray"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/board_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="5dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:id="@+id/action_bar">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:id="@+id/previous_game_button"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="previousGame"
+            android:background="@drawable/board_button_background">
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:id="@+id/previous_game_icon"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:src="@drawable/previous_game_arrow"
+                app:layout_constraintWidth_percent="0.2"
+                app:layout_constraintDimensionRatio="1"
+                app:layout_constraintVertical_bias="0.4"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/previous_game_label"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/previous_game_icon"
+                android:textColor="@color/light_gray"
+                android:textSize="20sp"
+                android:text="@string/previous_game_button_label"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+        
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            android:id="@+id/placeholder"
+            android:background="@color/board_button_background"
+            android:layout_weight="2"/>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/offer_draw_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/board_button_background"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="draw">
+
+            <ImageView
+                android:id="@+id/draw_icon"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:src="@drawable/draw_icon"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.4"
+                app:layout_constraintWidth_percent="0.2" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="5dp"
+                android:text="@string/draw_button_label"
+                android:textColor="@color/light_gray"
+                android:textSize="20sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/draw_icon" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:id="@+id/resign_button"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="resign"
+            android:background="@drawable/board_button_background">
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:id="@+id/resign_icon"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:src="@drawable/resign_icon"
+                app:layout_constraintWidth_percent="0.2"
+                app:layout_constraintDimensionRatio="1"
+                app:layout_constraintVertical_bias="0.4"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/resign_icon"
+                android:text="@string/resign_button_label"
+                android:textColor="@color/light_gray"
+                android:textSize="20sp"
+                android:paddingBottom="5dp"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:id="@+id/next_game_button"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="nextGame"
+            android:background="@drawable/board_button_background">
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:id="@+id/next_game_icon"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:src="@drawable/next_game_arrow"
+                app:layout_constraintWidth_percent="0.2"
+                app:layout_constraintDimensionRatio="1"
+                app:layout_constraintVertical_bias="0.4"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/next_game_label"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/next_game_icon"
+                android:text="@string/next_game_button_label"
+                android:textColor="@color/light_gray"
+                android:textSize="20sp"
+                android:paddingBottom="5dp"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

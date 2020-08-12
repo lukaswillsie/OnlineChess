@@ -12,15 +12,15 @@ import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
 
-import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogActivity;
-import com.lukaswillsie.onlinechess.data.Format;
 import com.lukaswillsie.onlinechess.activities.MainActivity;
+import com.lukaswillsie.onlinechess.data.Format;
 import com.lukaswillsie.onlinechess.data.UserGame;
+import com.lukaswillsie.onlinechess.network.Server;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 import com.lukaswillsie.onlinechess.network.helper.requesters.CreateAccountRequester;
-import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
+import com.lukaswillsie.onlinechess.network.helper.MultipleRequestException;
 
 import java.util.ArrayList;
 
@@ -59,7 +59,7 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
         Formatter.styleEditText(createPassword);
         Formatter.styleEditText(confirmPassword);
 
-        this.serverHelper = ((ChessApplication) getApplicationContext()).getServerHelper();
+        this.serverHelper = Server.getServerHelper();
         this.state = State.WAITING_FOR_USER_INPUT;
     }
 
@@ -70,10 +70,9 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
     public void createAccountSuccess() {
         if (this.state == State.PROCESSING) {
             // Save an empty list of games (because we've created a totally new user), as well as
-            // the user's username and password, globally in ChessApplication
-            ChessApplication application = (ChessApplication) getApplicationContext();
-            application.setGames(new ArrayList<UserGame>());
-            application.login(((EditText)findViewById(R.id.create_username)).getText().toString());
+            // the user's username and password, globally in Server
+            Server.loggedIn(((EditText) findViewById(R.id.create_username)).getText().toString(),
+                    new ArrayList<UserGame>());
 
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
@@ -120,7 +119,7 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
      */
     @Override
     public void connectionLost() {
-        this.createConnectionLostDialog();
+        this.showConnectionLostDialog();
     }
 
     /**
@@ -130,7 +129,7 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
      */
     @Override
     public void serverError() {
-        this.createServerErrorDialog();
+        this.showServerErrorDialog();
     }
 
     /**
@@ -141,7 +140,7 @@ public class CreateAccountActivity extends ErrorDialogActivity implements Create
      */
     @Override
     public void systemError() {
-        this.createSystemErrorDialog();
+        this.showSystemErrorDialog();
     }
 
     /**

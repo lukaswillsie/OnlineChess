@@ -2,13 +2,13 @@ package com.lukaswillsie.onlinechess.network.helper;
 
 import android.annotation.SuppressLint;
 import android.os.Message;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.lukaswillsie.onlinechess.activities.board.Move;
 import com.lukaswillsie.onlinechess.network.ReturnCodes;
 import com.lukaswillsie.onlinechess.network.helper.requesters.MoveRequester;
-import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 import com.lukaswillsie.onlinechess.network.threads.ReturnCodeThread;
 import com.lukaswillsie.onlinechess.network.threads.callers.ReturnCodeCaller;
 
@@ -19,11 +19,30 @@ import Chess.com.lukaswillsie.chess.Pair;
  */
 public class MoveHelper extends SubHelper implements ReturnCodeCaller {
     /**
+     * Constants that this object uses to send Messages to itself
+     */
+    public static final int CONNECTION_LOST = -3;
+    public static final int SYSTEM_ERROR = -2;
+    public static final int SERVER_ERROR = -1;
+    public static final int SUCCESS = 0;
+    public static final int SUCCESS_PROMOTION_NEEDED = 1;
+    public static final int GAME_DOES_NOT_EXIST = 2;
+    public static final int USER_NOT_IN_GAME = 3;
+    public static final int NO_OPPONENT = 4;
+    public static final int GAME_IS_OVER = 5;
+    public static final int NOT_USER_TURN = 6;
+    public static final int HAS_TO_PROMOTE = 7;
+    public static final int RESPOND_TO_DRAW = 8;
+    public static final int MOVE_INVALID = 9;
+    /**
+     * Tag for logging to the console
+     */
+    private static final String tag = "MoveHelper";
+    /**
      * The object that will receive callbacks relevant to the currently active request; null if
      * there is no currently active request
      */
     private MoveRequester requester;
-
     /**
      * Create a new SubHelper as part of the given ServerHelper
      *
@@ -37,13 +56,13 @@ public class MoveHelper extends SubHelper implements ReturnCodeCaller {
      * Sends a move request to the server, trying to make the given move in the given game
      *
      * @param requester - will receive callbacks once the request has been handled
-     * @param gameID - the game to try and make the move in
-     * @param move - represents the move that this object will try and make with its request
+     * @param gameID    - the game to try and make the move in
+     * @param move      - represents the move that this object will try and make with its request
      * @throws MultipleRequestException - if this object is already handling a request when this
-     * method is called
+     *                                  method is called
      */
     void move(MoveRequester requester, String gameID, Move move) throws MultipleRequestException {
-        if(this.requester != null) {
+        if (this.requester != null) {
             throw new MultipleRequestException("Tried to make multiple move requests of MoveRequester");
         }
         this.requester = requester;
@@ -57,7 +76,7 @@ public class MoveHelper extends SubHelper implements ReturnCodeCaller {
      * a request to make the specified move in the specified game
      *
      * @param gameID - the game to make the move in
-     * @param move - the Move to be made
+     * @param move   - the Move to be made
      * @return A String that can be sent to the server as part of a move request
      */
     @SuppressLint("DefaultLocale")
@@ -78,31 +97,65 @@ public class MoveHelper extends SubHelper implements ReturnCodeCaller {
         Message msg = this.obtainMessage();
         switch (code) {
             case ReturnCodes.NO_USER:
+                Log.i(tag, "Server says we don't have a user logged in");
                 msg.what = SERVER_ERROR;
+                break;
             case ReturnCodes.FORMAT_INVALID:
+                Log.i(tag, "Server says our command was formatted incorrectly");
                 msg.what = SERVER_ERROR;
+                break;
             case ReturnCodes.SERVER_ERROR:
+                Log.i(tag, "Server says it encountered an error");
                 msg.what = SERVER_ERROR;
+                break;
             case ReturnCodes.Move.SUCCESS:
+                Log.i(tag, "Server says move was successfully made");
                 msg.what = SUCCESS;
+                break;
+            case ReturnCodes.Move.SUCCESS_PROMOTION_NEEDED:
+                Log.i(tag, "Server says move was successfully made, promotion now needed");
+                msg.what = SUCCESS_PROMOTION_NEEDED;
+                break;
             case ReturnCodes.Move.GAME_DOES_NOT_EXIST:
+                Log.i(tag, "Server says game we tried to move in does not exist");
                 msg.what = GAME_DOES_NOT_EXIST;
+                break;
             case ReturnCodes.Move.USER_NOT_IN_GAME:
+                Log.i(tag, "Server says the user is not in the game we tried to move in");
                 msg.what = USER_NOT_IN_GAME;
+                break;
             case ReturnCodes.Move.NO_OPPONENT:
+                Log.i(tag, "Server says the user has no opponent in the game we tried to " +
+                        "move in");
                 msg.what = NO_OPPONENT;
+                break;
             case ReturnCodes.Move.GAME_IS_OVER:
+                Log.i(tag, "Server says the game we tried to move in is over");
                 msg.what = GAME_IS_OVER;
+                break;
             case ReturnCodes.Move.NOT_USER_TURN:
+                Log.i(tag, "Server says it is not the user's turn in the game we tried to " +
+                        "move in");
                 msg.what = NOT_USER_TURN;
+                break;
             case ReturnCodes.Move.HAS_TO_PROMOTE:
+                Log.i(tag, "Server says we have to promote, not make a normal move");
                 msg.what = HAS_TO_PROMOTE;
+                break;
             case ReturnCodes.Move.RESPOND_TO_DRAW:
+                Log.i(tag, "Server says we have to respond to a draw offer, not make a " +
+                        "normal move");
                 msg.what = RESPOND_TO_DRAW;
+                break;
             case ReturnCodes.Move.MOVE_INVALID:
+                Log.i(tag, "Server says our move was invalid");
                 msg.what = MOVE_INVALID;
+                break;
             default:
+                Log.i(tag, "Server returned " + code + ", which is outside of defined " +
+                        "protocols");
                 msg.what = SERVER_ERROR;
+                break;
         }
 
         msg.sendToTarget();
@@ -124,22 +177,6 @@ public class MoveHelper extends SubHelper implements ReturnCodeCaller {
     public void connectionLost() {
         this.obtainMessage(CONNECTION_LOST).sendToTarget();
     }
-
-    /**
-     * Constants that this object uses to send Messages to itself
-     */
-    public static final int CONNECTION_LOST = -3;
-    public static final int SYSTEM_ERROR = -2;
-    public static final int SERVER_ERROR = -1;
-    public static final int SUCCESS = 0;
-    public static final int GAME_DOES_NOT_EXIST = 1;
-    public static final int USER_NOT_IN_GAME = 2;
-    public static final int NO_OPPONENT = 3;
-    public static final int GAME_IS_OVER = 4;
-    public static final int NOT_USER_TURN = 5;
-    public static final int HAS_TO_PROMOTE = 6;
-    public static final int RESPOND_TO_DRAW = 7;
-    public static final int MOVE_INVALID = 8;
 
     /**
      * We use this method to give callbacks to our requester. We use Messages instead of calling
@@ -171,7 +208,13 @@ public class MoveHelper extends SubHelper implements ReturnCodeCaller {
                 this.requester = null;
                 break;
             case SUCCESS:
-                requester.moveSuccess();
+                requester.moveSuccess(false);
+
+                // Allows us to handle another request
+                this.requester = null;
+                break;
+            case SUCCESS_PROMOTION_NEEDED:
+                requester.moveSuccess(true);
 
                 // Allows us to handle another request
                 this.requester = null;

@@ -8,7 +8,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 
-import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.Display;
 import com.lukaswillsie.onlinechess.activities.ErrorDialogFragment;
@@ -16,10 +15,11 @@ import com.lukaswillsie.onlinechess.activities.MainActivity;
 import com.lukaswillsie.onlinechess.activities.login.LoginActivity;
 import com.lukaswillsie.onlinechess.data.RememberMeHelper;
 import com.lukaswillsie.onlinechess.data.UserGame;
+import com.lukaswillsie.onlinechess.network.Server;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 import com.lukaswillsie.onlinechess.network.helper.requesters.Connector;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
-import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
+import com.lukaswillsie.onlinechess.network.helper.MultipleRequestException;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -34,31 +34,24 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
      * Tag for logging information to the console
      */
     private static final String tag = "LoadActivity";
-
-    /**
-     * Tracks where we are in our loading process
-     */
-    private Request activeRequest = Request.NONE;
-
     /**
      * If a "remember me" login attempt is active, stores the name of the user being logged in.
      * Is null otherwise
      */
     String username;
+    /**
+     * Tracks where we are in our loading process
+     */
+    private Request activeRequest = Request.NONE;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_load);
 
-        // Immediately try and establish a connection with the server.
-        try {
-            new ServerHelper().connect(this);
-            this.activeRequest = Request.CONNECT;
-        } catch (MultipleRequestException e) {
-            Log.e(tag, "Multiple network requests occurred. Retrying connection");
-            retry();
-        }
+
+        Server.build(this);
+        this.activeRequest = Request.CONNECT;
     }
 
     /**
@@ -74,9 +67,6 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
      */
     @Override
     public void connectionEstablished(ServerHelper helper) {
-        // We add the ServerHelper to ChessApplication for use by all subsequent activities
-        ((ChessApplication) getApplicationContext()).setServerHelper(helper);
-
         // We try to check if we have any saved user data, that is, if a user has recently
         // clicked "Remember Me" when logging in.
         try {
@@ -131,13 +121,8 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
      * Called when the user clicks "Try Again" on a connection failed dialog
      */
     public void retry() {
-        try {
-            new ServerHelper().connect(this);
-            this.activeRequest = Request.CONNECT;
-        } catch (MultipleRequestException e) {
-            Log.e(tag, "Multiple network requests occurred. Retrying connection");
-            retry();
-        }
+        Server.build(this);
+        this.activeRequest = Request.CONNECT;
     }
 
     /**
@@ -202,9 +187,7 @@ public class LoadActivity extends AppCompatActivity implements Connector, LoginR
      */
     @Override
     public void loginComplete(List<UserGame> games) {
-        ChessApplication application = (ChessApplication) this.getApplicationContext();
-        application.setGames(games);
-        application.login(username);
+        Server.loggedIn(username, games);
 
         Display.makeToast(this, R.string.automatic_login_success, Toast.LENGTH_LONG);
         startActivity(new Intent(this, MainActivity.class));

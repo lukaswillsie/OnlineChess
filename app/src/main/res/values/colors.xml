@@ -2,7 +2,7 @@
 <resources>
     <color name="colorPrimary">#6200EE</color>
     <color name="colorPrimaryDark">#7D778C</color>
-    <color name="colorAccent">#2BE4B2</color>
+    <color name="colorAccent">#4BA2E3</color>
     <color name="loginLoading">#3212FF</color>
     <color name="loginSuccessful">#50DA29</color>
     <color name="buttonGray">#DFDEDF</color>
@@ -17,4 +17,8 @@
     <color name="white">@android:color/white</color>
     <color name="black">@android:color/black</color>
     <color name="join_game_successful">#50DA29</color>
+    <color name="board_background">#292929</color>
+    <color name="board_button_background">#1A1A1A</color>
+    <color name="light_gray">#8C8C8C</color>
+    <color name="dark_gray">#1A1A1A</color>
 </resources>

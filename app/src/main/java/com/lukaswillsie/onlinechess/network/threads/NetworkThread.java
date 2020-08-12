@@ -1,5 +1,7 @@
 package com.lukaswillsie.onlinechess.network.threads;
 
+import android.util.Log;
+
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
@@ -10,6 +12,8 @@ import java.net.SocketException;
  * This class centralizes functionality common to all types of Threads in our app.
  */
 abstract class NetworkThread extends Thread {
+    private static final String tag = "NetworkThread";
+
     /*
      * The IO devices this object will use to communicate with the server. MUST BE SET through
      * setter methods below before the thread is started
@@ -40,7 +44,9 @@ abstract class NetworkThread extends Thread {
      * @throws IOException     if there is some other problem with the read, like a system error
      */
     int readInt() throws EOFException, SocketException, IOException {
-        return reader.readInt();
+        int num = reader.readInt();
+        Log.i(tag, "Read: " + num);
+        return num;
     }
 
     /**
@@ -65,6 +71,7 @@ abstract class NetworkThread extends Thread {
 
         // Truncate the builder to omit the "\r\n" at the end of the line
         builder.setLength(builder.length() - 2);
+        Log.i(tag, "Read: " + builder.toString());
         return builder.toString();
     }
 

@@ -5,7 +5,6 @@ import android.util.Log;
 
 import com.lukaswillsie.onlinechess.network.ReturnCodes;
 import com.lukaswillsie.onlinechess.network.helper.requesters.CreateAccountRequester;
-import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 import com.lukaswillsie.onlinechess.network.threads.ReturnCodeThread;
 import com.lukaswillsie.onlinechess.network.threads.callers.ReturnCodeCaller;
 

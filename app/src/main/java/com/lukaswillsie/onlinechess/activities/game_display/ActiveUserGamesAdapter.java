@@ -6,13 +6,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.activities.Display;
 import com.lukaswillsie.onlinechess.activities.ReconnectListener;
 import com.lukaswillsie.onlinechess.activities.Reconnector;
 import com.lukaswillsie.onlinechess.data.GameData;
 import com.lukaswillsie.onlinechess.data.UserGame;
+import com.lukaswillsie.onlinechess.network.Server;
 import com.lukaswillsie.onlinechess.network.helper.requesters.ArchiveRequester;
 
 import java.util.List;
@@ -67,7 +67,6 @@ public class ActiveUserGamesAdapter extends UserGamesAdapter {
         int userLost = (Integer) game.getData(GameData.USER_LOST);
         int drawn = (Integer) game.getData(GameData.DRAWN);
         int state = (Integer) game.getData(GameData.STATE);
-        int drawOffered = (Integer) game.getData(GameData.DRAW_OFFERED);
 
 
         if (userWon == 1) {
@@ -82,12 +81,7 @@ public class ActiveUserGamesAdapter extends UserGamesAdapter {
         } else if (state == 0) {
             setIconBackground(holder, R.drawable.archive_icon_opponent_turn);
             setIconListener(holder, new ArchiveListener(game));
-        } else if (drawOffered == 1) {
-            setIconBackground(holder, R.drawable.archive_icon_user_turn);
-            setIconListener(holder, new ArchiveListener(game));
-        }
-        // Otherwise, it's the user's turn and nothing irregular is going on
-        else {
+        } else {
             setIconBackground(holder, R.drawable.archive_icon_user_turn);
             setIconListener(holder, new ArchiveListener(game));
         }
@@ -117,7 +111,7 @@ public class ActiveUserGamesAdapter extends UserGamesAdapter {
         @Override
         public void onClick(View view) {
             // Send the server an archive request
-            ((ChessApplication) context.getApplicationContext()).getServerHelper().archive((String) game.getData(GameData.GAMEID), this);
+            Server.getServerHelper().archive((String) game.getData(GameData.GAMEID), this);
         }
 
         /**

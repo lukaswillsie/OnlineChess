@@ -1,4 +1,4 @@
-package com.lukaswillsie.onlinechess.activities;
+package com.lukaswillsie.onlinechess.activities.game_display;
 
 import android.content.Context;
 import android.util.Log;
@@ -11,15 +11,18 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
+import com.lukaswillsie.onlinechess.activities.Display;
+import com.lukaswillsie.onlinechess.activities.ReconnectListener;
+import com.lukaswillsie.onlinechess.activities.Reconnector;
 import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.GameData;
 import com.lukaswillsie.onlinechess.data.ServerData;
 import com.lukaswillsie.onlinechess.data.UserGame;
+import com.lukaswillsie.onlinechess.network.Server;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 import com.lukaswillsie.onlinechess.network.helper.requesters.JoinGameRequester;
-import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
+import com.lukaswillsie.onlinechess.network.helper.MultipleRequestException;
 
 import java.util.List;
 
@@ -57,7 +60,7 @@ public class OpenGamesAdapter extends RecyclerView.Adapter<OpenGamesAdapter.Open
      *
      * @param activity - should be the activity containing the RecyclerView this object will adapt
      *                 for. Is used for UI operations.
-     * @param games - the list of Game objects that this object will be adapting and working with
+     * @param games    - the list of Game objects that this object will be adapting and working with
      * @param listener - if this object attempts to issue a join game request and discovers that the
      *                 connection to the server has been lost, this listener will receive
      *                 callbacks regarding the subsequent reconnection effort
@@ -72,7 +75,7 @@ public class OpenGamesAdapter extends RecyclerView.Adapter<OpenGamesAdapter.Open
      * Create a new View, inflated from game_card_layout.xml as a child of the given parent
      * ViewGroup.
      *
-     * @param parent - the ViewGroup which should be a parent of the new OpenGamesViewHolder
+     * @param parent   - the ViewGroup which should be a parent of the new OpenGamesViewHolder
      * @param viewType - specifies the type of View to create and place in the ViewHolder (we don't
      *                 make use of this feature)
      * @return An OpenGamesViewHolder containing a View, newly-inflated from game_card_layout.xml,
@@ -92,7 +95,7 @@ public class OpenGamesAdapter extends RecyclerView.Adapter<OpenGamesAdapter.Open
      * Binds the Game specified by position to the given OpenGamesViewHolder by putting the
      * information from the specified Game into the View wrapped by the ViewHolder.
      *
-     * @param holder - the ViewHolder wrapping the View that we're binding to
+     * @param holder   - the ViewHolder wrapping the View that we're binding to
      * @param position - specifies which Game in our collection to bind to the given View
      */
     @Override
@@ -195,14 +198,13 @@ public class OpenGamesAdapter extends RecyclerView.Adapter<OpenGamesAdapter.Open
          */
         @Override
         public void onClick(View v) {
-            ServerHelper serverHelper = ((ChessApplication) activity.getApplicationContext()).getServerHelper();
-            String username = ((ChessApplication)activity.getApplicationContext()).getUsername();
-            if(serverHelper == null) {
+            ServerHelper serverHelper = Server.getServerHelper();
+            String username = Server.getUsername();
+            if (serverHelper == null) {
                 new Reconnector(listener, activity).reconnect();
-            }
-            else {
+            } else {
                 try {
-                    serverHelper.joinGame(this, (String)game.getData(ServerData.GAMEID), username);
+                    serverHelper.joinGame(this, (String) game.getData(ServerData.GAMEID), username);
                 } catch (MultipleRequestException e) {
                     Log.e(tag, "Made multiple requests of joinGameHelper");
                     Display.makeToast(activity, "We coudln't join that game. Please try again.", LENGTH_LONG);
@@ -212,7 +214,7 @@ public class OpenGamesAdapter extends RecyclerView.Adapter<OpenGamesAdapter.Open
 
         /**
          * Called if the server says we successfully joined the specified game
-         *
+         * <p>
          * NOTE: This does NOT indicate the end of the request; the data associated with the game that
          * was joined still needs to be received from the server. This is just a stop on the way.
          */
@@ -235,7 +237,7 @@ public class OpenGamesAdapter extends RecyclerView.Adapter<OpenGamesAdapter.Open
             // and remove the game from the list since the user can't join it.
             Log.e(tag, "Server told us an open game doesn't exist anymore");
             int index = games.indexOf(game);
-            if(index != -1) {
+            if (index != -1) {
                 games.remove(game);
                 notifyItemRemoved(index);
             }
@@ -250,7 +252,7 @@ public class OpenGamesAdapter extends RecyclerView.Adapter<OpenGamesAdapter.Open
             Display.makeToast(activity, "Oops! Someone already joined that game", LENGTH_LONG);
 
             int index = games.indexOf(game);
-            if(index != -1) {
+            if (index != -1) {
                 games.remove(game);
                 notifyItemRemoved(index);
             }
@@ -264,7 +266,7 @@ public class OpenGamesAdapter extends RecyclerView.Adapter<OpenGamesAdapter.Open
             Display.makeToast(activity, "You're already a player in that game", LENGTH_LONG);
 
             int index = games.indexOf(game);
-            if(index != -1) {
+            if (index != -1) {
                 games.remove(game);
                 notifyItemRemoved(index);
             }
@@ -275,15 +277,15 @@ public class OpenGamesAdapter extends RecyclerView.Adapter<OpenGamesAdapter.Open
          * the game that was joined is given as an argument for later usage, if needed.
          *
          * @param game - an object containing all the necessary information about the game that was
-         * joined
+         *             joined
          */
         @Override
         public void joinGameComplete(UserGame game) {
             Display.makeToast(activity, "You joined game \"" + game.getData(GameData.GAMEID) + "\"", LENGTH_LONG);
-            ((ChessApplication)activity.getApplicationContext()).getGames().add(game);
+            Server.getGames().add(game);
 
             int index = games.indexOf(this.game);
-            if(index != -1) {
+            if (index != -1) {
                 games.remove(this.game);
                 notifyItemRemoved(index);
             }

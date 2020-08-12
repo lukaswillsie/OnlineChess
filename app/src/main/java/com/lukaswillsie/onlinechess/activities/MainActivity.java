@@ -2,21 +2,30 @@ package com.lukaswillsie.onlinechess.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.lukaswillsie.onlinechess.activities.board.BoardActivity;
-import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
+import com.lukaswillsie.onlinechess.activities.board.BoardActivity;
 import com.lukaswillsie.onlinechess.activities.game_display.ActiveGamesActivity;
 import com.lukaswillsie.onlinechess.activities.game_display.ArchivedGamesActivity;
+import com.lukaswillsie.onlinechess.activities.login.LoginActivity;
+import com.lukaswillsie.onlinechess.data.RememberMeHelper;
+import com.lukaswillsie.onlinechess.network.Server;
+
+import java.io.IOException;
 
 /**
  * MainActivity is the main screen of our app; the one with our title and a list of buttons allowing
  * the user to navigate our app.
  */
 public class MainActivity extends AppCompatActivity implements ReconnectListener {
+    /**
+     * Tag used for logging to the console
+     */
+    private static String tag = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +34,7 @@ public class MainActivity extends AppCompatActivity implements ReconnectListener
 
         // This is how we detect that the system destroyed our app while it was running in the
         // background and is now restarting it.
-        if (((ChessApplication) getApplicationContext()).getGames() == null) {
+        if (Server.getGames() == null) {
             // Re-establish a connection with the server and re-login the user
             new Reconnector(this, this).reconnect();
         }
@@ -80,6 +89,20 @@ public class MainActivity extends AppCompatActivity implements ReconnectListener
         intent.putExtra(BoardActivity.GAMEID_TAG, "third");
         startActivity(intent);
     }
+
+    public void logout(View v) {
+        // Ensures that the user who's currently logged in won't automatically be logged in next
+        // time, if they clicked "Remember Me" when logging in.
+        try {
+            new RememberMeHelper(this).logout();
+        } catch (IOException e) {
+            Log.e(tag, "Couldn't create RememberMeHelper to log out the user");
+        }
+
+        Server.logout();
+        startActivity(new Intent(this, LoginActivity.class));
+    }
+
     /**
      * Called by Reconnector when a reconnection process is complete. We don't do anything special
      * when this happens.

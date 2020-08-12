@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoadGameRequester;
 import com.lukaswillsie.onlinechess.network.threads.LoadGameThread;
-import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
 import com.lukaswillsie.onlinechess.network.threads.callers.LoadGameCaller;
 
 import Chess.com.lukaswillsie.chess.Board;
@@ -15,6 +14,15 @@ import Chess.com.lukaswillsie.chess.Board;
  * This class processes load game requests for ServerHelper.
  */
 public class LoadGameHelper extends SubHelper implements LoadGameCaller {
+    /*
+     * Constants used by this object to send Messages to itself
+     */
+    private static final int CONNECTION_LOST = -3;
+    private static final int SYSTEM_ERROR = -2;
+    private static final int SERVER_ERROR = -1;
+    private static final int SUCCESS = 0;
+    private static final int GAME_DOES_NOT_EXIST = 1;
+    private static final int USER_NOT_IN_GAME = 2;
     /**
      * Contains a reference to the object that will receive callbacks relevant to the currently
      * active request. null if there is no active request.
@@ -36,12 +44,12 @@ public class LoadGameHelper extends SubHelper implements LoadGameCaller {
      *
      * @param requester - the object that will receive the relevant callback when the request
      *                  terminates
-     * @param gameID - the gameID of the game that should be requested
+     * @param gameID    - the gameID of the game that should be requested
      * @throws MultipleRequestException - if this object is already handling a load game request
-     * when this method is called
+     *                                  when this method is called
      */
     void loadGame(LoadGameRequester requester, String gameID) throws MultipleRequestException {
-        if(this.requester != null) {
+        if (this.requester != null) {
             throw new MultipleRequestException("Submitted multiple requests to LoadGameHelper");
         }
         this.requester = requester;
@@ -106,17 +114,6 @@ public class LoadGameHelper extends SubHelper implements LoadGameCaller {
     public void userNotInGame() {
         this.obtainMessage(USER_NOT_IN_GAME).sendToTarget();
     }
-
-
-    /*
-     * Constants used by this object to send Messages to itself
-     */
-    private static final int CONNECTION_LOST = -3;
-    private static final int SYSTEM_ERROR = -2;
-    private static final int SERVER_ERROR = -1;
-    private static final int SUCCESS = 0;
-    private static final int GAME_DOES_NOT_EXIST = 1;
-    private static final int USER_NOT_IN_GAME = 2;
 
     /**
      * We use this method to give callbacks to our requester. We use Messages instead of calling

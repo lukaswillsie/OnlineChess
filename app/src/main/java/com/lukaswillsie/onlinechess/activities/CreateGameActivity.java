@@ -7,12 +7,12 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
-import com.lukaswillsie.onlinechess.ChessApplication;
 import com.lukaswillsie.onlinechess.R;
 import com.lukaswillsie.onlinechess.data.Format;
 import com.lukaswillsie.onlinechess.data.UserGame;
+import com.lukaswillsie.onlinechess.network.Server;
 import com.lukaswillsie.onlinechess.network.helper.requesters.CreateGameRequester;
-import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
+import com.lukaswillsie.onlinechess.network.helper.MultipleRequestException;
 
 import static android.widget.Toast.LENGTH_LONG;
 
@@ -35,15 +35,7 @@ public class CreateGameActivity extends ErrorDialogActivity implements CreateGam
      * to the server if we discover our connection has been lost.
      */
     @Override
-    public void reconnectionComplete() {}
-
-    /**
-     * Represents the possible "states" that this Activity can be in
-     */
-    private enum State {
-        WAITING,    // We're waiting for the user to click the "Create" button
-        PROCESSING; // The user has clicked the "Create" button, we've sent a create request to
-                    // ServerHelper and are waiting for the response
+    public void reconnectionComplete() {
     }
 
     @Override
@@ -62,7 +54,7 @@ public class CreateGameActivity extends ErrorDialogActivity implements CreateGam
                 getResources().getColor(R.color.white),
                 android.graphics.PorterDuff.Mode.SRC_IN);
 
-        if(((ChessApplication)getApplicationContext()).getServerHelper() == null) {
+        if (Server.getServerHelper() == null) {
             new Reconnector(this, this).reconnect();
         }
     }
@@ -99,6 +91,7 @@ public class CreateGameActivity extends ErrorDialogActivity implements CreateGam
     /**
      * Called when the user clicks the "Create" button. We grab what they typed in the EditText and
      * try to create a game with that ID
+     *
      * @param v - the View that was clicked
      */
     public void createGame(View v) {
@@ -110,17 +103,17 @@ public class CreateGameActivity extends ErrorDialogActivity implements CreateGam
      * game request to the server.
      */
     private void handleRequest() {
-        if(this.state == State.WAITING) {
-            String gameID = ((EditText)findViewById(R.id.create_game_input)).getText().toString();
-            boolean open = ((CheckBox)findViewById(R.id.open_checkbox)).isChecked();
-            String username = ((ChessApplication)getApplicationContext()).getUsername();
+        if (this.state == State.WAITING) {
+            String gameID = ((EditText) findViewById(R.id.create_game_input)).getText().toString();
+            boolean open = ((CheckBox) findViewById(R.id.open_checkbox)).isChecked();
+            String username = Server.getUsername();
 
-            if(Format.validGameID(gameID)) {
+            if (Format.validGameID(gameID)) {
                 try {
-                    ((ChessApplication)getApplicationContext()).getServerHelper().createGame(this, gameID, open, username);
+                    Server.getServerHelper().createGame(this, gameID, open, username);
                 } catch (MultipleRequestException e) {
                     Log.e(tag, "Sent multiple requests to ServerHelper");
-                    createSystemErrorDialog();
+                    showSystemErrorDialog();
                     return;
                 }
 
@@ -129,8 +122,7 @@ public class CreateGameActivity extends ErrorDialogActivity implements CreateGam
                 Display.hideKeyboard(this);
                 findViewById(R.id.create_game_progress).setVisibility(View.VISIBLE);
                 findViewById(R.id.create_game_button_text).setVisibility(View.INVISIBLE);
-            }
-            else {
+            } else {
                 Display.showSimpleDialog(R.string.gameID_format_invalid_text, this);
             }
         }
@@ -141,9 +133,9 @@ public class CreateGameActivity extends ErrorDialogActivity implements CreateGam
      */
     @Override
     public void connectionLost() {
-        if(this.state == State.PROCESSING) {
+        if (this.state == State.PROCESSING) {
             resetButton();
-            createConnectionLostDialog();
+            showConnectionLostDialog();
         }
     }
 
@@ -152,9 +144,9 @@ public class CreateGameActivity extends ErrorDialogActivity implements CreateGam
      */
     @Override
     public void serverError() {
-        if(this.state == State.PROCESSING) {
+        if (this.state == State.PROCESSING) {
             resetButton();
-            createServerErrorDialog();
+            showServerErrorDialog();
         }
     }
 
@@ -163,9 +155,9 @@ public class CreateGameActivity extends ErrorDialogActivity implements CreateGam
      */
     @Override
     public void systemError() {
-        if(this.state == State.PROCESSING) {
+        if (this.state == State.PROCESSING) {
             resetButton();
-            createSystemErrorDialog();
+            showSystemErrorDialog();
         }
     }
 
@@ -176,11 +168,11 @@ public class CreateGameActivity extends ErrorDialogActivity implements CreateGam
      */
     @Override
     public void gameCreated(UserGame game) {
-        if(this.state == State.PROCESSING) {
+        if (this.state == State.PROCESSING) {
             Display.makeToast(this, "Game successfully created!", LENGTH_LONG);
 
             // Add the new game to our list of the user's games
-            ((ChessApplication)getApplicationContext()).getGames().add(game);
+            Server.getGames().add(game);
 
             resetUI();
             resetState();
@@ -193,7 +185,7 @@ public class CreateGameActivity extends ErrorDialogActivity implements CreateGam
      */
     @Override
     public void gameIDInUse() {
-        if(this.state == State.PROCESSING) {
+        if (this.state == State.PROCESSING) {
             Display.showSimpleDialog(R.string.gameID_in_use_text, this);
 
             resetUI();
@@ -208,7 +200,7 @@ public class CreateGameActivity extends ErrorDialogActivity implements CreateGam
      */
     @Override
     public void invalidFormat() {
-        if(this.state == State.PROCESSING) {
+        if (this.state == State.PROCESSING) {
             Display.showSimpleDialog(R.string.gameID_format_invalid_text, this);
 
             resetUI();
@@ -216,12 +208,12 @@ public class CreateGameActivity extends ErrorDialogActivity implements CreateGam
         }
     }
 
-    /* METHODS FOR INTERACTING WITH DIALOGS CREATED BY ErrorDialogActivity */
-
     @Override
     public void retrySystemError() {
         handleRequest();
     }
+
+    /* METHODS FOR INTERACTING WITH DIALOGS CREATED BY ErrorDialogActivity */
 
     @Override
     public void cancelSystemError() {
@@ -243,5 +235,14 @@ public class CreateGameActivity extends ErrorDialogActivity implements CreateGam
     @Override
     public void retryConnection() {
         new Reconnector(this, this).reconnect();
+    }
+
+    /**
+     * Represents the possible "states" that this Activity can be in
+     */
+    private enum State {
+        WAITING,    // We're waiting for the user to click the "Create" button
+        PROCESSING // The user has clicked the "Create" button, we've sent a create request to
+        // ServerHelper and are waiting for the response
     }
 }

@@ -6,7 +6,7 @@ import com.lukaswillsie.onlinechess.data.UserGame;
  * To use a JoinGameThread to issue join game requests to the server, objects must implement this
  * interface. This allows them to receive callbacks from the Thread as to the success or failure of
  * the request.
- *
+ * <p>
  * There are potentially multiple stages to a join game request. First, the Thread requests that the
  * user join the given game. Next, if that was successful, the Thread asks the server for all the
  * data associated with the given game, that way we can add it to the collection of the user's games

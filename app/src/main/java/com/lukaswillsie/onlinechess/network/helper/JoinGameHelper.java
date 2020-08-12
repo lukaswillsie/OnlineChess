@@ -7,8 +7,6 @@ import androidx.annotation.NonNull;
 import com.lukaswillsie.onlinechess.data.UserGame;
 import com.lukaswillsie.onlinechess.network.helper.requesters.JoinGameRequester;
 import com.lukaswillsie.onlinechess.network.threads.JoinGameThread;
-import com.lukaswillsie.onlinechess.network.threads.MultipleRequestException;
-import com.lukaswillsie.onlinechess.network.threads.ReturnCodeThread;
 import com.lukaswillsie.onlinechess.network.threads.callers.JoinGameCaller;
 
 /**
@@ -19,13 +17,22 @@ public class JoinGameHelper extends SubHelper implements JoinGameCaller {
      * Tag used for logging to the console
      */
     private static final String tag = "JoinGameHelper";
-
+    /**
+     * Constants that this class uses to communicate with the UI thread through Messages
+     */
+    private static final int SERVER_ERROR = -3;
+    private static final int SYSTEM_ERROR = -2;
+    private static final int CONNECTION_LOST = -1;
+    private static final int GAME_JOINED = 0;
+    private static final int GAME_DOES_NOT_EXIST = 1;
+    private static final int GAME_FULL = 2;
+    private static final int USER_ALREADY_IN_GAME = 3;
+    private static final int JOIN_GAME_COMPLETE = 4;
     /**
      * Keeps a reference to the object that made the currently active request, so we can give them
      * callbacks
      */
     private JoinGameRequester requester;
-
     /**
      * Create a new SubHelper as part of the given ServerHelper
      *
@@ -40,13 +47,13 @@ public class JoinGameHelper extends SubHelper implements JoinGameCaller {
      * receive callbacks once the request has been responded to by the server.
      *
      * @param requester - will receive callbacks regarding the request
-     * @param gameID - the ID of the game that we're trying to join
-     * @param username - the username of the user trying to join the given game
+     * @param gameID    - the ID of the game that we're trying to join
+     * @param username  - the username of the user trying to join the given game
      * @throws MultipleRequestException - thrown if another join game request is already being
-     * handled when this method is called
+     *                                  handled when this method is called
      */
     void joinGame(JoinGameRequester requester, String gameID, String username) throws MultipleRequestException {
-        if(this.requester != null) {
+        if (this.requester != null) {
             throw new MultipleRequestException("Tried to make multiple requests of JoinGameHelper");
         }
 
@@ -65,18 +72,6 @@ public class JoinGameHelper extends SubHelper implements JoinGameCaller {
     private String getRequest(String gameID) {
         return "joingame " + gameID;
     }
-
-    /**
-     * Constants that this class uses to communicate with the UI thread through Messages
-     */
-    private static final int SERVER_ERROR = -3;
-    private static final int SYSTEM_ERROR = -2;
-    private static final int CONNECTION_LOST = -1;
-    private static final int GAME_JOINED = 0;
-    private static final int GAME_DOES_NOT_EXIST = 1;
-    private static final int GAME_FULL = 2;
-    private static final int USER_ALREADY_IN_GAME = 3;
-    private static final int JOIN_GAME_COMPLETE = 4;
 
     /**
      * JoinGameHelpers use this method to send Messages to themselves. We do this because
@@ -134,7 +129,7 @@ public class JoinGameHelper extends SubHelper implements JoinGameCaller {
                 this.requester = null;
                 break;
             case JOIN_GAME_COMPLETE:
-                requester.joinGameComplete((UserGame)msg.obj);
+                requester.joinGameComplete((UserGame) msg.obj);
 
                 // Allows us to accept another request
                 this.requester = null;
