@@ -150,7 +150,10 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
     public void resume() {
         paused = false;
 
+        // Reset the screen and our important fields in case something important has happened in the
+        // game while we were paused.
         this.resetFromModel();
+        display.resetSquares();
         showDialogIfNecessary();
     }
 
