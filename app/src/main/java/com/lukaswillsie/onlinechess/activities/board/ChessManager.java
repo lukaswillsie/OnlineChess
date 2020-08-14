@@ -193,11 +193,12 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
      */
     private void resetFromModel() {
         // The user can only move a piece if they have an opponent, the game isn't over, it is their
-        // turn, and a promotion isn't needed.
+        // turn, a promotion isn't needed, AND they haven't been offered a draw.
         this.userCanMove = (Integer) presenter.getData(GameData.STATE) == 1
                 && ((String) presenter.getData(GameData.OPPONENT)).length() > 0
                 && !presenter.gameIsOver()
-                && ((Integer) presenter.getData(GameData.PROMOTION_NEEDED) == 0);
+                && ((Integer) presenter.getData(GameData.PROMOTION_NEEDED) == 0)
+                && (Integer) presenter.getData(GameData.DRAW_OFFERED) == 0;
 
         if((Integer) presenter.getData(GameData.PROMOTION_NEEDED) == 1) {
             int row;
