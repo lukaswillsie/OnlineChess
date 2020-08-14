@@ -16,6 +16,7 @@ import com.lukaswillsie.onlinechess.network.helper.requesters.DrawRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.ForfeitRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.JoinGameRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoadGameRequester;
+import com.lukaswillsie.onlinechess.network.helper.requesters.LoadGamesRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoginRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.MoveRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.OpenGamesRequester;
@@ -23,6 +24,7 @@ import com.lukaswillsie.onlinechess.network.helper.requesters.PromotionRequester
 import com.lukaswillsie.onlinechess.network.helper.requesters.RejectRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.RestoreRequester;
 import com.lukaswillsie.onlinechess.network.threads.ConnectThread;
+import com.lukaswillsie.onlinechess.network.threads.LoadGamesThread;
 import com.lukaswillsie.onlinechess.network.threads.callers.ConnectCaller;
 
 import java.io.DataInputStream;
@@ -66,7 +68,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
      * The IP address of the machine running the server. I'm using the below address because that's
      * my machine's local IP address on my network.
      */
-    private static final String HOSTNAME = "192.168.0.8";
+    private static final String HOSTNAME = "192.168.0.19";
 
     /*
      * The port that the server is supposed to be listening on
@@ -117,6 +119,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
     private DrawHelper drawHelper;
     private RejectHelper rejectHelper;
     private ForfeitHelper forfeitHelper;
+    private LoadGamesHelper loadGamesHelper;
 
     /*
      * A list of all helpers delegated to by this object, so that they can all be notified at once
@@ -145,6 +148,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
         this.drawHelper = new DrawHelper(this);
         this.rejectHelper = new RejectHelper(this);
         this.forfeitHelper = new ForfeitHelper(this);
+        this.loadGamesHelper = new LoadGamesHelper(this);
 
 
         this.helpers = new ArrayList<>();
@@ -161,6 +165,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
         this.helpers.add(drawHelper);
         this.helpers.add(rejectHelper);
         this.helpers.add(forfeitHelper);
+        this.helpers.add(loadGamesHelper);
 
         this.requester = requester;
         ConnectThread thread = new ConnectThread(HOSTNAME, PORT, this);
@@ -296,6 +301,20 @@ public class ServerHelper extends Handler implements ConnectCaller {
      */
     public void loadGame(LoadGameRequester requester, String gameID) throws MultipleRequestException {
         this.loadGameHelper.loadGame(requester, gameID);
+    }
+
+    /**
+     * Sends a load games request to the server.
+     *
+     * @param username - the username of the user currently logged in to the app; i.e. the user
+     *                 whose games we are loading
+     * @param requester - the object that will receive callbacks from us when the request either
+     *                  succeeds or fails
+     * @throws MultipleRequestException - if this object is already handling a load games request
+     * when this method is called
+     */
+    void loadGames(String username, LoadGamesRequester requester) throws MultipleRequestException {
+        loadGamesHelper.loadGames(username, requester);
     }
 
     /**

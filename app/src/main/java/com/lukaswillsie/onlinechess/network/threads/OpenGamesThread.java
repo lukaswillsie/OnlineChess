@@ -94,7 +94,8 @@ public class OpenGamesThread extends NetworkThread {
                 int code = game.initialize(data);
                 data = new ArrayList<>();
                 if (code == 1) {
-                    Log.e(tag, "A game couldn't be initialized");
+                    Log.e(tag, "A game couldn't be initialized from data sent by server");
+                    caller.serverError();
                     return;
                 }
 

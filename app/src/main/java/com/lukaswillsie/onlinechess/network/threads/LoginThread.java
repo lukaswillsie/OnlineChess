@@ -47,6 +47,8 @@ public class LoginThread extends NetworkThread {
      * @param caller   - the object that this thread will report back to
      * @param username - the username to try and log in with
      * @param password - the password to try and log in with
+     * @param writer - the device this Thread will use to write to the server
+     * @param reader - the device this Thread will use to read from the server
      */
     public LoginThread(String username, String password, LoginCaller caller, PrintWriter writer, DataInputStream reader) {
         super(writer, reader);
@@ -62,7 +64,7 @@ public class LoginThread extends NetworkThread {
      * <p>
      * Second, the server responds, telling the client whether or not the login succeeded, and the
      * reason for failure if there was one. Return codes are defined in the ReturnCodes enum in
-     * this package
+     * the network.
      * <p>
      * Third, the server sends data corresponding to every game that the logged in user is involved
      * in. First, it sends an integer equal to how many of these games there are to send. Then it
@@ -114,7 +116,6 @@ public class LoginThread extends NetworkThread {
             }
 
             // Now we read all the user's game data from the server
-
             int numGames = readInt();
 
             // According to protocol, it's possible that the server encounters an error after logging in
@@ -143,7 +144,11 @@ public class LoginThread extends NetworkThread {
                 }
 
                 game = new UserGame(username);
-                game.initialize(serverData);
+                if (game.initialize(serverData) == 1) {
+                    Log.e(tag, "A game couldn't be initialized from data sent by server");
+                    caller.serverError();
+                    return;
+                }
                 games.add(game);
 
                 serverData = new ArrayList<>();
