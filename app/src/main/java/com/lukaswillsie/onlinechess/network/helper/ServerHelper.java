@@ -313,7 +313,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
      * @throws MultipleRequestException - if this object is already handling a load games request
      * when this method is called
      */
-    void loadGames(String username, LoadGamesRequester requester) throws MultipleRequestException {
+    public void loadGames(String username, LoadGamesRequester requester) throws MultipleRequestException {
         loadGamesHelper.loadGames(username, requester);
     }
 

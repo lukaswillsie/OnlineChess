@@ -70,6 +70,12 @@ public class LoadGamesThread extends NetworkThread {
                     return;
                 case ReturnCodes.LoadGames.SUCCESS:
                     Log.i(tag, "Server says we can expect to receive all the user's games");
+                    break;
+                // Any other return code does not conform to protocol
+                default:
+                    Log.i(tag, "Server returned \"" + code + "\", which is outside of protocol");
+                    caller.serverError();
+                    return;
             }
 
             // Next, the server tells us how many games to expect

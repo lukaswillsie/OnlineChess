@@ -267,14 +267,21 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
             // Figure out what to do with the "Draw" and "Resign" buttons, as well as the draw offer
             // layout
             if(!game.isOver() && state == 1) {
-                findViewById(R.id.placeholder).setVisibility(View.GONE);
-                findViewById(R.id.offer_draw_button).setVisibility(View.VISIBLE);
-                findViewById(R.id.resign_button).setVisibility(View.VISIBLE);
-
-                // If the user has been offered a draw
+                // If the user has been offered a draw, show the draw offer layout and hide the
+                // "Draw" and "Resign" buttons
                 if(drawOffered == 1) {
                     showDrawOfferLayout();
                     stateLabel.setVisibility(View.GONE);
+                    findViewById(R.id.placeholder).setVisibility(View.VISIBLE);
+                    findViewById(R.id.offer_draw_button).setVisibility(View.GONE);
+                    findViewById(R.id.resign_button).setVisibility(View.GONE);
+                }
+                // Otherwise, it's the user's turn to move/promote, so we can show the "Draw" and
+                // "Resign" buttons
+                else {
+                    findViewById(R.id.placeholder).setVisibility(View.GONE);
+                    findViewById(R.id.offer_draw_button).setVisibility(View.VISIBLE);
+                    findViewById(R.id.resign_button).setVisibility(View.VISIBLE);
                 }
             }
             // Otherwise, hide the "Draw" and "Resign" buttons because the user can't offer a draw or

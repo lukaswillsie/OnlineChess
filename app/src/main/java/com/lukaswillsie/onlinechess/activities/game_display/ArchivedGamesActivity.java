@@ -6,13 +6,17 @@ import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.lukaswillsie.onlinechess.R;
+import com.lukaswillsie.onlinechess.activities.Display;
 import com.lukaswillsie.onlinechess.activities.ReconnectListener;
 import com.lukaswillsie.onlinechess.activities.Reconnector;
 import com.lukaswillsie.onlinechess.data.GameData;
 import com.lukaswillsie.onlinechess.data.UserGame;
 import com.lukaswillsie.onlinechess.network.Server;
+import com.lukaswillsie.onlinechess.network.helper.MultipleRequestException;
+import com.lukaswillsie.onlinechess.network.helper.requesters.LoadGamesRequester;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +24,7 @@ import java.util.List;
 /**
  * Displays a list of the user's archived games on the screen
  */
-public class ArchivedGamesActivity extends AppCompatActivity implements ReconnectListener {
+public class ArchivedGamesActivity extends AppCompatActivity implements ReconnectListener, LoadGamesRequester {
     /*
      * Used for logging things to the console
      */
@@ -40,6 +44,27 @@ public class ArchivedGamesActivity extends AppCompatActivity implements Reconnec
             RecyclerView recyclerView = findViewById(R.id.games_recycler);
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
             recyclerView.setAdapter(new ArchivedUserGamesAdapter(this, getGames(), this));
+
+            // Set up our SwipeRefreshLayout to submit a load games request to the server when the
+            // RecyclerView is refreshed by the user
+            final SwipeRefreshLayout refreshLayout = findViewById(R.id.games_refresh);
+            refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    try {
+                        Server.getServerHelper().loadGames(Server.getUsername(), ArchivedGamesActivity.this);
+                    }
+                    catch (MultipleRequestException e) {
+                        // This shouldn't happen (we only submit load games requests to ServerHelper
+                        // one at a time, and never submit another before receiving a callback about
+                        // the first). If it does, we display an error dialog and end the refresh
+                        // animation
+                        Log.e(tag, "Submitted multiple load games requests to ServerHelper");
+                        Display.showSimpleDialog(R.string.games_refresh_failed, ArchivedGamesActivity.this);
+                        refreshLayout.setRefreshing(false);
+                    }
+                }
+            });
         }
     }
 
@@ -56,31 +81,7 @@ public class ArchivedGamesActivity extends AppCompatActivity implements Reconnec
         super.onResume();
         // Set up our RecyclerView to display a list of the user's archived games
         RecyclerView recyclerView = findViewById(R.id.games_recycler);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new ActiveUserGamesAdapter(this, getGames(), this));
-    }
-
-    /**
-     * Checks if the given Game is over
-     *
-     * @param game - the Game to analyze
-     * @return true if the given Game is over (somebody has won or a draw has been agreed to),
-     * false otherwise
-     */
-    private boolean isOver(UserGame game) {
-        return (int) game.getData(GameData.USER_WON) == 1
-                || (int) game.getData(GameData.USER_LOST) == 1
-                || (int) game.getData(GameData.DRAWN) == 1;
-    }
-
-    /**
-     * Checks if it is the user's opponent's turn in the given Game
-     *
-     * @param game - the Game to analyze
-     * @return true of it's the user's opponent's turn in the given Game, false otherwise
-     */
-    private boolean isOpponentTurn(UserGame game) {
-        return (int) game.getData(GameData.STATE) == 0;
+        ((UserGamesAdapter)recyclerView.getAdapter()).setGames(getGames());
     }
 
     /**
@@ -100,11 +101,11 @@ public class ArchivedGamesActivity extends AppCompatActivity implements Reconnec
         List<UserGame> games = Server.getGames();
         for (UserGame game : games) {
             if ((int) game.getData(GameData.ARCHIVED) == 1) {
-                if (isOver(game)) {
+                if (game.isOver()) {
                     Log.i(tag, "Game " + game.getData(GameData.GAMEID) + " is over");
                     archivedGames.add(gameOverPos, game);
                     gameOverPos++;
-                } else if (isOpponentTurn(game)) {
+                } else if (game.isOpponentTurn()) {
                     Log.i(tag, game.getData(GameData.GAMEID) + " is opponent turn");
                     archivedGames.add(opponentTurnPos, game);
                     opponentTurnPos++;
@@ -132,7 +133,57 @@ public class ArchivedGamesActivity extends AppCompatActivity implements Reconnec
     public void reconnectionComplete() {
         // Set up our RecyclerView to display a list of the user's archived games
         RecyclerView recyclerView = findViewById(R.id.games_recycler);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new ArchivedUserGamesAdapter(this, getGames(), this));
+        ((UserGamesAdapter)recyclerView.getAdapter()).setGames(getGames());
+    }
+
+    /**
+     * Called by ServerHelper if a load games request, submitted as part of a refresh, succeeds.
+     *
+     * @param games - the list of the user's games that was sent over by the server
+     */
+    @Override
+    public void success(List<UserGame> games) {
+        Server.setGames(games);
+
+        RecyclerView recyclerView = findViewById(R.id.games_recycler);
+        SwipeRefreshLayout refreshLayout = findViewById(R.id.games_refresh);
+
+        refreshLayout.setRefreshing(false);
+        ((UserGamesAdapter)recyclerView.getAdapter()).setGames(getGames());
+    }
+
+    /**
+     * Called by ServerHelper if a load games request, submitted as part of a refresh, fails due to
+     * a loss of connection with the server.
+     */
+    @Override
+    public void connectionLost() {
+        SwipeRefreshLayout refreshLayout = findViewById(R.id.games_refresh);
+        refreshLayout.setRefreshing(false);
+        new Reconnector(this, this).reconnect();
+    }
+
+    /**
+     * Called by ServerHelper if a load games request, submitted as part of a refresh, fails due to
+     * an error server-side.
+     */
+    @Override
+    public void serverError() {
+        Display.showSimpleDialog(R.string.games_refresh_failed, this);
+
+        SwipeRefreshLayout refreshLayout = findViewById(R.id.games_refresh);
+        refreshLayout.setRefreshing(false);
+    }
+
+    /**
+     * Called by ServerHelper if a load games request, submitted as part of a refresh, fails due to
+     * a system error.
+     */
+    @Override
+    public void systemError() {
+        Display.showSimpleDialog(R.string.games_refresh_failed, this);
+
+        SwipeRefreshLayout refreshLayout = findViewById(R.id.games_refresh);
+        refreshLayout.setRefreshing(false);
     }
 }

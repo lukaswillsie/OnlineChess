@@ -56,6 +56,7 @@
     <string name="user_turn">Your turn</string>
     <string name="draw_offered_to_user">Draw offer</string>
     <string name="draw_offered_to_opponent">Draw offer sent</string>
+    <string name="games_refresh_failed">Sorry, there was an error and we couldn\'t refresh your games</string>
 
     <!-- Archived Games Screen-->
     <string name="archived_games_title">Your Archived Games</string>
@@ -74,6 +75,7 @@
 
     <!-- Open Games Screen-->
     <string name="open_games_title">Open Games</string>
+    <string name="open_games_refresh_failed">Sorry, there was an error, and we couldn\'t refresh the list of open games</string>
 
     <!-- Create Game Screen-->
     <string name="create_game_title">Create a Game</string>

@@ -104,12 +104,28 @@ public class LoadGamesHelper extends SubHelper implements LoadGamesCaller {
         switch (msg.what) {
             case CONNECTION_LOST:
                 requester.connectionLost();
+
+                // Allows us to accept another request
+                this.requester = null;
+                break;
             case SYSTEM_ERROR:
                 requester.systemError();
+
+                // Allows us to accept another request
+                this.requester = null;
+                break;
             case SERVER_ERROR:
                 requester.serverError();
+
+                // Allows us to accept another request
+                this.requester = null;
+                break;
             case SUCCESS:
                 requester.success((List<UserGame>) msg.obj);
+
+                // Allows us to accept another request
+                this.requester = null;
+                break;
         }
     }
 }

@@ -30,6 +30,10 @@ public class Server {
         return games;
     }
 
+    public static void setGames(List<UserGame> games) {
+        Server.games = games;
+    }
+
     public static ServerHelper getServerHelper() {
         return serverHelper;
     }

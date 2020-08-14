@@ -72,6 +72,17 @@ public class OpenGamesAdapter extends RecyclerView.Adapter<OpenGamesAdapter.Open
     }
 
     /**
+     * Update the adapter to show the given list of games, instead of the list it is showing now
+     *
+     * @param games - the new List of games to display
+     */
+    public void setGames(List<Game> games) {
+        this.games = games;
+        notifyDataSetChanged();
+    }
+
+
+    /**
      * Create a new View, inflated from game_card_layout.xml as a child of the given parent
      * ViewGroup.
      *

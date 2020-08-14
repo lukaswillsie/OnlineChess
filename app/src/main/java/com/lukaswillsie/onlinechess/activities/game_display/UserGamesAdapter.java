@@ -18,6 +18,7 @@ import com.lukaswillsie.onlinechess.activities.board.BoardActivity;
 import com.lukaswillsie.onlinechess.data.GameData;
 import com.lukaswillsie.onlinechess.data.UserGame;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,6 +49,16 @@ public class UserGamesAdapter extends RecyclerView.Adapter<UserGamesAdapter.Game
     public UserGamesAdapter(Context context, List<UserGame> games) {
         this.games = games;
         this.context = context;
+    }
+
+    /**
+     * Update the adapter to show the given list of games, instead of the list it is showing now
+     *
+     * @param games - the new List of games to display
+     */
+    public void setGames(List<UserGame> games) {
+        this.games = games;
+        notifyDataSetChanged();
     }
 
     /**
