@@ -14,6 +14,7 @@ import com.lukaswillsie.onlinechess.network.helper.requesters.CreateAccountReque
 import com.lukaswillsie.onlinechess.network.helper.requesters.CreateGameRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.DrawRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.ForfeitRequester;
+import com.lukaswillsie.onlinechess.network.helper.requesters.GameDataRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.JoinGameRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoadGameRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoadGamesRequester;
@@ -24,6 +25,7 @@ import com.lukaswillsie.onlinechess.network.helper.requesters.PromotionRequester
 import com.lukaswillsie.onlinechess.network.helper.requesters.RejectRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.RestoreRequester;
 import com.lukaswillsie.onlinechess.network.threads.ConnectThread;
+import com.lukaswillsie.onlinechess.network.threads.GameDataThread;
 import com.lukaswillsie.onlinechess.network.threads.LoadGamesThread;
 import com.lukaswillsie.onlinechess.network.threads.callers.ConnectCaller;
 
@@ -120,6 +122,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
     private RejectHelper rejectHelper;
     private ForfeitHelper forfeitHelper;
     private LoadGamesHelper loadGamesHelper;
+    private GameDataHelper gameDataHelper;
 
     /*
      * A list of all helpers delegated to by this object, so that they can all be notified at once
@@ -149,6 +152,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
         this.rejectHelper = new RejectHelper(this);
         this.forfeitHelper = new ForfeitHelper(this);
         this.loadGamesHelper = new LoadGamesHelper(this);
+        this.gameDataHelper = new GameDataHelper(this);
 
 
         this.helpers = new ArrayList<>();
@@ -166,6 +170,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
         this.helpers.add(rejectHelper);
         this.helpers.add(forfeitHelper);
         this.helpers.add(loadGamesHelper);
+        this.helpers.add(gameDataHelper);
 
         this.requester = requester;
         ConnectThread thread = new ConnectThread(HOSTNAME, PORT, this);
@@ -301,6 +306,21 @@ public class ServerHelper extends Handler implements ConnectCaller {
      */
     public void loadGame(LoadGameRequester requester, String gameID) throws MultipleRequestException {
         this.loadGameHelper.loadGame(requester, gameID);
+    }
+
+    /**
+     * Submit a request to the server, asking for the given game's game data.
+     *
+     * @param requester - will receive a callback once the game data request has terminated, either
+     *                  successfully or unsuccessfully
+     * @param gameID - the game whose data we are to request
+     * @param username - the username of the user who we currently have logged in to the app
+     *
+     * @throws MultipleRequestException - if this object is already handling a game data request at
+     * the time that this method is called
+     */
+    void getGameData(GameDataRequester requester, String gameID, String username) throws MultipleRequestException {
+        gameDataHelper.getGameData(requester, gameID, username);
     }
 
     /**
