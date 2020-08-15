@@ -301,11 +301,12 @@ public class ServerHelper extends Handler implements ConnectCaller {
      * @param requester - the object that will receive the relevant callback when the request
      *                  terminates
      * @param gameID    - the gameID of the game that should be requested
+     * @param username - the username of the user currently logged in to the app
      * @throws MultipleRequestException - if this object is already handling a load game request
      *                                  when this method is called
      */
-    public void loadGame(LoadGameRequester requester, String gameID) throws MultipleRequestException {
-        this.loadGameHelper.loadGame(requester, gameID);
+    public void loadGame(LoadGameRequester requester, String gameID, String username) throws MultipleRequestException {
+        this.loadGameHelper.loadGame(requester, gameID, username);
     }
 
     /**

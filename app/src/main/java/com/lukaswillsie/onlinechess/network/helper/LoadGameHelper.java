@@ -4,6 +4,7 @@ import android.os.Message;
 
 import androidx.annotation.NonNull;
 
+import com.lukaswillsie.onlinechess.data.UserGame;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoadGameRequester;
 import com.lukaswillsie.onlinechess.network.threads.LoadGameThread;
 import com.lukaswillsie.onlinechess.network.threads.callers.LoadGameCaller;
@@ -30,6 +31,15 @@ public class LoadGameHelper extends SubHelper implements LoadGameCaller {
     private LoadGameRequester requester;
 
     /**
+     * We use this to briefly store data given to us by LoadGameThread that we need to give to
+     * requester as part of a callback but cannot communicate through Messages. The problem is that
+     * a Message can only hold a single Object, while we need to give two (a Board and UserGame
+     * object) to requester. So we store the UserGame object here until we've given requester their
+     * callback.
+     */
+    private UserGame game;
+
+    /**
      * Create a new LoadGameHelper as part of the given ServerHelper
      *
      * @param container - the ServerHelper that this object is a part of
@@ -45,16 +55,17 @@ public class LoadGameHelper extends SubHelper implements LoadGameCaller {
      * @param requester - the object that will receive the relevant callback when the request
      *                  terminates
      * @param gameID    - the gameID of the game that should be requested
+     * @param username - the username of the user currently logged in to the app
      * @throws MultipleRequestException - if this object is already handling a load game request
      *                                  when this method is called
      */
-    void loadGame(LoadGameRequester requester, String gameID) throws MultipleRequestException {
+    void loadGame(LoadGameRequester requester, String gameID, String username) throws MultipleRequestException {
         if (this.requester != null) {
             throw new MultipleRequestException("Submitted multiple requests to LoadGameHelper");
         }
         this.requester = requester;
 
-        LoadGameThread thread = new LoadGameThread(this, gameID, getOut(), getIn());
+        LoadGameThread thread = new LoadGameThread(this, gameID, username, getOut(), getIn());
         thread.start();
     }
 
@@ -89,11 +100,14 @@ public class LoadGameHelper extends SubHelper implements LoadGameCaller {
      * object will represent the requested game, and will have been initialized successfully from
      * the data sent over by the server.
      *
-     * @param board - a Board object successfully initialized to hold all data associated with the
-     *              requested game
+     * @param board - a Board object successfully initialized to contain the state of the board in
+     *              the given game
+     * @param game - a UserGame object initialized to contain all the high-level information about
+     *             the game that was requested
      */
     @Override
-    public void success(Board board) {
+    public void success(Board board, UserGame game) {
+        this.game = game;
         this.obtainMessage(SUCCESS, board).sendToTarget();
     }
 
@@ -145,10 +159,11 @@ public class LoadGameHelper extends SubHelper implements LoadGameCaller {
                 this.requester = null;
                 break;
             case SUCCESS:
-                this.requester.success((Board) msg.obj);
+                this.requester.success((Board) msg.obj, game);
 
                 // Allows us to accept another request
                 this.requester = null;
+                this.game = game;
                 break;
             case GAME_DOES_NOT_EXIST:
                 this.requester.gameDoesNotExist();

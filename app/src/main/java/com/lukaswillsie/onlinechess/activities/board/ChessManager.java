@@ -175,6 +175,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
             this.gameID = gameID;
             this.presenter = presenter;
             display.activate(presenter, this);
+            display.resetSquares();
 
             // Reset the state of this object
             resetFromModel();

@@ -1,5 +1,7 @@
 package com.lukaswillsie.onlinechess.network.helper.requesters;
 
+import com.lukaswillsie.onlinechess.data.UserGame;
+
 import Chess.com.lukaswillsie.chess.Board;
 
 /**
@@ -12,10 +14,12 @@ public interface LoadGameRequester extends Requester {
      * the requested game, and will have been initialized successfully from the data sent over by
      * the server.
      *
-     * @param board - a Board object successfully initialized to hold all data associated with the
-     *              requested game
+     * @param board - a Board object successfully initialized to contain the state of the board in
+     *              the given game
+     * @param game - a UserGame object initialized to contain all the high-level information about
+     *             the game that was requested
      */
-    void success(Board board);
+    void success(Board board, UserGame game);
 
     /**
      * Called if the server responds to the request by saying the supplied gameID is not associated

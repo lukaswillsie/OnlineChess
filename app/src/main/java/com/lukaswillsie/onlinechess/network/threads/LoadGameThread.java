@@ -2,6 +2,8 @@ package com.lukaswillsie.onlinechess.network.threads;
 
 import android.util.Log;
 
+import com.lukaswillsie.onlinechess.data.ServerData;
+import com.lukaswillsie.onlinechess.data.UserGame;
 import com.lukaswillsie.onlinechess.network.ReturnCodes;
 import com.lukaswillsie.onlinechess.network.threads.callers.LoadGameCaller;
 
@@ -10,6 +12,8 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import Chess.com.lukaswillsie.chess.Board;
@@ -31,16 +35,28 @@ public class LoadGameThread extends NetworkThread {
     private LoadGameCaller caller;
 
     /**
+     * The username of the user currently logged in to our app. That is, the one whose game we are
+     * loading
+     */
+    private String username;
+
+    /**
      * Creates a new NetworkThread that will use the given devices to read from and write to the
      * server
      *
+     * @param caller - the object that will receive a callback from this thread when the request
+     *               terminates
+     * @param gameID - the ID of the game we are to load
+     * @param username - the username of the user currently logged in to the app; i.e. the one
+     *                 whose game we are loading
      * @param writer - the device that this NetworkThread will use to write to the server
      * @param reader - the device that this NetworkThread will use to read from the server
      */
-    public LoadGameThread(LoadGameCaller caller, String gameID, PrintWriter writer, DataInputStream reader) {
+    public LoadGameThread(LoadGameCaller caller, String gameID, String username, PrintWriter writer, DataInputStream reader) {
         super(writer, reader);
         this.caller = caller;
         this.gameID = gameID;
+        this.username = username;
     }
 
     @Override
@@ -101,6 +117,47 @@ public class LoadGameThread extends NetworkThread {
                 return;
         }
 
+        UserGame game;
+        try {
+            List<Object> serverData = new ArrayList<>();
+            String line;
+            int code;
+            // Read each bit of game data from the server, one at a time and in the proper order
+            for (ServerData data : ServerData.order) {
+                if (data.type == 's') {
+                    // Note that we're in a try-catch, so we assume that the line returned here
+                    // is valid and complete
+                    line = this.readLine();
+                    serverData.add(line);
+                } else if (data.type == 'i') {
+                    code = this.readInt();
+                    serverData.add(code);
+                }
+            }
+
+            // Convert the data from the server into a UserGame object
+            game = new UserGame(username);
+            if (game.initialize(serverData) == 1) {
+                Log.e(tag, "A game couldn't be initialized from data sent by server");
+                caller.serverError();
+                return;
+            }
+        } catch (EOFException e) {
+            Log.e(tag, "Server closed the connection.");
+            caller.connectionLost();
+            return;
+        } catch (SocketException e) {
+            Log.e(tag, "Connection with server has been lost. Server may have crashed.");
+            caller.connectionLost();
+            return;
+        } catch (IOException e) {
+            Log.e(tag, "IOException while reading from server.");
+            e.printStackTrace();
+            caller.systemError();
+            return;
+        }
+
+
         // Now we have to read from the server all the information it sends over about the game.
         // This protocol is defined in the ChessServer repo on my GitHub. Basically, first come
         // 4 integers, each representing a boolean value. Then come 8 lines of text, which together
@@ -147,7 +204,7 @@ public class LoadGameThread extends NetworkThread {
             caller.serverError();
         } else {
             Log.i(tag, "Successfully created a Board object from data sent by server");
-            caller.success(board);
+            caller.success(board, game);
         }
     }
 

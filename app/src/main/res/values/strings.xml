@@ -90,6 +90,7 @@
     <string name="load_error_text">Sorry, something went wrong and we couldn\'t load your game.</string>
     <string name="previous_game_button_label">Previous</string>
     <string name="draw_button_label">Draw</string>
+    <string name="refresh_button_label">Refresh</string>
     <string name="resign_button_label">Resign</string>
     <string name="next_game_button_label">Next</string>
     <string name="game_no_opponent_text">No opponent</string>

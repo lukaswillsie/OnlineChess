@@ -107,6 +107,17 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
     }
 
     /**
+     * Called when the user clicks the "Refresh" button
+     *
+     * @param v - the View that was clicked
+     */
+    public void refresh(View v) {
+        if(manager != null) {
+            start(gameID);
+        }
+    }
+
+    /**
      * Called if the user clicks the "Resign" button
      *
      * @param v - the View that was clicked
@@ -146,7 +157,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
      * to a game in the user's list of games, will display a dialog for the user that finishes
      * this activity when closed.
      *
-     * @param gameID -
+     * @param gameID - the ID of the game that we want to switch to displaying
      */
     private void start(String gameID) {
         // Find the UserGame object corresponding to the game we're supposed to be displaying
@@ -168,12 +179,11 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
             builder.setOnCancelListener(new CriticalErrorListener());
             return;
         }
-        this.game = game;
         this.gameID = gameID;
 
         ServerHelper serverHelper = Server.getServerHelper();
         try {
-            serverHelper.loadGame(this, gameID);
+            serverHelper.loadGame(this, gameID, Server.getUsername());
         } catch (MultipleRequestException e) {
             Log.e(tag, "Tried to make multiple load game requests of serverHelper");
             this.showSystemErrorDialog();
@@ -189,15 +199,28 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
      *              requested game
      */
     @Override
-    public void success(Board board) {
+    public void success(Board board, UserGame game) {
         // Create a GamePresenter and GameManager for this game, now that we have all the data we
         // need
         GamePresenter presenter = new GamePresenter(game, board);
+        this.game = game;
         if(manager == null) {
             manager = new ChessManager(gameID, presenter, display, this, this, this);
         }
         else {
             manager.setGame(gameID, presenter);
+        }
+
+        // We search our list of the user's games, trying to find the one that we just received from
+        // the server. When we find it, we replace it in the list with the new version just sent
+        // over by the server. This ensures our model is always up to date.
+        // Note that we can be sure we are going to find it, because we would have already searched
+        // for it in start()
+        for(int i = 0; i < Server.getGames().size(); i++) {
+            if(Server.getGames().get(i).getData(GameData.GAMEID).equals(game.getData(GameData.GAMEID))) {
+                Server.getGames().set(i, game);
+                break;
+            }
         }
 
         setUI();
@@ -272,14 +295,16 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
                 if(drawOffered == 1) {
                     showDrawOfferLayout();
                     stateLabel.setVisibility(View.GONE);
-                    findViewById(R.id.placeholder).setVisibility(View.VISIBLE);
+                    findViewById(R.id.draw_placeholder).setVisibility(View.VISIBLE);
+                    findViewById(R.id.resign_placeholder).setVisibility(View.VISIBLE);
                     findViewById(R.id.offer_draw_button).setVisibility(View.GONE);
                     findViewById(R.id.resign_button).setVisibility(View.GONE);
                 }
                 // Otherwise, it's the user's turn to move/promote, so we can show the "Draw" and
                 // "Resign" buttons
                 else {
-                    findViewById(R.id.placeholder).setVisibility(View.GONE);
+                    findViewById(R.id.draw_placeholder).setVisibility(View.GONE);
+                    findViewById(R.id.resign_placeholder).setVisibility(View.GONE);
                     findViewById(R.id.offer_draw_button).setVisibility(View.VISIBLE);
                     findViewById(R.id.resign_button).setVisibility(View.VISIBLE);
                 }
@@ -287,7 +312,8 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
             // Otherwise, hide the "Draw" and "Resign" buttons because the user can't offer a draw or
             // resign if it's not their turn (or if the game is over)
             else {
-                findViewById(R.id.placeholder).setVisibility(View.VISIBLE);
+                findViewById(R.id.draw_placeholder).setVisibility(View.VISIBLE);
+                findViewById(R.id.resign_placeholder).setVisibility(View.VISIBLE);
                 findViewById(R.id.offer_draw_button).setVisibility(View.GONE);
                 findViewById(R.id.resign_button).setVisibility(View.GONE);
             }
@@ -370,11 +396,16 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
                 start((String) activeGames.get(0).getData(GameData.GAMEID));
             }
         }
+        // Otherwise, the game we are currently displaying is an active game
         else {
-            // Increment index, or set index to 0 if it's already at the end of activeGames
-            index = (index == activeGames.size()-1) ? 0 : index + 1;
+            // If there is only one active game, the one we are displaying, we don't have to do
+            // anything. So we only load a new game if activesGames.size() is not equal to 1.
+            if(activeGames.size() != 1) {
+                // Increment index, or set index to 0 if it's already at the end of activeGames
+                index = (index == activeGames.size()-1) ? 0 : index + 1;
 
-            start((String) activeGames.get(index).getData(GameData.GAMEID));
+                start((String) activeGames.get(index).getData(GameData.GAMEID));
+            }
         }
     }
 
