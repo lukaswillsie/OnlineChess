@@ -44,13 +44,13 @@ public class LoadGameThread extends NetworkThread {
      * Creates a new NetworkThread that will use the given devices to read from and write to the
      * server
      *
-     * @param caller - the object that will receive a callback from this thread when the request
-     *               terminates
-     * @param gameID - the ID of the game we are to load
+     * @param caller   - the object that will receive a callback from this thread when the request
+     *                 terminates
+     * @param gameID   - the ID of the game we are to load
      * @param username - the username of the user currently logged in to the app; i.e. the one
      *                 whose game we are loading
-     * @param writer - the device that this NetworkThread will use to write to the server
-     * @param reader - the device that this NetworkThread will use to read from the server
+     * @param writer   - the device that this NetworkThread will use to write to the server
+     * @param reader   - the device that this NetworkThread will use to read from the server
      */
     public LoadGameThread(LoadGameCaller caller, String gameID, String username, PrintWriter writer, DataInputStream reader) {
         super(writer, reader);

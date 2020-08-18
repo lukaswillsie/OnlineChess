@@ -2,7 +2,6 @@ package com.lukaswillsie.onlinechess.activities.game_display;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -78,7 +77,7 @@ public class ActiveGamesActivity extends AppCompatActivity implements ReconnectL
     protected void onResume() {
         super.onResume();
         RecyclerView recyclerView = findViewById(R.id.games_recycler);
-        ((UserGamesAdapter)recyclerView.getAdapter()).setGames(getGames());
+        ((UserGamesAdapter) recyclerView.getAdapter()).setGames(getGames());
     }
 
     /**
@@ -89,7 +88,7 @@ public class ActiveGamesActivity extends AppCompatActivity implements ReconnectL
     @Override
     public void reconnectionComplete() {
         RecyclerView recyclerView = findViewById(R.id.games_recycler);
-        ((UserGamesAdapter)recyclerView.getAdapter()).setGames(getGames());;
+        ((UserGamesAdapter) recyclerView.getAdapter()).setGames(getGames());
     }
 
     /**
@@ -136,7 +135,7 @@ public class ActiveGamesActivity extends AppCompatActivity implements ReconnectL
     public void success(List<UserGame> games) {
         Server.setGames(games);
         RecyclerView recyclerView = findViewById(R.id.games_recycler);
-        ((UserGamesAdapter)recyclerView.getAdapter()).setGames(getGames());
+        ((UserGamesAdapter) recyclerView.getAdapter()).setGames(getGames());
 
         SwipeRefreshLayout swipeRefreshLayout = findViewById(R.id.games_refresh);
         swipeRefreshLayout.setRefreshing(false);

@@ -44,14 +44,14 @@ public class GameDataThread extends NetworkThread {
      * Creates a new GameDataThread that will, when started, submit a request to the server asking
      * for the given game's data
      *
-     * @param gameID - the game whose data we are to request
+     * @param gameID   - the game whose data we are to request
      * @param username - the username of the user on whose behalf we are requesting the data. Will
      *                 be used to parse the information returned by the server into a UserGame
      *                 object
-     * @param caller - will receive a callback once the request has been processed by the server,
-     *               either successfully or unsuccessfully
-     * @param writer - the device that this NetworkThread will use to write to the server
-     * @param reader - the device that this NetworkThread will use to read from the server
+     * @param caller   - will receive a callback once the request has been processed by the server,
+     *                 either successfully or unsuccessfully
+     * @param writer   - the device that this NetworkThread will use to write to the server
+     * @param reader   - the device that this NetworkThread will use to read from the server
      */
     public GameDataThread(String gameID, String username, GameDataCaller caller, PrintWriter writer, DataInputStream reader) {
         super(writer, reader);

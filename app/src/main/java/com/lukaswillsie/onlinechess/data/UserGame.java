@@ -219,11 +219,10 @@ public class UserGame {
      */
     public boolean isOver() {
         try {
-            return      (int) data.get(GameData.USER_WON) == 1
-                    ||  (int) data.get(GameData.USER_LOST) == 1
-                    ||  (int) data.get(GameData.DRAWN) == 1;
-        }
-        catch(NullPointerException e) {
+            return (int) data.get(GameData.USER_WON) == 1
+                    || (int) data.get(GameData.USER_LOST) == 1
+                    || (int) data.get(GameData.DRAWN) == 1;
+        } catch (NullPointerException e) {
             return false;
         }
     }

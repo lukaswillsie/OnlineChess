@@ -19,15 +19,25 @@ public class DrawHelper extends SubHelper implements ReturnCodeCaller {
      */
     private static final String tag = "DrawHelper";
     /**
+     * Constants that this object uses to send Messages to itself
+     */
+    private static final int SYSTEM_ERROR = -3;
+    private static final int CONNECTION_LOST = -2;
+    private static final int SERVER_ERROR = -1;
+    private static final int SUCCESS = 0;
+    private static final int GAME_DOES_NOT_EXIST = 1;
+    private static final int USER_NOT_IN_GAME = 2;
+    private static final int NO_OPPONENT = 3;
+    private static final int GAME_IS_OVER = 4;
+    private static final int NOT_USER_TURN = 5;
+    /**
      * Set each time a new request is submitted; will receive callbacks relating to that request
      */
     private DrawRequester requester;
-
     /**
      * The ID of the game that we are currently submitting a draw request for
      */
     private String gameID;
-
     /**
      * Create a new DrawHelper as part of the given ServerHelper
      *
@@ -39,18 +49,18 @@ public class DrawHelper extends SubHelper implements ReturnCodeCaller {
 
     /**
      * Submit a draw request to the server.
-     *
+     * <p>
      * Note: the server condenses both the OFFERING of draws and the ACCEPTING of draw offers into
      * one command. So what this request means depends on whether or not there is an active draw
      * offer from the opponent in the specified game.
      *
      * @param requester - will receive a callback once the server has responded to the request
-     * @param gameID - the game in which to offer/accept a draw
+     * @param gameID    - the game in which to offer/accept a draw
      * @throws MultipleRequestException - if this object is already handling a draw request when
-     * this method is called
+     *                                  this method is called
      */
     void draw(DrawRequester requester, String gameID) throws MultipleRequestException {
-        if(this.requester != null) {
+        if (this.requester != null) {
             throw new MultipleRequestException("Tried to submit multiple draw requests to ServerHelper");
         }
 
@@ -153,19 +163,6 @@ public class DrawHelper extends SubHelper implements ReturnCodeCaller {
     public void connectionLost() {
         this.obtainMessage(CONNECTION_LOST).sendToTarget();
     }
-
-    /**
-     * Constants that this object uses to send Messages to itself
-     */
-    private static final int SYSTEM_ERROR = -3;
-    private static final int CONNECTION_LOST = -2;
-    private static final int SERVER_ERROR = -1;
-    private static final int SUCCESS = 0;
-    private static final int GAME_DOES_NOT_EXIST = 1;
-    private static final int USER_NOT_IN_GAME = 2;
-    private static final int NO_OPPONENT = 3;
-    private static final int GAME_IS_OVER = 4;
-    private static final int NOT_USER_TURN = 5;
 
     /**
      * We use this method so that we can give callbacks on the UI thread (as opposed to our worker

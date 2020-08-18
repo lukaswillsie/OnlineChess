@@ -19,11 +19,11 @@ import com.lukaswillsie.onlinechess.activities.Reconnector;
 import com.lukaswillsie.onlinechess.data.GameData;
 import com.lukaswillsie.onlinechess.data.UserGame;
 import com.lukaswillsie.onlinechess.network.Server;
+import com.lukaswillsie.onlinechess.network.helper.MultipleRequestException;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 import com.lukaswillsie.onlinechess.network.helper.requesters.DrawRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.ForfeitRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.LoadGameRequester;
-import com.lukaswillsie.onlinechess.network.helper.MultipleRequestException;
 import com.lukaswillsie.onlinechess.network.helper.requesters.RejectRequester;
 
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ import Chess.com.lukaswillsie.chess.Board;
  * BoardActivity is the most important Activity in the app; it allows users to actually view
  * their game boards and make moves.
  */
-public class BoardActivity extends ErrorDialogActivity implements ReconnectListener, LoadGameRequester, GameDialogCreator,  GameListener {
+public class BoardActivity extends ErrorDialogActivity implements ReconnectListener, LoadGameRequester, GameDialogCreator, GameListener {
     /**
      * Activities that start this Activity MUST use this tag to pass, as an extra in the intent,
      * the ID of the game that this Activity is supposed to load.
@@ -96,7 +96,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
      * @param v - the View that was clicked
      */
     public void draw(View v) {
-        if(manager != null && !activeRequest) {
+        if (manager != null && !activeRequest) {
             try {
                 Server.getServerHelper().draw(new OfferDrawRequestListener(), gameID);
                 activeRequest = true;
@@ -112,7 +112,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
      * @param v - the View that was clicked
      */
     public void refresh(View v) {
-        if(manager != null) {
+        if (manager != null) {
             start(gameID);
         }
     }
@@ -123,7 +123,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
      * @param v - the View that was clicked
      */
     public void resign(View v) {
-        if(manager != null && !activeRequest) {
+        if (manager != null && !activeRequest) {
             try {
                 Server.getServerHelper().forfeit(new ForfeitRequestListener(), gameID);
                 activeRequest = true;
@@ -204,10 +204,9 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
         // need
         GamePresenter presenter = new GamePresenter(game, board);
         this.game = game;
-        if(manager == null) {
+        if (manager == null) {
             manager = new ChessManager(gameID, presenter, display, this, this, this);
-        }
-        else {
+        } else {
             manager.setGame(gameID, presenter);
         }
 
@@ -216,8 +215,8 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
         // over by the server. This ensures our model is always up to date.
         // Note that we can be sure we are going to find it, because we would have already searched
         // for it in start()
-        for(int i = 0; i < Server.getGames().size(); i++) {
-            if(Server.getGames().get(i).getData(GameData.GAMEID).equals(game.getData(GameData.GAMEID))) {
+        for (int i = 0; i < Server.getGames().size(); i++) {
+            if (Server.getGames().get(i).getData(GameData.GAMEID).equals(game.getData(GameData.GAMEID))) {
                 Server.getGames().set(i, game);
                 break;
             }
@@ -241,22 +240,20 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
             int state = (Integer) game.getData(GameData.STATE);
             String opponent = (String) game.getData(GameData.OPPONENT);
 
-            if(opponent.length() == 0) {
+            if (opponent.length() == 0) {
                 ((TextView) findViewById(R.id.opponent)).setText(R.string.game_no_opponent_text);
-            }
-            else {
+            } else {
                 ((TextView) findViewById(R.id.opponent)).setText(getString(R.string.game_opponent_label, opponent));
             }
             ((TextView) findViewById(R.id.title)).setText(gameID);
             ((TextView) findViewById(R.id.turn_counter)).setText(getString(R.string.game_turn_number_label, Integer.toString(turn)));
 
             TextView stateLabel = findViewById(R.id.state);
-            if(game.isOver()) {
-                if((Integer) game.getData(GameData.USER_WON) == 1) {
+            if (game.isOver()) {
+                if ((Integer) game.getData(GameData.USER_WON) == 1) {
                     stateLabel.setTextColor(getResources().getColor(R.color.user_win));
                     stateLabel.setText(R.string.user_won_state_label);
-                }
-                else if((Integer) game.getData(GameData.USER_LOST) == 1) {
+                } else if ((Integer) game.getData(GameData.USER_LOST) == 1) {
                     stateLabel.setTextColor(getResources().getColor(R.color.user_lose));
                     stateLabel.setText(R.string.user_lost_state_label);
                 }
@@ -265,18 +262,15 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
                     stateLabel.setTextColor(getResources().getColor(R.color.light_gray));
                     stateLabel.setText(R.string.draw_state_label);
                 }
-            }
-            else if(state == 1) {
+            } else if (state == 1) {
                 stateLabel.setTextColor(getResources().getColor(R.color.user_turn));
                 stateLabel.setText(R.string.user_turn_state_label);
-            }
-            else {
+            } else {
                 stateLabel.setTextColor(getResources().getColor(R.color.light_gray));
 
                 if (drawOffered == 1) {
                     stateLabel.setText(R.string.opponent_turn_draw_offer_state_label);
-                }
-                else {
+                } else {
                     stateLabel.setText(getString(R.string.opponent_move_state_label, opponent));
                 }
             }
@@ -289,10 +283,10 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
 
             // Figure out what to do with the "Draw" and "Resign" buttons, as well as the draw offer
             // layout
-            if(!game.isOver() && state == 1) {
+            if (!game.isOver() && state == 1) {
                 // If the user has been offered a draw, show the draw offer layout and hide the
                 // "Draw" and "Resign" buttons
-                if(drawOffered == 1) {
+                if (drawOffered == 1) {
                     showDrawOfferLayout();
                     stateLabel.setVisibility(View.GONE);
                     findViewById(R.id.draw_placeholder).setVisibility(View.VISIBLE);
@@ -378,8 +372,8 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
 
         // Get the index of the current game in the list of games in which it is the user's turn
         int index = -1;
-        for(int i = 0; i < activeGames.size(); i++) {
-            if(activeGames.get(i).getData(GameData.GAMEID).equals(gameID)) {
+        for (int i = 0; i < activeGames.size(); i++) {
+            if (activeGames.get(i).getData(GameData.GAMEID).equals(gameID)) {
                 index = i;
                 break;
             }
@@ -388,11 +382,10 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
         // If the user is not viewing a game in which it is their turn, we jump to a game in which
         // do have to make a move, namely the first in our list. If there aren't ANY games they have
         // to make a move in, we notify them of this fact.
-        if(index == -1) {
-            if(activeGames.size() == 0) {
+        if (index == -1) {
+            if (activeGames.size() == 0) {
                 Display.makeToast(this, "There are no games in which it is your turn", Toast.LENGTH_LONG);
-            }
-            else {
+            } else {
                 start((String) activeGames.get(0).getData(GameData.GAMEID));
             }
         }
@@ -400,9 +393,9 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
         else {
             // If there is only one active game, the one we are displaying, we don't have to do
             // anything. So we only load a new game if activesGames.size() is not equal to 1.
-            if(activeGames.size() != 1) {
+            if (activeGames.size() != 1) {
                 // Increment index, or set index to 0 if it's already at the end of activeGames
-                index = (index == activeGames.size()-1) ? 0 : index + 1;
+                index = (index == activeGames.size() - 1) ? 0 : index + 1;
 
                 start((String) activeGames.get(index).getData(GameData.GAMEID));
             }
@@ -432,8 +425,8 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
 
         // Get the index of the current game in the list of games in which it is the user's turn
         int index = -1;
-        for(int i = 0; i < activeGames.size(); i++) {
-            if(activeGames.get(i).getData(GameData.GAMEID).equals(gameID)) {
+        for (int i = 0; i < activeGames.size(); i++) {
+            if (activeGames.get(i).getData(GameData.GAMEID).equals(gameID)) {
                 index = i;
                 break;
             }
@@ -441,15 +434,13 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
 
         // If the user is not viewing a game in which it is their turn, we show them the game which
         // is first in the list. Or notify them if there are no games in which it is their turn.
-        if(index == -1) {
-            if(activeGames.size() == 0) {
+        if (index == -1) {
+            if (activeGames.size() == 0) {
                 Display.makeToast(this, "There are no games in which it is your turn", Toast.LENGTH_LONG);
-            }
-            else {
+            } else {
                 start((String) activeGames.get(0).getData(GameData.GAMEID));
             }
-        }
-        else {
+        } else {
             // Decrement index, or set it to activeGames.size() - 1 if it's already 0
             index = (index == 0) ? activeGames.size() - 1 : index - 1;
 
@@ -491,10 +482,9 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
      */
     @Override
     public void showUserWinDialog(boolean resigned) {
-        if(resigned) {
+        if (resigned) {
             showOutcomeDialog(Outcome.WIN_RESIGN);
-        }
-        else {
+        } else {
             showOutcomeDialog(Outcome.WIN);
         }
     }
@@ -515,16 +505,6 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
     @Override
     public void showUserDrawDialog() {
         showOutcomeDialog(Outcome.DRAW);
-    }
-
-    /**
-     * Represents the different possible outcomes that a game of chess can have.
-     */
-    private enum Outcome {
-        WIN,        // The user won through checkmate
-        WIN_RESIGN, // The user won because their opponent resigned
-        LOSE,       // The user lost
-        DRAW;       // The game ended in a draw
     }
 
     /**
@@ -615,10 +595,6 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
         start(gameID);
     }
 
-
-
-    /* METHODS FOR INTERACTING WITH DIALOGS CREATED BY ErrorDialogActivity */
-
     /**
      * Provides behaviour in the event that the user presses "Cancel" on a system error dialog
      */
@@ -626,6 +602,10 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
     public void cancelSystemError() {
         finish();
     }
+
+
+
+    /* METHODS FOR INTERACTING WITH DIALOGS CREATED BY ErrorDialogActivity */
 
     /**
      * Provides behaviour in the event that the user presses "Try Again" on a server error dialog
@@ -651,6 +631,16 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
     @Override
     public void retryConnection() {
         new Reconnector(this, this).reconnect();
+    }
+
+    /**
+     * Represents the different possible outcomes that a game of chess can have.
+     */
+    private enum Outcome {
+        WIN,        // The user won through checkmate
+        WIN_RESIGN, // The user won because their opponent resigned
+        LOSE,       // The user lost
+        DRAW       // The game ended in a draw
     }
 
     /**
@@ -775,7 +765,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
         private AcceptRejectListener(boolean isAccept) {
             this.isAccept = isAccept;
         }
-        
+
         @Override
         public void drawSuccess() {
             // Update the model
@@ -830,8 +820,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
         public void gameDoesNotExist() {
             if (isAccept) {
                 showAcceptanceError();
-            }
-            else {
+            } else {
                 showRejectionError();
             }
 
@@ -842,8 +831,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
         public void userNotInGame() {
             if (isAccept) {
                 showAcceptanceError();
-            }
-            else {
+            } else {
                 showRejectionError();
             }
 
@@ -854,8 +842,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
         public void noOpponent() {
             if (isAccept) {
                 showAcceptanceError();
-            }
-            else {
+            } else {
                 showRejectionError();
             }
 
@@ -866,8 +853,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
         public void gameIsOver() {
             if (isAccept) {
                 showAcceptanceError();
-            }
-            else {
+            } else {
                 showRejectionError();
             }
 
@@ -878,8 +864,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
         public void notUserTurn() {
             if (isAccept) {
                 showAcceptanceError();
-            }
-            else {
+            } else {
                 showRejectionError();
             }
 
@@ -890,8 +875,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
         public void noDrawOffer() {
             if (isAccept) {
                 showAcceptanceError();
-            }
-            else {
+            } else {
                 showRejectionError();
             }
 
@@ -902,8 +886,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
         public void serverError() {
             if (isAccept) {
                 showAcceptanceError();
-            }
-            else {
+            } else {
                 showRejectionError();
             }
 
@@ -914,8 +897,7 @@ public class BoardActivity extends ErrorDialogActivity implements ReconnectListe
         public void systemError() {
             if (isAccept) {
                 showAcceptanceError();
-            }
-            else {
+            } else {
                 showRejectionError();
             }
 

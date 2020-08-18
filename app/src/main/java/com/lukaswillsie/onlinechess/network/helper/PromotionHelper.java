@@ -19,13 +19,25 @@ public class PromotionHelper extends SubHelper implements ReturnCodeCaller {
      * Tag used for logging to the console
      */
     private static final String tag = "PromotionHelper";
-
+    /**
+     * Constants this class uses so that objects can send Messages to themselves
+     */
+    private static final int SYSTEM_ERROR = -3;
+    private static final int CONNECTION_LOST = -2;
+    private static final int SERVER_ERROR = -1;
+    private static final int SUCCESS = 0;
+    private static final int GAME_DOES_NOT_EXIST = 1;
+    private static final int USER_NOT_IN_GAME = 2;
+    private static final int NO_OPPONENT = 3;
+    private static final int GAME_IS_OVER = 4;
+    private static final int NOT_USER_TURN = 5;
+    private static final int NO_PROMOTION = 6;
+    private static final int CHAR_REP_INVALID = 7;
     /**
      * The object that will receive callbacks from us when the request we submit to ReturnCodeThread
      * terminates. null if we are not currently handling a request.
      */
     private PromotionRequester requester;
-
     /**
      * Create a new SubHelper as part of the given ServerHelper
      *
@@ -39,13 +51,13 @@ public class PromotionHelper extends SubHelper implements ReturnCodeCaller {
      * Send a promote request to the server.
      *
      * @param requester - will receive callback once the server has responded to the request
-     * @param gameID - the game to issue the promotion in
-     * @param piece - the type of piece that the pawn should be promoted into
+     * @param gameID    - the game to issue the promotion in
+     * @param piece     - the type of piece that the pawn should be promoted into
      * @throws MultipleRequestException - if this object is already handling a promotion request
-     * when this method is called.
+     *                                  when this method is called.
      */
     void promote(PromotionRequester requester, String gameID, PieceType.PromotePiece piece) throws MultipleRequestException {
-        if(this.requester != null) {
+        if (this.requester != null) {
             throw new MultipleRequestException("Submitted multiple promote requests to PromotionHelper");
         }
         this.requester = requester;
@@ -58,7 +70,7 @@ public class PromotionHelper extends SubHelper implements ReturnCodeCaller {
      * Convert the given gameID and charRep into a promote request.
      *
      * @param gameID - the gameID to attempt to promote in
-     * @param piece - specifies the piece to be promoted into
+     * @param piece  - specifies the piece to be promoted into
      * @return A String, a valid promotion request that can be sent to the server
      */
     private String getRequest(String gameID, PieceType.PromotePiece piece) {
@@ -155,21 +167,6 @@ public class PromotionHelper extends SubHelper implements ReturnCodeCaller {
     }
 
     /**
-     * Constants this class uses so that objects can send Messages to themselves
-     */
-    private static final int SYSTEM_ERROR = -3;
-    private static final int CONNECTION_LOST = -2;
-    private static final int SERVER_ERROR = -1;
-    private static final int SUCCESS = 0;
-    private static final int GAME_DOES_NOT_EXIST = 1;
-    private static final int USER_NOT_IN_GAME = 2;
-    private static final int NO_OPPONENT = 3;
-    private static final int GAME_IS_OVER = 4;
-    private static final int NOT_USER_TURN = 5;
-    private static final int NO_PROMOTION = 6;
-    private static final int CHAR_REP_INVALID = 7;
-
-    /**
      * Allows us to give callbacks to whoever made a request of us, but run them on the UI thread,
      * instead of our worker thread, because we'd get exceptions if we tried to edit the UI from
      * a thread other than the UI thread.
@@ -209,7 +206,7 @@ public class PromotionHelper extends SubHelper implements ReturnCodeCaller {
                 // Allows us to accept another request
                 this.requester = null;
                 break;
-            case  USER_NOT_IN_GAME:
+            case USER_NOT_IN_GAME:
                 requester.userNotInGame();
 
                 // Allows us to accept another request

@@ -55,7 +55,7 @@ public class LoadGameHelper extends SubHelper implements LoadGameCaller {
      * @param requester - the object that will receive the relevant callback when the request
      *                  terminates
      * @param gameID    - the gameID of the game that should be requested
-     * @param username - the username of the user currently logged in to the app
+     * @param username  - the username of the user currently logged in to the app
      * @throws MultipleRequestException - if this object is already handling a load game request
      *                                  when this method is called
      */
@@ -102,8 +102,8 @@ public class LoadGameHelper extends SubHelper implements LoadGameCaller {
      *
      * @param board - a Board object successfully initialized to contain the state of the board in
      *              the given game
-     * @param game - a UserGame object initialized to contain all the high-level information about
-     *             the game that was requested
+     * @param game  - a UserGame object initialized to contain all the high-level information about
+     *              the game that was requested
      */
     @Override
     public void success(Board board, UserGame game) {

@@ -74,8 +74,7 @@ public class ArchivedUserGamesAdapter extends UserGamesAdapter {
         } else if (state == 0) {
             setIconBackground(holder, R.drawable.restore_icon_opponent_turn);
             setIconListener(holder, new RestoreListener(game));
-        }
-        else {
+        } else {
             setIconBackground(holder, R.drawable.restore_icon_user_turn);
             setIconListener(holder, new RestoreListener(game));
         }

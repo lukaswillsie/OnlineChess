@@ -18,7 +18,6 @@ import com.lukaswillsie.onlinechess.activities.board.BoardActivity;
 import com.lukaswillsie.onlinechess.data.GameData;
 import com.lukaswillsie.onlinechess.data.UserGame;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -49,16 +48,6 @@ public class UserGamesAdapter extends RecyclerView.Adapter<UserGamesAdapter.Game
     public UserGamesAdapter(Context context, List<UserGame> games) {
         this.games = games;
         this.context = context;
-    }
-
-    /**
-     * Update the adapter to show the given list of games, instead of the list it is showing now
-     *
-     * @param games - the new List of games to display
-     */
-    public void setGames(List<UserGame> games) {
-        this.games = games;
-        notifyDataSetChanged();
     }
 
     /**
@@ -148,10 +137,9 @@ public class UserGamesAdapter extends RecyclerView.Adapter<UserGamesAdapter.Game
 
             holder.card.setBackground(resources.getDrawable(R.drawable.game_over_background));
         } else if (state == 0) {
-            if(drawOffered == 1) {
+            if (drawOffered == 1) {
                 holder.status.setText(R.string.draw_offered_to_opponent);
-            }
-            else {
+            } else {
                 holder.status.setText(R.string.opponent_turn);
             }
 
@@ -218,6 +206,16 @@ public class UserGamesAdapter extends RecyclerView.Adapter<UserGamesAdapter.Game
 
     protected List<UserGame> getGames() {
         return games;
+    }
+
+    /**
+     * Update the adapter to show the given list of games, instead of the list it is showing now
+     *
+     * @param games - the new List of games to display
+     */
+    public void setGames(List<UserGame> games) {
+        this.games = games;
+        notifyDataSetChanged();
     }
 
     /**

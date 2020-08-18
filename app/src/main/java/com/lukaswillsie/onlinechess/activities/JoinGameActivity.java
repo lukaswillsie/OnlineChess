@@ -15,8 +15,8 @@ import com.lukaswillsie.onlinechess.activities.game_display.OpenGamesActivity;
 import com.lukaswillsie.onlinechess.data.Format;
 import com.lukaswillsie.onlinechess.data.UserGame;
 import com.lukaswillsie.onlinechess.network.Server;
-import com.lukaswillsie.onlinechess.network.helper.requesters.JoinGameRequester;
 import com.lukaswillsie.onlinechess.network.helper.MultipleRequestException;
+import com.lukaswillsie.onlinechess.network.helper.requesters.JoinGameRequester;
 
 /**
  * This activity allows the user to join games. They can either enter the ID of a game their friend

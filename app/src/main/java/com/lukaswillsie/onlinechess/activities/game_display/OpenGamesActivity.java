@@ -17,8 +17,8 @@ import com.lukaswillsie.onlinechess.activities.Reconnector;
 import com.lukaswillsie.onlinechess.data.Game;
 import com.lukaswillsie.onlinechess.data.ServerData;
 import com.lukaswillsie.onlinechess.network.Server;
-import com.lukaswillsie.onlinechess.network.helper.requesters.OpenGamesRequester;
 import com.lukaswillsie.onlinechess.network.helper.MultipleRequestException;
+import com.lukaswillsie.onlinechess.network.helper.requesters.OpenGamesRequester;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,12 +105,12 @@ public class OpenGamesActivity extends ErrorDialogActivity implements OpenGamesR
         }
 
         RecyclerView recyclerView = findViewById(R.id.games_recycler);
-        ((OpenGamesAdapter)recyclerView.getAdapter()).setGames(games);
+        ((OpenGamesAdapter) recyclerView.getAdapter()).setGames(games);
 
         // If the open games request we submitted was a result of a refresh, we need to end the
         // refresh animation.
         SwipeRefreshLayout refreshLayout = findViewById(R.id.games_refresh);
-        if(refreshLayout.isRefreshing()) {
+        if (refreshLayout.isRefreshing()) {
             refreshLayout.setRefreshing(false);
         }
     }
@@ -126,7 +126,7 @@ public class OpenGamesActivity extends ErrorDialogActivity implements OpenGamesR
         // If the open games request we submitted was a result of a refresh, we need to end the
         // refresh animation.
         SwipeRefreshLayout refreshLayout = findViewById(R.id.games_refresh);
-        if(refreshLayout.isRefreshing()) {
+        if (refreshLayout.isRefreshing()) {
             refreshLayout.setRefreshing(false);
         }
     }
@@ -141,7 +141,7 @@ public class OpenGamesActivity extends ErrorDialogActivity implements OpenGamesR
         // If the open games request we submitted was a result of a refresh, we need to end the
         // refresh animation.
         SwipeRefreshLayout refreshLayout = findViewById(R.id.games_refresh);
-        if(refreshLayout.isRefreshing()) {
+        if (refreshLayout.isRefreshing()) {
             refreshLayout.setRefreshing(false);
         }
     }
@@ -156,7 +156,7 @@ public class OpenGamesActivity extends ErrorDialogActivity implements OpenGamesR
         // If the open games request we submitted was a result of a refresh, we need to end the
         // refresh animation.
         SwipeRefreshLayout refreshLayout = findViewById(R.id.games_refresh);
-        if(refreshLayout.isRefreshing()) {
+        if (refreshLayout.isRefreshing()) {
             refreshLayout.setRefreshing(false);
         }
     }

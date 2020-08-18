@@ -16,6 +16,13 @@ import java.util.List;
  */
 public class LoadGamesHelper extends SubHelper implements LoadGamesCaller {
     /**
+     * Constants used by this object to send Messages to the UI thread.
+     */
+    private static final int CONNECTION_LOST = -3;
+    private static final int SYSTEM_ERROR = -2;
+    private static final int SERVER_ERROR = -1;
+    private static final int SUCCESS = 0;
+    /**
      * Will receive callbacks from this object when the request currently being handled by this
      * object either fails or succeeds. null if there is not active request.
      */
@@ -33,15 +40,15 @@ public class LoadGamesHelper extends SubHelper implements LoadGamesCaller {
     /**
      * Sends a load games request to the server.
      *
-     * @param username - the username of the user currently logged in to the app; i.e. the user
-     *                 whose games we are loading
+     * @param username  - the username of the user currently logged in to the app; i.e. the user
+     *                  whose games we are loading
      * @param requester - the object that will receive callbacks from us when the request either
      *                  succeeds or fails
      * @throws MultipleRequestException - if this object is already handling a load games request
-     * when this method is called
+     *                                  when this method is called
      */
     void loadGames(String username, LoadGamesRequester requester) throws MultipleRequestException {
-        if(this.requester != null) {
+        if (this.requester != null) {
             throw new MultipleRequestException("Attempted to submit multiple load games requests to ServerHelper");
         }
         this.requester = requester;
@@ -83,14 +90,6 @@ public class LoadGamesHelper extends SubHelper implements LoadGamesCaller {
     public void success(List<UserGame> games) {
         this.obtainMessage(SUCCESS, games).sendToTarget();
     }
-
-    /**
-     * Constants used by this object to send Messages to the UI thread.
-     */
-    private static final int CONNECTION_LOST = -3;
-    private static final int SYSTEM_ERROR = -2;
-    private static final int SERVER_ERROR = -1;
-    private static final int SUCCESS = 0;
 
     /**
      * We use this method so that we can give callbacks on the UI thread (as opposed to our worker

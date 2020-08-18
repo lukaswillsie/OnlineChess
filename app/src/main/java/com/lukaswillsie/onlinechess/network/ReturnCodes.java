@@ -109,8 +109,8 @@ public class ReturnCodes {
     /**
      * Defines return codes specific to the "loadgames" command, for loading all of a user's games
      * at once
-     * @author Lukas Willsie
      *
+     * @author Lukas Willsie
      */
     public static class LoadGames {
         // Return code if the client has a user logged in, and can expect to receive the user's games

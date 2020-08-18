@@ -33,6 +33,7 @@ public class JoinGameHelper extends SubHelper implements JoinGameCaller {
      * callbacks
      */
     private JoinGameRequester requester;
+
     /**
      * Create a new SubHelper as part of the given ServerHelper
      *

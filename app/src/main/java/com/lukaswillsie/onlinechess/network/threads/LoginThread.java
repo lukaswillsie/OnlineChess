@@ -47,8 +47,8 @@ public class LoginThread extends NetworkThread {
      * @param caller   - the object that this thread will report back to
      * @param username - the username to try and log in with
      * @param password - the password to try and log in with
-     * @param writer - the device this Thread will use to write to the server
-     * @param reader - the device this Thread will use to read from the server
+     * @param writer   - the device this Thread will use to write to the server
+     * @param reader   - the device this Thread will use to read from the server
      */
     public LoginThread(String username, String password, LoginCaller caller, PrintWriter writer, DataInputStream reader) {
         super(writer, reader);

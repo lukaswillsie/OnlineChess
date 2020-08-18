@@ -100,24 +100,24 @@ public class GamePresenter {
      * pieces on the screen that aren't on the board yet. For example, we use this when handling
      * promotions.
      *
-     * @param type - specifies what piece should be created
+     * @param type   - specifies what piece should be created
      * @param colour - the Colour of the dummy piece to be created
      * @return A dummy piece of the given type and Colour
      */
     public Piece createDummyPiece(@NonNull PieceType type, Colour colour) {
         switch (type) {
             case PAWN:
-                return new Pawn(0,0, colour, board);
+                return new Pawn(0, 0, colour, board);
             case ROOK:
-                return new Rook(0,0, colour, board);
+                return new Rook(0, 0, colour, board);
             case KNIGHT:
-                return new Knight(0,0, colour, board);
+                return new Knight(0, 0, colour, board);
             case BISHOP:
-                return new Bishop(0,0, colour, board);
+                return new Bishop(0, 0, colour, board);
             case QUEEN:
-                return new Queen(0,0, colour, board);
+                return new Queen(0, 0, colour, board);
             case KING:
-                return new King(0,0, colour, board);
+                return new King(0, 0, colour, board);
         }
 
         // This will never be reached because the above switch is exhaustive
@@ -285,18 +285,18 @@ public class GamePresenter {
      * Attempt to issue a promotion request on behalf of the user
      *
      * @param piece - indicates what piece to promote INTO
-     * @return  0 if the promotion was successful
-     *          1 if the promotion failed
+     * @return 0 if the promotion was successful
+     * 1 if the promotion failed
      */
     public int promote(PieceType.PromotePiece piece) {
         // If it isn't the user's turn
-        if((Integer) game.getData(GameData.STATE) == 0) {
+        if ((Integer) game.getData(GameData.STATE) == 0) {
             Log.e(tag, "Was asked to promote even though it isn't the user's turn");
             return 1;
         }
 
         int code = board.promote(piece.charRep);
-        if(code == 2) {
+        if (code == 2) {
             Log.e(tag, "PromotePiece " + piece + " has invalid charRep: '" + piece.charRep + "' that was rejected by Board");
         }
         return (code == 0) ? 0 : 1;

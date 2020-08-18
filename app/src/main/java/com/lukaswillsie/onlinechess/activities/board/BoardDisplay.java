@@ -10,7 +10,6 @@ import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TableLayout;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
@@ -91,7 +90,7 @@ public class BoardDisplay {
      * Binds this BoardDisplay object to the given GamePresenter. The screen will be updated to
      * display the board contained in the given GamePresenter. The given DisplayListener will
      * be notified of all touch events that occur on the board.
-     *
+     * <p>
      * Anything currently being displayed on the screen will be erased, and after this method has
      * executed the board on the screen will exactly mirror the board contained in the given
      * GamePresenter.
@@ -199,21 +198,20 @@ public class BoardDisplay {
     /**
      * Attach a promotion banner to the given square on the board, allowing the user to select the
      * piece that they want to promote a pawn into.
-     *
+     * <p>
      * IMPORTANT NOTE: Row and column should be given as BOARD COORDINATES, independent of what
      * colour the user is playing. Does nothing if row and column are not both between 0 and 7,
      * inclusive.
      *
-     * @param row - the row on the board occupied by the square to attach the banner to
-     * @param column - the column on the board occupied by the square to attach the banner to
+     * @param row      - the row on the board occupied by the square to attach the banner to
+     * @param column   - the column on the board occupied by the square to attach the banner to
      * @param listener - will receive a callback when the user selects a piece from the banner
      */
     public void attachPromotionBanner(int row, int column, Square.BannerListener listener) {
         if (0 <= row && row <= 7 && 0 <= column && column <= 7) {
-            if(presenter.getUserColour() == Colour.WHITE) {
+            if (presenter.getUserColour() == Colour.WHITE) {
                 board[row][column].attachPromotionBanner(presenter.getUserColour(), listener);
-            }
-            else {
+            } else {
                 board[7 - row][7 - column].attachPromotionBanner(presenter.getUserColour(), listener);
             }
         }
@@ -222,20 +220,19 @@ public class BoardDisplay {
     /**
      * Detach a promotion banner from the given square on the board. If no promotion banner is
      * attached to the specified square, nothing happens.
-     *
+     * <p>
      * IMPORTANT NOTE: Row and column should be given as BOARD COORDINATES, independent of what
      * colour the user is playing. Does nothing if row and column are not both between 0 and 7,
      * inclusive.
      *
-     * @param row - the row on the board occupied by the square to attach the banner to
+     * @param row    - the row on the board occupied by the square to attach the banner to
      * @param column - the column on the board occupied by the square to attach the banner to
      */
     public void detachPromotionBanner(int row, int column) {
         if (0 <= row && row <= 7 && 0 <= column && column <= 7) {
-            if(presenter.getUserColour() == Colour.WHITE) {
+            if (presenter.getUserColour() == Colour.WHITE) {
                 board[row][column].detachPromotionBanner();
-            }
-            else {
+            } else {
                 board[7 - row][7 - column].detachPromotionBanner();
             }
         }

@@ -43,6 +43,7 @@ public class MoveHelper extends SubHelper implements ReturnCodeCaller {
      * there is no currently active request
      */
     private MoveRequester requester;
+
     /**
      * Create a new SubHelper as part of the given ServerHelper
      *

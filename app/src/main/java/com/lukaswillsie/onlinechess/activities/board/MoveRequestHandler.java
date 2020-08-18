@@ -3,8 +3,8 @@ package com.lukaswillsie.onlinechess.activities.board;
 import android.util.Log;
 
 import com.lukaswillsie.onlinechess.network.Server;
-import com.lukaswillsie.onlinechess.network.helper.requesters.MoveRequester;
 import com.lukaswillsie.onlinechess.network.helper.MultipleRequestException;
+import com.lukaswillsie.onlinechess.network.helper.requesters.MoveRequester;
 
 /**
  * Submits move requests to the server and handles the result for a MoveRequestListener object.
@@ -32,7 +32,7 @@ class MoveRequestHandler implements MoveRequester {
 
     /**
      * Submit a move request.
-     *
+     * <p>
      * Note: Only one move request may be submitted at a time. If you submit a move request, you
      * must wait until you receive a callback for that request before submitting another one. If
      * you do not, a call to this method will log the error and immediately give a callback to the

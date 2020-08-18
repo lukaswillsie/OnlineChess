@@ -18,17 +18,26 @@ public class ForfeitHelper extends SubHelper implements ReturnCodeCaller {
      * Tag used for logging to the console
      */
     private static final String tag = "ForfeitHelper";
-
+    /**
+     * Constants that this object uses to send Messages to itself
+     */
+    private static final int SYSTEM_ERROR = -3;
+    private static final int CONNECTION_LOST = -2;
+    private static final int SERVER_ERROR = -1;
+    private static final int SUCCESS = 0;
+    private static final int GAME_DOES_NOT_EXIST = 1;
+    private static final int USER_NOT_IN_GAME = 2;
+    private static final int NO_OPPONENT = 3;
+    private static final int GAME_IS_OVER = 4;
+    private static final int NOT_USER_TURN = 5;
     /**
      * Set each time a new request is submitted; will receiving callbacks relating to that request
      */
     private ForfeitRequester requester;
-
     /**
      * The ID of the game that we are currently submitting a forfeit request in
      */
     private String gameID;
-
     /**
      * Create a new ForfeitHelper as part of the given ServerHelper
      *
@@ -42,12 +51,12 @@ public class ForfeitHelper extends SubHelper implements ReturnCodeCaller {
      * Submit a forfeit request to the server.
      *
      * @param requester - will receive a callback once the server has responded to the request
-     * @param gameID - the game that the user wants to forfeit
+     * @param gameID    - the game that the user wants to forfeit
      * @throws MultipleRequestException - if this object is already handling a forfeit request when
-     * this method is called
+     *                                  this method is called
      */
     void forfeit(ForfeitRequester requester, String gameID) throws MultipleRequestException {
-        if(this.requester != null) {
+        if (this.requester != null) {
             throw new MultipleRequestException("Tried to submit multiple forfeit requests to ServerHelper");
         }
 
@@ -149,19 +158,6 @@ public class ForfeitHelper extends SubHelper implements ReturnCodeCaller {
     public void connectionLost() {
         this.obtainMessage(CONNECTION_LOST).sendToTarget();
     }
-
-    /**
-     * Constants that this object uses to send Messages to itself
-     */
-    private static final int SYSTEM_ERROR = -3;
-    private static final int CONNECTION_LOST = -2;
-    private static final int SERVER_ERROR = -1;
-    private static final int SUCCESS = 0;
-    private static final int GAME_DOES_NOT_EXIST = 1;
-    private static final int USER_NOT_IN_GAME = 2;
-    private static final int NO_OPPONENT = 3;
-    private static final int GAME_IS_OVER = 4;
-    private static final int NOT_USER_TURN = 5;
 
     /**
      * We use this method so that we can give callbacks on the UI thread (as opposed to our worker

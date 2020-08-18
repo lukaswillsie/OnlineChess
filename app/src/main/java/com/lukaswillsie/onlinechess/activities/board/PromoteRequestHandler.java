@@ -31,18 +31,18 @@ class PromoteRequestHandler implements PromotionRequester {
 
     /**
      * Submit a promote request.
-     *
+     * <p>
      * Note: Only one promote request may be submitted at a time. If you submit a promote request,
      * you must wait until you receive a callback for that request before submitting another one. If
      * you do not, a call to this method will log the error and immediately give a callback to the
      * promotionFailed() method of the listener given to this object at creation.
      *
-     * @param piece - specifies which piece we are trying to promote a pawn into
+     * @param piece  - specifies which piece we are trying to promote a pawn into
      * @param gameID - specifies which game to make the promotion request in
      */
     void promote(PieceType.PromotePiece piece, String gameID) {
         try {
-            Server.getServerHelper().promote(this, gameID,piece);
+            Server.getServerHelper().promote(this, gameID, piece);
         } catch (MultipleRequestException e) {
             Log.e(tag, "Submitted multiple promote requests to ServerHelper");
         }

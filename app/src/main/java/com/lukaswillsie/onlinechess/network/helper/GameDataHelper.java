@@ -11,6 +11,15 @@ import com.lukaswillsie.onlinechess.network.threads.callers.GameDataCaller;
 
 public class GameDataHelper extends SubHelper implements GameDataCaller {
     /**
+     * Constants used by this object to send Messages to itself
+     */
+    private static final int CONNECTION_LOST = -3;
+    private static final int SYSTEM_ERROR = -2;
+    private static final int SERVER_ERROR = -1;
+    private static final int SUCCESS = 0;
+    private static final int GAME_DOES_NOT_EXIST = 1;
+    private static final int USER_NOT_IN_GAME = 2;
+    /**
      * The object that will receive callbacks related to this object's currently active request.
      * null if this object is not currently handling a request.
      */
@@ -30,14 +39,13 @@ public class GameDataHelper extends SubHelper implements GameDataCaller {
      *
      * @param requester - will receive a callback once the game data request has terminated, either
      *                  successfully or unsuccessfully
-     * @param gameID - the game whose data we are to request
-     * @param username - the username of the user who we currently have logged in to the app
-     *
+     * @param gameID    - the game whose data we are to request
+     * @param username  - the username of the user who we currently have logged in to the app
      * @throws MultipleRequestException - if this object is already handling a game data request at
-     * the time that this method is called
+     *                                  the time that this method is called
      */
     void getGameData(GameDataRequester requester, String gameID, String username) throws MultipleRequestException {
-        if(this.requester != null) {
+        if (this.requester != null) {
             throw new MultipleRequestException("Tried to submit multiple game data requests to ServerHelper");
         }
         this.requester = requester;
@@ -99,16 +107,6 @@ public class GameDataHelper extends SubHelper implements GameDataCaller {
     public void connectionLost() {
         this.obtainMessage(CONNECTION_LOST).sendToTarget();
     }
-
-    /**
-     * Constants used by this object to send Messages to itself
-     */
-    private static final int CONNECTION_LOST = -3;
-    private static final int SYSTEM_ERROR = -2;
-    private static final int SERVER_ERROR = -1;
-    private static final int SUCCESS = 0;
-    private static final int GAME_DOES_NOT_EXIST = 1;
-    private static final int USER_NOT_IN_GAME = 2;
 
     /**
      * We use this method so that we can give callbacks on the UI thread (as opposed to our worker

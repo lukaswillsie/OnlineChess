@@ -5,7 +5,6 @@ import android.util.Log;
 import com.lukaswillsie.onlinechess.data.ServerData;
 import com.lukaswillsie.onlinechess.data.UserGame;
 import com.lukaswillsie.onlinechess.network.ReturnCodes;
-import com.lukaswillsie.onlinechess.network.threads.callers.LoadGameCaller;
 import com.lukaswillsie.onlinechess.network.threads.callers.LoadGamesCaller;
 
 import java.io.DataInputStream;
@@ -39,9 +38,9 @@ public class LoadGamesThread extends NetworkThread {
      * the given LoadGamesCaller.
      *
      * @param username - the username of the user currently logged in with the server
-     * @param caller - will receive callbacks from this object relevant to the request
-     * @param writer - the device this Thread will use to write to the server
-     * @param reader - the device this Thread will use to read from the server
+     * @param caller   - will receive callbacks from this object relevant to the request
+     * @param writer   - the device this Thread will use to write to the server
+     * @param reader   - the device this Thread will use to read from the server
      */
     public LoadGamesThread(String username, LoadGamesCaller caller, PrintWriter writer, DataInputStream reader) {
         super(writer, reader);

@@ -76,13 +76,13 @@ public class Square {
      * screen. The given ImageView should already have been given layout parameters and added to its
      * parent layout. This object will simply manage the colour of its background and the image
      * resource it is displaying.
-     *
+     * <p>
      * The given ImageView will be given a background according to whether or not this Square is
      * a light or dark square on the board, but won't display any piece until told to do so through
      * the setPiece() method.
      *
-     * @param row    - this Square's row, with row=0 representing the bottom of the board
-     * @param column - the square's column, with column=0 representing the left side of the board
+     * @param row       - this Square's row, with row=0 representing the bottom of the board
+     * @param column    - the square's column, with column=0 representing the left side of the board
      * @param imageView - the ImageView that this object will use to display its piece on the screen
      */
     public Square(int row, int column, ImageView imageView) {
@@ -200,7 +200,7 @@ public class Square {
      * Square already has a promotion banner attached to it when this method is called, that
      * promotion banner is removed.
      *
-     * @param colour - the colour of the pieces to be displayed in the promotion banner
+     * @param colour   - the colour of the pieces to be displayed in the promotion banner
      * @param listener - will receive a callback when the user selects a piece
      */
     public void attachPromotionBanner(Colour colour, final BannerListener listener) {
@@ -208,15 +208,14 @@ public class Square {
 
         // If this square already has a promotion banner attached to it, we remove it from the
         // screen
-        if(promotionBanner != null) {
-            ((ViewGroup)promotionBanner.getParent()).removeView(promotionBanner);
+        if (promotionBanner != null) {
+            ((ViewGroup) promotionBanner.getParent()).removeView(promotionBanner);
         }
 
         // Inflate our banner from an XML file
-        if(colour == Colour.WHITE) {
+        if (colour == Colour.WHITE) {
             promotionBanner = (ConstraintLayout) LayoutInflater.from(context).inflate(R.layout.white_promote_menu_layout, root, false);
-        }
-        else {
+        } else {
             promotionBanner = (ConstraintLayout) LayoutInflater.from(context).inflate(R.layout.black_promote_menu_layout, root, false);
         }
 
@@ -255,7 +254,7 @@ public class Square {
 
         // The banner is already constrained laterally to the sides of the board, in XML. Here we
         // constrain the banner so that it is directly below the row occupied by this Square
-        constraints.connect(promotionBanner.getId(), ConstraintSet.TOP, ((View)image.getParent()).getId(), ConstraintSet.BOTTOM);
+        constraints.connect(promotionBanner.getId(), ConstraintSet.TOP, ((View) image.getParent()).getId(), ConstraintSet.BOTTOM);
         constraints.applyTo(root);
 
         // The banner contains icons for four pieces: a queen, rook, bishop, and knight. Given a
@@ -266,7 +265,7 @@ public class Square {
         // square.
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) promotionBanner.getLayoutParams();
         params.height = image.getHeight() * 4;
-        params.horizontalBias = column * (1f/7);
+        params.horizontalBias = column * (1f / 7);
         promotionBanner.setLayoutParams(params);
     }
 
@@ -275,10 +274,10 @@ public class Square {
      * otherwise.
      */
     public void detachPromotionBanner() {
-        if(promotionBanner != null) {
+        if (promotionBanner != null) {
             // Remove the promotionBanner form the screen and nullify our reference to it so that it
             // can be garbage-collected
-            ((ViewGroup)promotionBanner.getParent()).removeView(promotionBanner);
+            ((ViewGroup) promotionBanner.getParent()).removeView(promotionBanner);
             promotionBanner = null;
         }
     }
@@ -507,6 +506,32 @@ public class Square {
     }
 
     /**
+     * A BannerListener is an object that can be attached to a promotion banner. When the user
+     * selects the piece they want to promote their pawn into, the listener will receive a callback.
+     */
+    public interface BannerListener {
+        /**
+         * Called if the user selects the Queen
+         */
+        void queenPromotion();
+
+        /**
+         * Called if the user selects the Rook
+         */
+        void rookPromotion();
+
+        /**
+         * Called if the user selects the Bishop
+         */
+        void bishopPromotion();
+
+        /**
+         * Called if the user selects the Knight
+         */
+        void knightPromotion();
+    }
+
+    /**
      * This class is responsible for building drag shadows originating from this square
      */
     private class PieceDragShadowBuilder extends View.DragShadowBuilder {
@@ -531,31 +556,5 @@ public class Square {
         public void onDrawShadow(Canvas canvas) {
             shadow.draw(canvas);
         }
-    }
-
-    /**
-     * A BannerListener is an object that can be attached to a promotion banner. When the user
-     * selects the piece they want to promote their pawn into, the listener will receive a callback.
-     */
-    public interface BannerListener {
-        /**
-         * Called if the user selects the Queen
-         */
-        void queenPromotion();
-
-        /**
-         * Called if the user selects the Rook
-         */
-        void rookPromotion();
-
-        /**
-         * Called if the user selects the Bishop
-         */
-        void bishopPromotion();
-
-        /**
-         * Called if the user selects the Knight
-         */
-        void knightPromotion();
     }
 }

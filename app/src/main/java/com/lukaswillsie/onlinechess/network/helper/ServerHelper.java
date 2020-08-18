@@ -25,8 +25,6 @@ import com.lukaswillsie.onlinechess.network.helper.requesters.PromotionRequester
 import com.lukaswillsie.onlinechess.network.helper.requesters.RejectRequester;
 import com.lukaswillsie.onlinechess.network.helper.requesters.RestoreRequester;
 import com.lukaswillsie.onlinechess.network.threads.ConnectThread;
-import com.lukaswillsie.onlinechess.network.threads.GameDataThread;
-import com.lukaswillsie.onlinechess.network.threads.LoadGamesThread;
 import com.lukaswillsie.onlinechess.network.threads.callers.ConnectCaller;
 
 import java.io.DataInputStream;
@@ -301,7 +299,7 @@ public class ServerHelper extends Handler implements ConnectCaller {
      * @param requester - the object that will receive the relevant callback when the request
      *                  terminates
      * @param gameID    - the gameID of the game that should be requested
-     * @param username - the username of the user currently logged in to the app
+     * @param username  - the username of the user currently logged in to the app
      * @throws MultipleRequestException - if this object is already handling a load game request
      *                                  when this method is called
      */
@@ -314,11 +312,10 @@ public class ServerHelper extends Handler implements ConnectCaller {
      *
      * @param requester - will receive a callback once the game data request has terminated, either
      *                  successfully or unsuccessfully
-     * @param gameID - the game whose data we are to request
-     * @param username - the username of the user who we currently have logged in to the app
-     *
+     * @param gameID    - the game whose data we are to request
+     * @param username  - the username of the user who we currently have logged in to the app
      * @throws MultipleRequestException - if this object is already handling a game data request at
-     * the time that this method is called
+     *                                  the time that this method is called
      */
     void getGameData(GameDataRequester requester, String gameID, String username) throws MultipleRequestException {
         gameDataHelper.getGameData(requester, gameID, username);
@@ -327,12 +324,12 @@ public class ServerHelper extends Handler implements ConnectCaller {
     /**
      * Sends a load games request to the server.
      *
-     * @param username - the username of the user currently logged in to the app; i.e. the user
-     *                 whose games we are loading
+     * @param username  - the username of the user currently logged in to the app; i.e. the user
+     *                  whose games we are loading
      * @param requester - the object that will receive callbacks from us when the request either
      *                  succeeds or fails
      * @throws MultipleRequestException - if this object is already handling a load games request
-     * when this method is called
+     *                                  when this method is called
      */
     public void loadGames(String username, LoadGamesRequester requester) throws MultipleRequestException {
         loadGamesHelper.loadGames(username, requester);
@@ -355,10 +352,10 @@ public class ServerHelper extends Handler implements ConnectCaller {
      * Send a promote request to the server.
      *
      * @param requester - will receive callback once the server has responded to the request
-     * @param gameID - the game to issue the promotion in
-     * @param piece - the type of piece to promote the pawn into
+     * @param gameID    - the game to issue the promotion in
+     * @param piece     - the type of piece to promote the pawn into
      * @throws MultipleRequestException - if this object is already handling a promotion request
-     * when this method is called.
+     *                                  when this method is called.
      */
     public void promote(PromotionRequester requester, String gameID, PieceType.PromotePiece piece) throws MultipleRequestException {
         promotionHelper.promote(requester, gameID, piece);
@@ -366,15 +363,15 @@ public class ServerHelper extends Handler implements ConnectCaller {
 
     /**
      * Submit a draw request to the server.
-     *
+     * <p>
      * Note: the server condenses both the OFFERING of draws and the ACCEPTING of draw offers into
      * one command. So what this request means depends on whether or not there is an active draw
      * offer from the opponent in the specified game.
      *
      * @param requester - will receive a callback once the server has responded to the request
-     * @param gameID - the game in which to offer/accept a draw
+     * @param gameID    - the game in which to offer/accept a draw
      * @throws MultipleRequestException - if this object is already handling a draw request when
-     * this method is called
+     *                                  this method is called
      */
     public void draw(DrawRequester requester, String gameID) throws MultipleRequestException {
         drawHelper.draw(requester, gameID);
@@ -384,9 +381,9 @@ public class ServerHelper extends Handler implements ConnectCaller {
      * Submit a reject request to the server.
      *
      * @param requester - will receive a callback once the server has responded to the request
-     * @param gameID - the game in which to reject a draw offer
+     * @param gameID    - the game in which to reject a draw offer
      * @throws MultipleRequestException - if this object is already handling a reject request when
-     * this method is called
+     *                                  this method is called
      */
     public void reject(RejectRequester requester, String gameID) throws MultipleRequestException {
         rejectHelper.reject(requester, gameID);
@@ -396,9 +393,9 @@ public class ServerHelper extends Handler implements ConnectCaller {
      * Submit a forfeit request to the server.
      *
      * @param requester - will receive a callback once the server has responded to the request
-     * @param gameID - the game that the user wants to forfeit
+     * @param gameID    - the game that the user wants to forfeit
      * @throws MultipleRequestException - if this object is already handling a forfeit request when
-     * this method is called
+     *                                  this method is called
      */
     public void forfeit(ForfeitRequester requester, String gameID) throws MultipleRequestException {
         forfeitHelper.forfeit(requester, gameID);

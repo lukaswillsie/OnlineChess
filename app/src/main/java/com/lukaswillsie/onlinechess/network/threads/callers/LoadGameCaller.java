@@ -21,8 +21,8 @@ public interface LoadGameCaller extends ThreadCaller {
      *
      * @param board - a Board object successfully initialized to contain the state of the board in
      *              the given game
-     * @param game - a UserGame object initialized to contain all the high-level information about
-     *             the game that was requested
+     * @param game  - a UserGame object initialized to contain all the high-level information about
+     *              the game that was requested
      */
     void success(Board board, UserGame game);
 

@@ -4,7 +4,6 @@ import android.util.Log;
 import android.view.DragEvent;
 import android.view.MotionEvent;
 
-import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -22,7 +21,6 @@ import Chess.com.lukaswillsie.chess.Colour;
 import Chess.com.lukaswillsie.chess.Pair;
 import Chess.com.lukaswillsie.chess.Pawn;
 import Chess.com.lukaswillsie.chess.Piece;
-import Chess.com.lukaswillsie.chess.Queen;
 
 /**
  * This class is responsible for managing the state of a game of chess, by processing and responding
@@ -164,12 +162,12 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
      * un-pause this object, if it was paused at the time of the call. If this object is currently
      * waiting for a response from the server on a move or promotion request, this method does
      * nothing.
-     *
+     * <p>
      * This object will continue to use the same BoardDisplay, GameListener, GameDialogCreator, and
      * AppCompatActivity given to it at creation.
      */
     public void setGame(String gameID, @NonNull GamePresenter presenter) {
-        if(activeMove == null && activePromotion == null) {
+        if (activeMove == null && activePromotion == null) {
             this.paused = false;
 
             this.gameID = gameID;
@@ -201,20 +199,19 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
                 && ((Integer) presenter.getData(GameData.PROMOTION_NEEDED) == 0)
                 && (Integer) presenter.getData(GameData.DRAW_OFFERED) == 0;
 
-        if((Integer) presenter.getData(GameData.PROMOTION_NEEDED) == 1) {
+        if ((Integer) presenter.getData(GameData.PROMOTION_NEEDED) == 1) {
             int row;
-            if(presenter.getUserColour() == Colour.WHITE) {
+            if (presenter.getUserColour() == Colour.WHITE) {
                 row = 7;
-            }
-            else {
+            } else {
                 row = 0;
             }
 
             // Search the user's opponent's back row for a pawn
-            for(int column = 0; column < 8; column++) {
+            for (int column = 0; column < 8; column++) {
                 Piece piece = presenter.getPiece(row, column);
-                if(piece instanceof Pawn
-                && piece.getColour() == presenter.getUserColour()) {
+                if (piece instanceof Pawn
+                        && piece.getColour() == presenter.getUserColour()) {
                     toPromote = new Pair(row, column);
                     break;
                 }
@@ -229,7 +226,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
      * object as it is when this method is called.
      */
     private void createPromotionBannerIfNeeded() {
-        if(toPromote != null) {
+        if (toPromote != null) {
             display.attachPromotionBanner(toPromote.first(), toPromote.second(), this);
             display.selectSquare(toPromote.first(), toPromote.second());
         }
@@ -242,18 +239,15 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
      * opponent.
      */
     private void showDialogIfNecessary() {
-        if((Integer) presenter.getData(GameData.USER_WON) == 1) {
-            if((Integer) presenter.getData(GameData.FORFEIT) == 1) {
+        if ((Integer) presenter.getData(GameData.USER_WON) == 1) {
+            if ((Integer) presenter.getData(GameData.FORFEIT) == 1) {
                 dialogCreator.showUserWinDialog(true);
-            }
-            else {
+            } else {
                 dialogCreator.showUserWinDialog(false);
             }
-        }
-        else if((Integer) presenter.getData(GameData.USER_LOST) == 1) {
+        } else if ((Integer) presenter.getData(GameData.USER_LOST) == 1) {
             dialogCreator.showUserLoseDialog();
-        }
-        else if((Integer) presenter.getData(GameData.DRAWN) == 1) {
+        } else if ((Integer) presenter.getData(GameData.DRAWN) == 1) {
             dialogCreator.showUserDrawDialog();
         }
     }
@@ -261,7 +255,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
     @Override
     public boolean onTouch(int row, int column, MotionEvent event) {
         // If we have been paused, immediately reject the event
-        if(paused) {
+        if (paused) {
             return false;
         }
 
@@ -425,7 +419,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
     @Override
     public boolean onDrag(int row, int column, DragEvent event) {
         // If we have been paused, immediately reject the event
-        if(paused) {
+        if (paused) {
             return false;
         }
 
@@ -634,17 +628,16 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
                 presenter.setData(GameData.USER_WON, 1);
             } else {
                 int row;
-                if(presenter.getUserColour() == Colour.WHITE) {
+                if (presenter.getUserColour() == Colour.WHITE) {
                     row = 7;
-                }
-                else {
+                } else {
                     row = 0;
                 }
 
                 // Search the user's opponent's back row for a pawn
-                for(int column = 0; column < 8; column++) {
+                for (int column = 0; column < 8; column++) {
                     Piece piece = presenter.getPiece(row, column);
-                    if(piece instanceof Pawn
+                    if (piece instanceof Pawn
                             && piece.getColour() == presenter.getUserColour()) {
                         toPromote = new Pair(row, column);
                         break;
@@ -717,14 +710,13 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
      */
     @Override
     public void queenPromotion() {
-        if(toPromote != null) {
+        if (toPromote != null) {
             display.resetSquares();
             display.detachPromotionBanner(toPromote.first(), toPromote.second());
             display.set(toPromote.first(), toPromote.second(), presenter.createDummyPiece(PieceType.QUEEN, presenter.getUserColour()), false, false);
             activePromotion = PieceType.PromotePiece.QUEEN;
             promoteHandler.promote(activePromotion, gameID);
-        }
-        else {
+        } else {
             Log.e(tag, "queenPromotion() called but no active promotion (toPromote is null)");
         }
     }
@@ -735,14 +727,13 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
      */
     @Override
     public void rookPromotion() {
-        if(toPromote != null) {
+        if (toPromote != null) {
             display.resetSquares();
             display.detachPromotionBanner(toPromote.first(), toPromote.second());
             display.set(toPromote.first(), toPromote.second(), presenter.createDummyPiece(PieceType.ROOK, presenter.getUserColour()), false, false);
             activePromotion = PieceType.PromotePiece.ROOK;
             promoteHandler.promote(activePromotion, gameID);
-        }
-        else {
+        } else {
             Log.e(tag, "rookPromotion() called but no active promotion (toPromote is null)");
         }
     }
@@ -753,14 +744,13 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
      */
     @Override
     public void bishopPromotion() {
-        if(toPromote != null) {
+        if (toPromote != null) {
             display.resetSquares();
             display.detachPromotionBanner(toPromote.first(), toPromote.second());
             display.set(toPromote.first(), toPromote.second(), presenter.createDummyPiece(PieceType.BISHOP, presenter.getUserColour()), false, false);
             activePromotion = PieceType.PromotePiece.BISHOP;
             promoteHandler.promote(activePromotion, gameID);
-        }
-        else {
+        } else {
             Log.e(tag, "bishopPromotion() called but no active promotion (toPromote is null)");
         }
     }
@@ -771,14 +761,13 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
      */
     @Override
     public void knightPromotion() {
-        if(toPromote != null) {
+        if (toPromote != null) {
             display.resetSquares();
             display.detachPromotionBanner(toPromote.first(), toPromote.second());
             display.set(toPromote.first(), toPromote.second(), presenter.createDummyPiece(PieceType.KNIGHT, presenter.getUserColour()), false, false);
             activePromotion = PieceType.PromotePiece.KNIGHT;
             promoteHandler.promote(activePromotion, gameID);
-        }
-        else {
+        } else {
             Log.e(tag, "knightPromotion() called but no active promotion (toPromote is null)");
         }
     }
@@ -787,7 +776,7 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
     public void promotionSuccess() {
         int code = presenter.promote(activePromotion);
 
-        if(code == 1) {
+        if (code == 1) {
             display.reset();
             this.resetFromModel();
             createPromotionBannerIfNeeded();
@@ -802,14 +791,12 @@ public class ChessManager implements BoardDisplay.DisplayListener, MoveRequestLi
          * 3. Otherwise, simply record that the user's turn has ended, and update the turn counter
          * if necessary
          */
-        if(presenter.isCheckmate()) {
+        if (presenter.isCheckmate()) {
             presenter.setData(GameData.USER_WON, 1);
-        }
-        else if(presenter.isStalemate()) {
+        } else if (presenter.isStalemate()) {
             presenter.setData(GameData.DRAWN, 1);
-        }
-        else {
-            if(presenter.getUserColour() == Colour.BLACK) {
+        } else {
+            if (presenter.getUserColour() == Colour.BLACK) {
                 presenter.setData(GameData.TURN, (Integer) presenter.getData(GameData.TURN) + 1);
             }
 

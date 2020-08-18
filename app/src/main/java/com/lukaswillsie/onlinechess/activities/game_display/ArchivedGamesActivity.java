@@ -53,8 +53,7 @@ public class ArchivedGamesActivity extends AppCompatActivity implements Reconnec
                 public void onRefresh() {
                     try {
                         Server.getServerHelper().loadGames(Server.getUsername(), ArchivedGamesActivity.this);
-                    }
-                    catch (MultipleRequestException e) {
+                    } catch (MultipleRequestException e) {
                         // This shouldn't happen (we only submit load games requests to ServerHelper
                         // one at a time, and never submit another before receiving a callback about
                         // the first). If it does, we display an error dialog and end the refresh
@@ -81,7 +80,7 @@ public class ArchivedGamesActivity extends AppCompatActivity implements Reconnec
         super.onResume();
         // Set up our RecyclerView to display a list of the user's archived games
         RecyclerView recyclerView = findViewById(R.id.games_recycler);
-        ((UserGamesAdapter)recyclerView.getAdapter()).setGames(getGames());
+        ((UserGamesAdapter) recyclerView.getAdapter()).setGames(getGames());
     }
 
     /**
@@ -133,7 +132,7 @@ public class ArchivedGamesActivity extends AppCompatActivity implements Reconnec
     public void reconnectionComplete() {
         // Set up our RecyclerView to display a list of the user's archived games
         RecyclerView recyclerView = findViewById(R.id.games_recycler);
-        ((UserGamesAdapter)recyclerView.getAdapter()).setGames(getGames());
+        ((UserGamesAdapter) recyclerView.getAdapter()).setGames(getGames());
     }
 
     /**
@@ -149,7 +148,7 @@ public class ArchivedGamesActivity extends AppCompatActivity implements Reconnec
         SwipeRefreshLayout refreshLayout = findViewById(R.id.games_refresh);
 
         refreshLayout.setRefreshing(false);
-        ((UserGamesAdapter)recyclerView.getAdapter()).setGames(getGames());
+        ((UserGamesAdapter) recyclerView.getAdapter()).setGames(getGames());
     }
 
     /**

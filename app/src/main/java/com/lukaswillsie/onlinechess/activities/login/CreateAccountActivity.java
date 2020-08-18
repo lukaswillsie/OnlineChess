@@ -18,9 +18,9 @@ import com.lukaswillsie.onlinechess.activities.MainActivity;
 import com.lukaswillsie.onlinechess.data.Format;
 import com.lukaswillsie.onlinechess.data.UserGame;
 import com.lukaswillsie.onlinechess.network.Server;
+import com.lukaswillsie.onlinechess.network.helper.MultipleRequestException;
 import com.lukaswillsie.onlinechess.network.helper.ServerHelper;
 import com.lukaswillsie.onlinechess.network.helper.requesters.CreateAccountRequester;
-import com.lukaswillsie.onlinechess.network.helper.MultipleRequestException;
 
 import java.util.ArrayList;
 
